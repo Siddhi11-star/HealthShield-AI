@@ -1,0 +1,252 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   APPEND TO style.css — Teleconsultation + Live Pharmacy Inventory
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Teleconsultation ──────────────────────────────────────────────────── */
+
+.tele-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+@media (max-width: 768px) {
+    .tele-grid-2 { grid-template-columns: 1fr; }
+}
+
+.tele-panel { }
+
+.tele-doc-picker {
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+}
+
+.doc-picker-card:hover {
+    border-color: #bfdbfe;
+    background: #f0f9ff;
+}
+
+.tele-sessions-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.tele-doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.tele-doctor-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    border-color: #bfdbfe;
+}
+
+/* ── Pharmacy Live Inventory ────────────────────────────────────────────── */
+
+.pharm-map-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.5rem;
+    align-items: start;
+}
+@media (max-width: 900px) {
+    .pharm-map-layout { grid-template-columns: 1fr; }
+}
+
+.pharm-panel { }
+
+.pharmacy-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.pharm-quick-btn {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: #475569;
+    transition: all 0.15s;
+}
+.pharm-quick-btn:hover {
+    background: #0d9488;
+    color: white;
+    border-color: #0d9488;
+}
+
+/* Spinner for buttons */
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* opacity helper */
+.opacity-50 { opacity: 0.5; pointer-events: none; }
+
+/* ── AI-Powered Clinical Intelligence Section ───────────────────────────── */
+
+.ai-clinical-section {
+  grid-column: span 2;
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
+}
+
+.ai-clinical-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: var(--slate-900);
+  text-align: center;
+}
+
+.ai-clinical-subcards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .ai-clinical-section {
+    grid-column: span 1;
+  }
+  .ai-clinical-subcards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.clinical-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.clinical-option-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.3rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.clinical-option-card:hover,
+.clinical-option-card.active {
+  border-color: #2563eb;
+  box-shadow: 0 18px 45px rgba(37, 99, 235, 0.14);
+  transform: translateY(-1px);
+}
+
+#clinicalOptionDiagnostic,
+#clinicalOptionWellness {
+  border-color: transparent;
+  color: #fff;
+}
+
+#clinicalOptionDiagnostic {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+}
+
+#clinicalOptionWellness {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+#clinicalOptionDiagnostic:hover,
+#clinicalOptionWellness:hover,
+#clinicalOptionDiagnostic.active,
+#clinicalOptionWellness.active {
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.18);
+  transform: translateY(-2px);
+}
+
+#clinicalOptionDiagnostic h4,
+#clinicalOptionWellness h4,
+#clinicalOptionDiagnostic p,
+#clinicalOptionWellness p {
+  color: #fff;
+}
+
+.clinical-option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 1rem;
+  flex-shrink: 0;
+  color: white;
+}
+
+.clinical-option-card h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.clinical-option-card p {
+  margin: 0;
+  color: var(--slate-600);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .clinical-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ensure h4 in feature cards has same styling as h3 */
+.feature-card h4 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 0.6rem;
+}
+
+/* ── Reminders ─────────────────────────────────────────────────────────── */
+
+.reminders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.reminder-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+.reminder-time {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.reminder-med {
+    color: #475569;
+}

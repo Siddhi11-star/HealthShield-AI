@@ -1,0 +1,139 @@
+/* ============================================================
+   MediGuard Dashboard Contrast Patch — drop in frontend/
+   Add to index.html: <link rel="stylesheet" href="dashboard-patch.css">
+   Place this LAST, before </head>
+   ============================================================ */
+
+/* ── SIDEBAR NAV: boost inactive items to near-white ── */
+.ds-nav-item                    { color: rgba(255,255,255,0.92) !important; }
+.ds-nav-item:hover              { color: #ffffff !important; background: rgba(255,255,255,0.10) !important; }
+.ds-nav-item.active             { color: #ffffff !important; }
+.ds-role-badge                  { color: rgba(255,255,255,0.82) !important; }
+.ds-sec-label                   { color: rgba(255,255,255,0.75) !important; }
+.ds-user-role                   { color: rgba(255,255,255,0.82) !important; }
+
+/* ── TOPBAR ── */
+.ds-topbar                      { background: #ffffff !important; }
+.ds-topbar h1                   { color: #000000 !important; }
+.ds-topbar p                    { color: #1a2332 !important; }
+
+/* ── STAT CARDS ── */
+.dsc                            { background: #ffffff !important; }
+.dsc-lbl                        { color: #1a2332 !important; }
+.dsc-val                        { color: #000000 !important; }
+.dsc-sub                        { color: #1a2332 !important; }
+.dsc-up                         { color: #15803d !important; }
+.dsc-dn                         { color: #dc2626 !important; }
+
+/* ── CONTENT CARDS ── */
+.dc                             { background: #ffffff !important; }
+.dc-title                       { color: #000000 !important; }
+.dc-hdr h3                      { color: #000000 !important; }
+
+/* ── APPOINTMENT SLOTS ── */
+.das                            { background: #ffffff !important; border-color: #d1d9e6 !important; }
+.das-t                          { color: #000000 !important; }
+.das-n                          { color: #000000 !important; }
+.das-s                          { color: #1a2332 !important; }
+
+/* ── TABLE ── */
+.dt th                          { color: #000000 !important; background: #eef1f6 !important; }
+.dt td                          { color: #000000 !important; }
+.dt tr:hover td                 { background: #f5f7fa !important; }
+
+/* ── LIST ITEMS ── */
+.dli-name                       { color: #000000 !important; }
+.dli-sub                        { color: #1a2332 !important; }
+
+/* ── VITALS ── */
+.dvl                            { color: #000000 !important; }
+.dvv                            { color: #000000 !important; }
+
+/* ── ALERTS ── */
+.dai strong                     { color: #000000 !important; }
+.dai span                       { color: #1a2332 !important; }
+
+/* ── TIMELINE ── */
+.dtlc .dt-title                 { color: #000000 !important; }
+.dtlc .dt-date                  { color: #1a2332 !important; }
+
+/* ── TASKS ── */
+.dtk-txt                        { color: #000000 !important; }
+.dtk-txt.done                   { color: #64748b !important; }
+
+/* ── CALENDAR ── */
+.dcal-dh                        { color: #1a2332 !important; }
+.dcal-d                         { color: #000000 !important; }
+
+/* ── MEDS ── */
+.dmi-n                          { color: #000000 !important; }
+.dmi-d                          { color: #1a2332 !important; }
+
+/* ── KANBAN ── */
+.dkb-card                       { color: #000000 !important; }
+.dkb-cnt                        { color: #000000 !important; background: #cbd5e1 !important; }
+
+/* ── INVENTORY ── */
+.dinv-n                         { color: #000000 !important; }
+
+/* ── ROLE SELECT (logged-out screen) ── */
+.rsc-h3                         { color: #000000 !important; }
+.rsc-p                          { color: #1a2332 !important; }
+.dash-locked h2                 { color: #000000 !important; }
+.dash-locked p                  { color: #1a2332 !important; }
+
+/* ── PILL BADGES (light mode) ── */
+.dp-b { background: #dbeafe !important; color: #1e3a8a !important; }
+.dp-g { background: #dcfce7 !important; color: #14532d !important; }
+.dp-r { background: #fee2e2 !important; color: #7f1d1d !important; }
+.dp-a { background: #fef3c7 !important; color: #78350f !important; }
+.dp-p { background: #ede9fe !important; color: #4c1d95 !important; }
+.dp-c { background: #cffafe !important; color: #164e63 !important; }
+.dp-s { background: #e2e8f0 !important; color: #0f172a !important; }
+
+/* ── DARK MODE: undo all the !important overrides above ── */
+body.dark-theme .ds-topbar            { background: #111827 !important; }
+body.dark-theme .ds-topbar h1         { color: #f1f5f9 !important; }
+body.dark-theme .ds-topbar p          { color: #64748b !important; }
+body.dark-theme .dc                   { background: #111827 !important; }
+body.dark-theme .dc-title             { color: #64748b !important; }
+body.dark-theme .dc-hdr h3            { color: #e2e8f0 !important; }
+body.dark-theme .dsc                  { background: #111827 !important; }
+body.dark-theme .dsc-lbl              { color: #94a3b8 !important; }
+body.dark-theme .dsc-val              { color: #f1f5f9 !important; }
+body.dark-theme .dsc-sub              { color: #64748b !important; }
+body.dark-theme .das                  { background: #111827 !important; border-color: #1e293b !important; }
+body.dark-theme .das-t                { color: #64748b !important; }
+body.dark-theme .das-n                { color: #e2e8f0 !important; }
+body.dark-theme .das-s                { color: #64748b !important; }
+body.dark-theme .dt th                { color: #64748b !important; background: #0d1117 !important; }
+body.dark-theme .dt td                { color: #94a3b8 !important; }
+body.dark-theme .dt tr:hover td       { background: #0d1117 !important; }
+body.dark-theme .dli-name             { color: #e2e8f0 !important; }
+body.dark-theme .dli-sub              { color: #64748b !important; }
+body.dark-theme .dvl                  { color: #94a3b8 !important; }
+body.dark-theme .dvv                  { color: #f1f5f9 !important; }
+body.dark-theme .dai strong           { color: #e2e8f0 !important; }
+body.dark-theme .dai span             { color: #64748b !important; }
+body.dark-theme .dtlc .dt-title       { color: #e2e8f0 !important; }
+body.dark-theme .dtlc .dt-date        { color: #64748b !important; }
+body.dark-theme .dtk-txt              { color: #94a3b8 !important; }
+body.dark-theme .dtk-txt.done         { color: #475569 !important; }
+body.dark-theme .dcal-dh              { color: #475569 !important; }
+body.dark-theme .dcal-d               { color: #64748b !important; }
+body.dark-theme .dmi-n                { color: #e2e8f0 !important; }
+body.dark-theme .dmi-d                { color: #64748b !important; }
+body.dark-theme .dkb-card             { color: #94a3b8 !important; background: #1a2233 !important; }
+body.dark-theme .dkb-cnt              { color: #64748b !important; background: #1e293b !important; }
+body.dark-theme .dinv-n               { color: #e2e8f0 !important; }
+body.dark-theme .rsc-h3               { color: #f1f5f9 !important; }
+body.dark-theme .rsc-p                { color: #64748b !important; }
+body.dark-theme .dash-locked h2       { color: #f1f5f9 !important; }
+body.dark-theme .dash-locked p        { color: #64748b !important; }
+body.dark-theme .dp-b { background: rgba(37,99,235,0.18) !important; color: #93c5fd !important; }
+body.dark-theme .dp-g { background: rgba(22,163,74,0.18) !important; color: #86efac !important; }
+body.dark-theme .dp-r { background: rgba(220,38,38,0.18) !important; color: #fca5a5 !important; }
+body.dark-theme .dp-a { background: rgba(217,119,6,0.18) !important; color: #fcd34d !important; }
+body.dark-theme .dp-p { background: rgba(147,51,234,0.18) !important; color: #d8b4fe !important; }
+body.dark-theme .dp-c { background: rgba(8,145,178,0.18) !important; color: #67e8f9 !important; }
+body.dark-theme .dp-s { background: #1e293b !important; color: #94a3b8 !important; }

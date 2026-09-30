@@ -1,0 +1,2485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediGuard AI — Smart Healthcare Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="features.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+  <script src="https://accounts.google.com/gsi/client" async defer onload="if(typeof initGoogleSignIn==='function') initGoogleSignIn();"></script>
+
+  <!-- ── Google Translate (hidden widget, triggered programmatically) ── -->
+  <style>
+    /* Suppress Google Translate's injected top bar completely */
+    iframe.skiptranslate,
+    .goog-te-banner-frame,
+    .goog-te-balloon-frame,
+    #goog-gt-tt { display: none !important; }
+    /* Prevent body from jumping down 40 px when GT injects its bar */
+    body.translated-ltr,
+    body.translated-rtl { top: 0 !important; margin-top: 0 !important; }
+    /* Hide "Select Language" gadget label Google injects into our hidden div */
+    #google_translate_element .goog-te-gadget { display: none; }
+
+    /* ── Feature-card CTA button ── */
+    .feat-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1.1rem;
+      padding: 0.5rem 1.1rem;
+      border: none;
+      border-radius: 2rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.18s, transform 0.15s;
+      color: white;
+      text-decoration: none;
+      pointer-events: all;   /* stays clickable even though parent card has onclick */
+    }
+    .feat-btn:hover  { opacity: 0.88; transform: translateY(-1px); }
+    .feat-btn:active { transform: scale(0.96); }
+    .feat-btn-blue   { background: linear-gradient(135deg,#3b82f6,#2563eb); }
+    .feat-btn-green  { background: linear-gradient(135deg,#22c55e,#16a34a); }
+    .feat-btn-red    { background: linear-gradient(135deg,#ef4444,#dc2626); }
+    .feat-btn-purple { background: linear-gradient(135deg,#a855f7,#9333ea); }
+
+    /* ── Language pill in nav ── */
+    #langPill {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.3rem 0.75rem;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: var(--slate-600);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    #langPill:hover { border-color: var(--blue-600); color: var(--blue-600); }
+    body.dark-theme #langPill { border-color: rgba(255,255,255,0.15); color: #94a3b8; }
+    body.dark-theme #langPill:hover { border-color: #60a5fa; color: #60a5fa; }
+
+    
+
+    /* ── Language modal ── */
+    #langModal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      z-index: 9999; align-items: center; justify-content: center;
+    }
+    #langModal.open { display: flex; }
+    #langModal .lm-box {
+      background: white; border-radius: 1.25rem;
+      padding: 1.5rem; width: min(380px, 92vw);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+      animation: slideUp 0.22s ease;
+    }
+    body.dark-theme #langModal .lm-box { background: #131929; }
+    #langModal h3 {
+      font-size: 1rem; font-weight: 800; margin-bottom: 1.1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      color: var(--slate-900);
+    }
+    body.dark-theme #langModal h3 { color: #f1f5f9; }
+    .lm-btn {
+      width: 100%; display: flex; align-items: center; gap: 0.9rem;
+      padding: 0.85rem 1rem; border-radius: 0.75rem;
+      border: 2px solid var(--slate-200); background: transparent;
+      cursor: pointer; font-family: inherit; font-size: 0.95rem;
+      font-weight: 700; text-align: left; margin-bottom: 0.55rem;
+      transition: border-color 0.15s, background 0.15s;
+      color: var(--slate-800);
+    }
+    body.dark-theme .lm-btn { border-color: rgba(255,255,255,0.09); color: #e2e8f0; }
+    .lm-btn:hover { border-color: #3b82f6; background: #eff6ff; }
+    body.dark-theme .lm-btn:hover { background: rgba(59,130,246,0.08); }
+    .lm-btn.active-lang { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+    body.dark-theme .lm-btn.active-lang { background: rgba(37,99,235,0.14); color: #93c5fd; border-color: #3b82f6; }
+    .lm-btn .lm-flag { font-size: 1.5rem; }
+    .lm-btn .lm-label { font-size: 0.95rem; }
+    .lm-btn .lm-sub   { font-size: 0.72rem; color: var(--slate-500); font-weight: 500; }
+    body.dark-theme .lm-btn .lm-sub { color: #64748b; }
+    .lm-sep { border: none; border-top: 1px solid var(--slate-100); margin: 0.6rem 0; }
+    body.dark-theme .lm-sep { border-color: rgba(255,255,255,0.07); }
+    /* "More languages" Google Translate native select wrapper */
+    #gtMoreWrap {
+      display: none; margin-top: 0.5rem; padding: 0.75rem;
+      background: var(--slate-50); border-radius: 0.6rem;
+      border: 1px solid var(--slate-200);
+    }
+    body.dark-theme #gtMoreWrap { background: #0c111d; border-color: rgba(255,255,255,0.08); }
+    #gtMoreWrap label { font-size: 0.78rem; font-weight: 700; color: var(--slate-500); display: block; margin-bottom: 0.3rem; }
+    #gtMoreWrap .goog-te-combo {
+      width: 100%; padding: 0.5rem 0.7rem; border-radius: 0.5rem;
+      border: 1.5px solid var(--slate-200); background: white;
+      font-size: 0.875rem; font-family: inherit; cursor: pointer;
+    }
+    body.dark-theme #gtMoreWrap .goog-te-combo { background: #131929; color: #e2e8f0; border-color: rgba(255,255,255,0.1); }
+    .lm-close {
+      float: right; background: none; border: none; font-size: 1.2rem;
+      cursor: pointer; color: var(--slate-400); line-height: 1;
+      margin-left: auto; padding: 0;
+    }
+    .lm-close:hover { color: var(--slate-700); }
+  </style>
+
+  <!-- Google Translate widget loader -->
+  <script>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        autoDisplay: false
+      }, 'google_translate_element');
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
+  <link rel="stylesheet" href="dashboard-patch.css">
+</head>
+<body>
+
+<!-- ═══ NAVIGATION ═══ -->
+<nav id="mainNav">
+  <div class="nav-inner">
+    <a class="nav-logo" onclick="navigate('home')">
+      <div class="nav-logo-icon"><i data-lucide="activity" style="width:24px;height:24px;stroke-width:2.5"></i></div>
+      <span class="nav-logo-text">MediGuard AI</span>
+    </a>
+
+   <ul class="nav-links" id="navLinks">
+  <li><a onclick="navigate('home')" data-page="home">Home</a></li>
+  <li><a onclick="navigate('features')" data-page="features">Features</a></li>
+  <li><a onclick="navigate('howitworks')" data-page="howitworks">How It Works</a></li>
+  <li class="nav-dropdown">
+    <a class="nav-drop-btn">Services <i data-lucide="chevron-down" style="width:14px;height:14px;display:inline"></i></a>
+    <div class="nav-drop-menu">
+      <a onclick="navigate('telemedicine')"><i data-lucide="video" style="width:16px;height:16px"></i> Telemedicine</a>
+      <a onclick="navigate('medicines')"><i data-lucide="pill" style="width:16px;height:16px"></i> Medicine Database</a>
+      <a onclick="navigate('inventory')"><i data-lucide="package" style="width:16px;height:16px"></i> Live Inventory</a>
+      <a onclick="navigate('pharmacy')"><i data-lucide="map-pin" style="width:16px;height:16px"></i> Pharmacy Finder</a>
+      <a onclick="navigate('ai-safety-guard')"><i data-lucide="shield" style="width:16px;height:16px"></i> AI-Powered Clinical Intelligence</a>
+      <a onclick="navigate('analytics')"><i data-lucide="bar-chart-2" style="width:16px;height:16px"></i> Analytics</a>
+    </div>
+  </li>
+  <li><a onclick="navigate('dashboard')" data-page="dashboard">Dashboard</a></li>
+  <li class="nav-dropdown">
+    <a class="nav-drop-btn">Company <i data-lucide="chevron-down" style="width:14px;height:14px;display:inline"></i></a>
+    <div class="nav-drop-menu">
+      <a onclick="navigate('about')"><i data-lucide="users" style="width:16px;height:16px"></i> About Us</a>
+      <a onclick="navigate('contact')"><i data-lucide="mail" style="width:16px;height:16px"></i> Contact</a>
+    </div>
+  </li>
+  <li>
+    <div id="notifWrapper" style="position:relative;display:inline-block;">
+      <button onclick="toggleNotifications()" title="Notifications"
+        style="position:relative;background:none;border:none;cursor:pointer;padding:0.4rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <i data-lucide="bell" style="width:22px;height:22px;color:var(--slate-600)"></i>
+        <span id="notifBadge"
+          style="display:none;position:absolute;top:0;right:0;background:#ef4444;color:white;font-size:0.65rem;font-weight:800;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;">0</span>
+      </button>
+      <div id="notifDropdown"
+        style="display:none;position:absolute;right:0;top:calc(100% + 8px);width:320px;background:white;border:1px solid #e2e8f0;border-radius:0.75rem;box-shadow:0 8px 32px rgba(0,0,0,0.12);z-index:9999;overflow:hidden;">
+        <div style="padding:0.75rem 1rem;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:0.9rem;">Notifications</strong>
+          <button onclick="loadNotifications()" style="background:none;border:none;cursor:pointer;font-size:0.75rem;color:#2563eb;">Refresh</button>
+        </div>
+        <div id="notifPanel" style="max-height:360px;overflow-y:auto;">
+          <div style="padding:1.5rem;text-align:center;color:#94a3b8;font-size:0.875rem;">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </li>
+  <!-- Theme button (moon icon) -->
+  <li>
+    <button onclick="toggleTheme()" title="Dark/Light mode" style="background:none;border:none;cursor:pointer;padding:0.4rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+      <i data-lucide="moon" style="width:22px;height:22px;color:var(--slate-600)"></i>
+    </button>
+  </li>
+  <!-- Language pill button -->
+  <li>
+    <button id="langPill" onclick="openLangModal()" title="Change language">
+      🌐 <span id="langPillLabel">EN</span>
+    </button>
+  </li>
+  <li><a onclick="openModal('loginModal')" class="nav-cta" id="navAuthBtn">Login</a></li>
+</ul>
+    <button class="hamburger" onclick="toggleMenu()">
+      <i id="menuIcon" data-lucide="menu" style="width:24px;height:24px"></i>
+    </button>
+  </div>
+
+ <div class="mobile-menu" id="mobileMenu">
+  <a onclick="navigate('home');closeMenu()">🏠 Home</a>
+  <a onclick="navigate('features');closeMenu()">Features</a>
+  <a onclick="navigate('howitworks');closeMenu()">How It Works</a>
+  <div class="mobile-menu-section">SERVICES</div>
+  <a onclick="navigate('telemedicine');closeMenu()">📹 Telemedicine</a>
+  <a onclick="navigate('medicines');closeMenu()">💊 Medicine Database</a>
+  <a onclick="navigate('inventory');closeMenu()">📦 Live Inventory</a>
+  <a onclick="navigate('pharmacy');closeMenu()">📍 Pharmacy Finder</a>
+  <a onclick="navigate('ai-safety-guard');closeMenu()">🛡️ AI-Powered Clinical Intelligence</a>
+  <a onclick="navigate('analytics');closeMenu()">📊 Analytics</a>
+  <div class="mobile-menu-section">ACCOUNT</div>
+  <a onclick="navigate('dashboard');closeMenu()" data-page="dashboard">Dashboard</a>
+  <a onclick="navigate('portal');closeMenu()">Patient Portal</a>
+  <a onclick="navigate('admin');closeMenu()">Admin Panel</a>
+  <div class="mobile-menu-section">COMPANY</div>
+  <a onclick="navigate('about');closeMenu()">About Us</a>
+  <a onclick="navigate('contact');closeMenu()">Contact</a>
+  <div class="mobile-menu-section">PREFERENCES</div>
+  <a onclick="toggleTheme();closeMenu()">🌓 Theme (Light/Dark)</a>
+  <a onclick="openLangModal();closeMenu()">🌐 Language</a>
+  <a onclick="openModal('loginModal');closeMenu()">Login / Register</a>
+</div>
+</nav>
+
+<div id="toast" class="toast"></div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: HOME
+══════════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-inner">
+      <div class="hero-layout">
+        <div class="fade-in-up visible">
+          <div class="hero-badge">🏥 Smart Healthcare for Rural India</div>
+          <h1 class="hero-title">Your Digital Health <span class="hero-title-accent">Safety Bridge</span></h1>
+          <p class="hero-desc">Connecting village patients, city doctors, and local pharmacies with AI-powered safety checks and real-time medicine availability.</p>
+          <div class="hero-btns">
+            <button class="btn-primary" onclick="navigate('features')">Explore Features <i data-lucide="arrow-right" style="width:20px;height:20px"></i></button>
+          </div>
+        </div>
+        <div class="hero-img-wrap fade-in-up visible delay-2">
+          <div class="hero-img">
+            <img src="https://images.unsplash.com/photo-1758691461916-dc7894eb8f94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+              alt="Telemedicine" loading="lazy"
+              onerror="this.src='https://placehold.co/600x400/2563eb/white?text=Telemedicine'" />
+            <div class="hero-img-overlay"></div>
+          </div>
+          <div class="hero-badge-card">
+            <p class="badge-sub">Saving Lives Through</p>
+            <p class="badge-main">AI Technology</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="fade-in-up"><div class="stat-number" id="statPatients">0</div><div class="stat-label">Patients Registered</div></div>
+        <div class="fade-in-up delay-1"><div class="stat-number" id="statConsultations">0</div><div class="stat-label">Consultations Done</div></div>
+        <div class="fade-in-up delay-2"><div class="stat-number" id="statAlerts">0</div><div class="stat-label">Safety Alerts Fired</div></div>
+        <div class="fade-in-up delay-3"><div class="stat-number">Offline</div><div class="stat-label">Capability</div></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="features-section">
+    <div class="container">
+      <div class="text-center mb-16 fade-in-up">
+        <h2 class="section-title">Pillars of Smart Healthcare</h2>
+        <p class="section-desc">MediGuard AI brings together essential healthcare services into one integrated platform</p>
+      </div>
+<div class="feature-cards">
+  <!-- 1. Teleconsultation -->
+  <div class="feature-card fade-in-up" onclick="navigate('telemedicine')" style="cursor:pointer">
+    <div class="feature-icon gradient-blue"><i data-lucide="video" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="telemedicine">1. Teleconsultation</h3>
+    <p>Book a Zoom meeting via appointment with doctors</p>
+    <button class="feat-btn feat-btn-blue" onclick="event.stopPropagation();navigate('telemedicine')">Book Now →</button>
+  </div>
+  <!-- 2. Digital Health Records -->
+  <div class="feature-card fade-in-up delay-1" onclick="navigate('dashboard')" style="cursor:pointer">
+    <div class="feature-icon gradient-green"><i data-lucide="database" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="dashboard">2. Digital Health Records</h3>
+    <p>Doctors can store and manage patient data securely</p>
+    <button class="feat-btn feat-btn-green" onclick="event.stopPropagation();navigate('dashboard')">View Records →</button>
+  </div>
+  <!-- 3. AI-Powered Clinical Intelligence -->
+  <div class="feature-card fade-in-up delay-2" onclick="navigate('ai-safety-guard')" style="cursor:pointer">
+    <div class="feature-icon gradient-red"><i data-lucide="shield-check" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="ai-safety-guard">3. AI-Powered Clinical Intelligence</h3>
+    <p>Advanced AI workflows for clinical decision support and personalized wellness planning.</p>
+    <button class="feat-btn feat-btn-red" onclick="event.stopPropagation();navigate('ai-safety-guard')">Explore Clinical AI →</button>
+  </div>
+  <!-- 4. Live Inventory -->
+  <div class="feature-card fade-in-up delay-3" onclick="navigate('inventory')" style="cursor:pointer">
+    <div class="feature-icon gradient-purple"><i data-lucide="package" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="inventory">4. Live Inventory</h3>
+    <p>For pharmacies and patients – check real‑time medicine stock</p>
+    <button class="feat-btn feat-btn-purple" onclick="event.stopPropagation();navigate('inventory')">Check Stock →</button>
+  </div>
+  <!-- 5. Analytics -->
+  <div class="feature-card fade-in-up" onclick="navigate('analytics')" style="cursor:pointer">
+    <div class="feature-icon gradient-blue"><i data-lucide="bar-chart-2" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="analytics">5. Analytics</h3>
+    <p>For doctors and pharmacies – track health trends and usage</p>
+    <button class="feat-btn feat-btn-blue" onclick="event.stopPropagation();navigate('analytics')">View Analytics →</button>
+  </div>
+  <!-- 6. Pharmacy Finder -->
+  <div class="feature-card fade-in-up delay-1" onclick="navigate('pharmacy')" style="cursor:pointer">
+    <div class="feature-icon gradient-purple"><i data-lucide="map-pin" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="pharmacy">6. Pharmacy Finder</h3>
+    <p>For patients and admins – locate nearby pharmacies</p>
+    <button class="feat-btn feat-btn-purple" onclick="event.stopPropagation();navigate('pharmacy')">Find Pharmacy →</button>
+  </div>
+  <!-- 7. Medicine DB -->
+  <div class="feature-card fade-in-up delay-2" onclick="navigate('medicines')" style="cursor:pointer">
+    <div class="feature-icon gradient-green"><i data-lucide="pill" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="medicines">7. Medicine DB</h3>
+    <p>Accessible for everyone – find medicine descriptions & side effects</p>
+    <button class="feat-btn feat-btn-green" onclick="event.stopPropagation();navigate('medicines')">Browse Medicines →</button>
+  </div>
+  <!-- 8. Patient Portal -->
+  <div class="feature-card fade-in-up delay-3" onclick="navigate('portal')" style="cursor:pointer">
+    <div class="feature-icon gradient-red"><i data-lucide="user-circle" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="portal">8. Patient Portal</h3>
+    <p>Store and manage your own health records</p>
+    <button class="feat-btn feat-btn-red" onclick="event.stopPropagation();navigate('portal')">My Portal →</button>
+  </div>
+</div>
+    </div>
+  </section>
+
+
+  <section class="benefits-section">
+    <div class="container">
+      <div class="benefits-grid">
+        <div class="fade-in-up">
+          <h2 class="section-title" style="text-align:left;color:white;">Why MediGuard AI Matters</h2>
+          <p class="benefits-lead">Healthcare shouldn't be limited by geography. We're bridging the gap between rural communities and quality medical care.</p>
+          <div class="benefits-list">
+            <div class="benefit-item"><i data-lucide="check-circle-2" style="width:24px;height:24px;flex-shrink:0;color:#bfdbfe"></i><span>Prevents medication errors and saves lives</span></div>
+            <div class="benefit-item"><i data-lucide="check-circle-2" style="width:24px;height:24px;flex-shrink:0;color:#bfdbfe"></i><span>Connects rural patients with expert doctors</span></div>
+            <div class="benefit-item"><i data-lucide="check-circle-2" style="width:24px;height:24px;flex-shrink:0;color:#bfdbfe"></i><span>Works in areas with limited internet connectivity</span></div>
+            <div class="benefit-item"><i data-lucide="check-circle-2" style="width:24px;height:24px;flex-shrink:0;color:#bfdbfe"></i><span>Multilingual support for diverse communities</span></div>
+          </div>
+        </div>
+        <div class="fade-in-up delay-2">
+          <div class="benefits-img">
+            <img src="https://images.unsplash.com/photo-1758691463610-3c2ecf5fb3fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+              alt="Healthcare" loading="lazy"
+              onerror="this.src='https://placehold.co/600x400/1d4ed8/white?text=Healthcare'" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container-md text-center fade-in-up">
+      <h2 class="section-title">Ready to Transform Healthcare?</h2>
+      <p class="section-desc mb-8">Join us in making healthcare safer, faster, and more accessible for everyone.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-blue" onclick="bookConsultation()">Book Consultation <i data-lucide="calendar" style="width:20px;height:20px"></i></button>
+        <button class="btn-outline" onclick="navigate('about')">Learn About Us</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: FEATURES
+══════════════════════════════════════════════ -->
+<div id="page-features" class="page">
+  <div class="page-hero">
+    <div class="container text-center">
+      <h1 class="fade-in-up visible">Core Components</h1>
+      <p class="fade-in-up visible delay-1">Four powerful features working together to create a complete healthcare ecosystem</p>
+    </div>
+  </div>
+  <div class="container" style="padding-top:4rem;padding-bottom:4rem;">
+    <div class="feature-section fade-in-up">
+      <div class="feature-layout">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758691461916-dc7894eb8f94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Tele-Consultation" loading="lazy" onerror="this.src='https://placehold.co/600x400/2563eb/white?text=Tele-Consultation'" /><div class="feature-img-badge" style="color:var(--blue-600)">The "Doctor" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num blue">Feature 1</div>
+          <h2 class="feature-content-title">Tele-Consultation Window</h2>
+          <p class="feature-content-desc">Where healthcare starts — connecting patients with doctors remotely</p>
+          <div class="point-cards">
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="languages" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Multilingual Interface</h4><p>Patients see buttons in their own language (Hindi, Marathi, etc.)</p></div></div>
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="video" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Video/Audio Call</h4><p>Village patients can talk to city doctors in real-time</p></div></div>
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="file-text" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Digital Prescription</h4><p>Doctor clicks "Send" and prescription instantly appears on pharmacist's screen</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-section fade-in-up">
+      <div class="feature-layout reverse">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758691462620-9018c602ed3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Patient Records" loading="lazy" onerror="this.src='https://placehold.co/600x400/16a34a/white?text=Health+Records'" /><div class="feature-img-badge" style="color:var(--green-600)">The "Memory" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num green">Feature 2</div>
+          <h2 class="feature-content-title">Patient's Digital History</h2>
+          <p class="feature-content-desc">Your project acts as a digital diary for the patient</p>
+          <div class="point-cards">
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="database" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Health Profile</h4><p>Records patient's age, past illnesses, and current medications</p></div></div>
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="wifi-off" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Offline Access</h4><p>Pharmacist can still open patient files when there's no internet</p></div></div>
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="wifi" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Cloud Sync</h4><p>All records automatically sync when connection is restored</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-section fade-in-up">
+      <div class="feature-layout">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758202292826-c40e172eed1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="AI Safety" loading="lazy" onerror="this.src='https://placehold.co/600x400/dc2626/white?text=AI+Safety+Guard'" /><div class="feature-img-badge" style="color:var(--red-600)">The "Smart" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num red">Feature 3</div>
+          <h2 class="feature-content-title">AI Safety Guard</h2>
+          <p class="feature-content-desc">The Brain of the project — prevents accidents before they happen</p>
+          <div class="point-cards">
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="shield" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Drug-Drug Checker</h4><p>Automatically checks if new medicine reacts badly with old medicines</p></div></div>
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="alert-triangle" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Red Alert System</h4><p>Flashes red warning for dangerous drug combinations</p></div></div>
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="file-text" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Safety Reports</h4><p>Generates detailed interaction reports for doctors and pharmacists</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-section fade-in-up">
+      <div class="feature-layout reverse">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758573467057-955f803660a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Pharmacy" loading="lazy" onerror="this.src='https://placehold.co/600x400/9333ea/white?text=Live+Inventory'" /><div class="feature-img-badge" style="color:var(--purple-600)">The "Availability" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num purple">Feature 4</div>
+          <h2 class="feature-content-title">Live Inventory Map</h2>
+          <p class="feature-content-desc">Solves the 'Out of Stock' problem instantly</p>
+          <div class="point-cards">
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="package" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Local Stock Tracker</h4><p>Shows exactly how many units are left on the shelf</p></div></div>
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="map-pin" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Nearby Store Finder</h4><p>Displays which nearby pharmacies have the medicine in stock</p></div></div>
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="trending-down" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Shortage Predictor</h4><p>Alerts pharmacists to order more before running out</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dark-cta">
+    <div class="container-md text-center fade-in-up">
+      <h2>See These Features in Action</h2>
+      <p>Discover how these components work together in a real healthcare scenario</p>
+      <button class="btn-blue" onclick="navigate('howitworks')">View User Journey <i data-lucide="arrow-right" style="width:20px;height:20px"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: HOW IT WORKS
+══════════════════════════════════════════════ -->
+<div id="page-howitworks" class="page">
+  <div class="page-hero">
+    <div class="container text-center">
+      <h1 class="fade-in-up visible">How It Works</h1>
+      <p class="fade-in-up visible delay-1">Follow a typical patient journey through the MediGuard AI system</p>
+    </div>
+  </div>
+  <section style="padding:5rem 0;">
+    <div class="container-lg">
+      <div class="text-center mb-16 fade-in-up">
+        <h2 class="section-title">The Patient Journey</h2>
+        <p class="section-desc">Six steps from consultation to safe medication delivery</p>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-line"></div>
+        <div class="timeline-steps">
+          <div class="timeline-step fade-in-up"><div class="step-icon-wrap"><div class="step-icon gradient-blue"><i data-lucide="user" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num blue">1</div></div><div class="step-card"><h3>Patient Visits Health Center</h3><p class="step-main">A patient goes to a village health center. The doctor joins via video call from the city.</p><div class="step-detail blue">💡 The multilingual interface allows the patient to communicate comfortably in their preferred language.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-1"><div class="step-icon-wrap"><div class="step-icon gradient-green"><i data-lucide="file-text" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num green">2</div></div><div class="step-card"><h3>Doctor Prescribes Medicine</h3><p class="step-main">The doctor examines the patient remotely and prescribes "Medicine X."</p><div class="step-detail green">💡 The prescription is instantly digitized and sent to the system.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-2"><div class="step-icon-wrap"><div class="step-icon gradient-red"><i data-lucide="alert-circle" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num red">3</div></div><div class="step-card"><h3>AI Safety Check</h3><p class="step-main">The system checks: "Wait, Patient is already taking Medicine Y. Mixing them causes internal bleeding!"</p><div class="step-detail red">💡 The AI Safety Guard performs real-time drug-drug interaction analysis.</div><div class="alert-box"><i data-lucide="alert-circle" style="width:20px;height:20px;flex-shrink:0;margin-top:2px;color:var(--red-600)"></i><div><strong>Safety Alert Active</strong><span>This is where MediGuard AI prevents a potentially life-threatening medication error.</span></div></div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-3"><div class="step-icon-wrap"><div class="step-icon gradient-green"><i data-lucide="check-circle" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num green">4</div></div><div class="step-card"><h3>Doctor Adjusts Prescription</h3><p class="step-main">The doctor sees the warning and changes the medicine to a safer "Medicine Z."</p><div class="step-detail green">💡 The system provides alternative medication suggestions that are safe for the patient.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up"><div class="step-icon-wrap"><div class="step-icon gradient-purple"><i data-lucide="map-pin" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num purple">5</div></div><div class="step-card"><h3>Inventory Check</h3><p class="step-main">The pharmacist checks stock. If out of stock, the system says: "The pharmacy 5km away has it."</p><div class="step-detail purple">💡 Live inventory tracking across nearby pharmacies ensures medicine availability.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-1"><div class="step-icon-wrap"><div class="step-icon gradient-blue"><i data-lucide="heart" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num blue">6</div></div><div class="step-card"><h3>Patient Gets Safe Medicine</h3><p class="step-main">The patient receives the right medicine, and it's 100% safe.</p><div class="step-detail blue">💡 Complete healthcare journey from consultation to safe medication delivery.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="why-section">
+    <div class="container">
+      <div class="text-center mb-16 fade-in-up"><h2 class="section-title" style="color:white;">Why This Matters</h2><p style="font-size:1.1rem;color:#94a3b8;">Making healthcare safer and more accessible for everyone</p></div>
+      <div class="benefits-3">
+        <div class="benefit-card fade-in-up"><div class="benefit-card-icon"><i data-lucide="heart" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Saves Lives</h3><p>Prevents wrong medicines from being given through AI-powered safety checks</p></div>
+        <div class="benefit-card fade-in-up delay-1"><div class="benefit-card-icon"><i data-lucide="check-circle" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Saves Time</h3><p>Patients don't need to wander from shop to shop looking for medicines</p></div>
+        <div class="benefit-card fade-in-up delay-2"><div class="benefit-card-icon"><i data-lucide="map-pin" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Works Everywhere</h3><p>Designed for places where internet is slow or unreliable with offline capabilities</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="padding:5rem 0;">
+    <div class="container">
+      <div class="impact-wrap fade-in-up">
+        <div class="text-center" style="margin-bottom:2rem;"><h2 style="font-size:2.25rem;font-weight:800;margin-bottom:0.75rem;">The Impact</h2><p style="color:#bfdbfe;font-size:1.1rem;">Real results that matter for rural healthcare</p></div>
+        <div class="impact-grid">
+          <div class="impact-card fade-in-up"><div class="impact-stat">100%</div><div class="impact-label">Safety Verification</div><div class="impact-desc">Every prescription checked</div></div>
+          <div class="impact-card fade-in-up delay-1"><div class="impact-stat">24/7</div><div class="impact-label">Access to Care</div><div class="impact-desc">Always available</div></div>
+          <div class="impact-card fade-in-up delay-2"><div class="impact-stat">Zero</div><div class="impact-label">Geographic Barriers</div><div class="impact-desc">Connect from anywhere</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: TELEMEDICINE
+══════════════════════════════════════════════ -->
+<div id="page-telemedicine" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#1d4ed8,#0ea5e9)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="video" style="width:16px;height:16px"></i> Telemedicine</div>
+      <h1 class="fade-in-up visible">Teleconsultation</h1>
+      <p class="fade-in-up visible delay-1">Role-based portal for doctors and patients — video, audio, and chat consultations</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:2.5rem 1.5rem;">
+
+    <!-- ── GUEST: not logged in ── -->
+    <div id="tele-guest" style="display:none;text-align:center;padding:4rem 2rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🔐</div>
+      <h2 style="color:var(--slate-800);margin-bottom:0.75rem;">Login Required</h2>
+      <p style="color:var(--slate-600);margin-bottom:2rem;">Please log in as a <strong>patient</strong> to book appointments or as a <strong>doctor</strong> to manage your schedule.</p>
+      <button class="btn-blue" onclick="openModal('loginModal')" style="padding:0.75rem 2rem;font-size:1rem;">Login to Continue</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- PATIENT VIEW                                              -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="tele-patient" style="display:none;">
+
+      <!-- Top bar: search + bell -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
+        <div>
+          <h2 style="margin:0;color:var(--slate-800);font-size:1.4rem;">Find a Doctor</h2>
+          <p style="margin:0.25rem 0 0;color:var(--slate-500);font-size:0.875rem;">Browse verified specialists and book instantly</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <select id="patSpecialtyFilter" class="form-input" style="width:auto;font-size:0.875rem;" onchange="filterDoctorCards()">
+            <option value="">All Specialties</option>
+            <option>General Physician</option><option>Cardiologist</option><option>Pediatrician</option>
+            <option>Dermatologist</option><option>Gynaecologist</option><option>Orthopaedic</option>
+            <option>Neurologist</option><option>Diabetologist</option>
+          </select>
+          <!-- Bell icon with unread badge -->
+          <div style="position:relative;cursor:pointer;" onclick="toggleTeleNotifDropdown()" title="Notifications">
+            <i data-lucide="bell" style="width:26px;height:26px;color:var(--slate-600);"></i>
+            <span id="teleNotifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:700;line-height:18px;text-align:center;">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification dropdown -->
+      <div id="teleNotifDropdown" style="display:none;background:#fff;border:1px solid #e2e8f0;border-radius:0.875rem;box-shadow:0 8px 30px rgba(0,0,0,0.12);padding:0.75rem;margin-bottom:1.5rem;max-height:280px;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;padding:0 0.25rem;">
+          <strong style="font-size:0.875rem;color:var(--slate-800);">Notifications</strong>
+          <button onclick="markAllTeleNotifsRead()" style="font-size:0.75rem;color:var(--blue-600);background:none;border:none;cursor:pointer;font-weight:600;">Mark all read</button>
+        </div>
+        <div id="teleNotifList"><p style="color:#94a3b8;text-align:center;font-size:0.85rem;padding:1rem;">Loading…</p></div>
+      </div>
+
+      <!-- Doctor cards grid -->
+      <div id="patDoctorGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.25rem;margin-bottom:2.5rem;">
+        <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#94a3b8;">Loading doctors…</div>
+      </div>
+
+      <!-- My Appointments -->
+      <div class="panel-card" style="margin-bottom:1.5rem;">
+        <div class="panel-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="calendar" style="width:18px;height:18px;"></i><h3>My Appointments</h3></div>
+          <button onclick="loadPatientAppointments()" style="background:none;border:none;cursor:pointer;color:var(--blue-600);font-size:0.8rem;font-weight:600;">↻ Refresh</button>
+        </div>
+        <div class="panel-card-body" id="patAppointmentsList">
+          <p style="color:var(--slate-400);font-size:0.875rem;text-align:center;padding:1.5rem 0;">No appointments yet.</p>
+        </div>
+      </div>
+    </div><!-- /tele-patient -->
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- DOCTOR VIEW                                               -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="tele-doctor" style="display:none;">
+
+      <!-- Doctor registration panel (shown if not yet registered) -->
+      <div id="doctorRegPanel" class="panel-card" style="max-width:640px;margin:0 auto 2rem;">
+        <div class="panel-card-header"><i data-lucide="user-check" style="width:20px;height:20px;"></i><h3>Complete Your Doctor Profile</h3></div>
+        <div class="panel-card-body">
+          <p style="color:var(--slate-500);font-size:0.875rem;margin-bottom:1.25rem;">Register once to appear in the patient directory and receive appointment bookings.</p>
+          <div class="form-grid-2">
+            <div class="form-group"><label>Full Name</label><input type="text" id="drRegName" class="form-input" placeholder="Dr. Full Name" /></div>
+            <div class="form-group"><label>Specialty</label>
+              <select id="drRegSpecialty" class="form-input">
+                <option>General Physician</option><option>Cardiologist</option><option>Pediatrician</option>
+                <option>Dermatologist</option><option>Gynaecologist</option><option>Orthopaedic</option>
+                <option>Neurologist</option><option>Diabetologist</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group"><label>Qualification</label><input type="text" id="drRegQual" class="form-input" placeholder="MBBS, MD" /></div>
+            <div class="form-group"><label>Experience (years)</label><input type="number" id="drRegExp" class="form-input" placeholder="5" min="0" /></div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group"><label>Phone</label><input type="tel" id="drRegPhone" class="form-input" placeholder="9876543210" /></div>
+            <div class="form-group"><label>Consultation Fee (₹)</label><input type="number" id="drRegFee" class="form-input" placeholder="300" min="0" /></div>
+          </div>
+          <div class="form-group"><label>Zoom User ID <span style="color:#94a3b8;font-weight:400;font-size:0.8rem;">(optional — for hosting meetings)</span></label>
+            <input type="text" id="drRegZoom" class="form-input" placeholder="your-zoom-user@email.com" />
+          </div>
+          <div class="form-group"><label>Short Bio</label>
+            <textarea id="drRegBio" class="form-input" rows="2" placeholder="Brief description of your expertise…"></textarea>
+          </div>
+          <button class="btn-blue w-full" onclick="submitDoctorRegistration()"><i data-lucide="save" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"></i> Register as Doctor</button>
+        </div>
+      </div>
+
+      <!-- Doctor dashboard (shown after registration) -->
+      <div id="doctorDashPanel" style="display:none;">
+
+        <!-- Profile card + bell -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
+          <div id="drProfileCard" style="display:flex;align-items:center;gap:1rem;background:#fff;border:1px solid #e2e8f0;border-radius:0.875rem;padding:1.25rem 1.5rem;flex:1;min-width:260px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            <div id="drAvatar" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;color:#fff;flex-shrink:0;background:linear-gradient(135deg,#3b82f6,#2563eb);">DR</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:1.05rem;color:var(--slate-800);" id="drProfileName">Doctor</div>
+              <div style="font-size:0.82rem;color:var(--slate-500);" id="drProfileSpec">—</div>
+              <div style="font-size:0.78rem;color:var(--slate-400);margin-top:0.15rem;" id="drProfileFee">—</div>
+            </div>
+            <select id="drStatusSelect" class="form-input" style="width:auto;font-size:0.82rem;padding:0.35rem 0.6rem;" onchange="updateDoctorStatus()">
+              <option value="available">🟢 Available</option>
+              <option value="busy">🟡 Busy</option>
+              <option value="offline">⚫ Offline</option>
+            </select>
+          </div>
+          <!-- Doctor bell -->
+          <div style="position:relative;cursor:pointer;background:#fff;border:1px solid #e2e8f0;border-radius:0.875rem;padding:1rem 1.25rem;display:flex;align-items:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);" onclick="toggleTeleNotifDropdown()" title="Notifications">
+            <i data-lucide="bell" style="width:22px;height:22px;color:var(--slate-600);"></i>
+            <span style="font-size:0.82rem;color:var(--slate-600);font-weight:600;">Notifications</span>
+            <span id="drNotifBadge" style="display:none;background:#ef4444;color:#fff;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:700;line-height:18px;text-align:center;">0</span>
+          </div>
+        </div>
+
+        <!-- Doctor notification dropdown -->
+        <div id="drNotifDropdown" style="display:none;background:#fff;border:1px solid #e2e8f0;border-radius:0.875rem;box-shadow:0 8px 30px rgba(0,0,0,0.12);padding:0.75rem;margin-bottom:1.5rem;max-height:300px;overflow-y:auto;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;padding:0 0.25rem;">
+            <strong style="font-size:0.875rem;color:var(--slate-800);">Your Notifications</strong>
+            <button onclick="markAllTeleNotifsRead()" style="font-size:0.75rem;color:var(--blue-600);background:none;border:none;cursor:pointer;font-weight:600;">Mark all read</button>
+          </div>
+          <div id="drNotifList"><p style="color:#94a3b8;text-align:center;font-size:0.85rem;padding:1rem;">Loading…</p></div>
+        </div>
+
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem;">
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.75rem;padding:1rem 1.25rem;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:700;color:#1d4ed8;" id="drStatPending">—</div>
+            <div style="font-size:0.8rem;color:#3b82f6;">Pending</div>
+          </div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:0.75rem;padding:1rem 1.25rem;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:700;color:#16a34a;" id="drStatConfirmed">—</div>
+            <div style="font-size:0.8rem;color:#22c55e;">Confirmed</div>
+          </div>
+          <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:0.75rem;padding:1rem 1.25rem;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:700;color:#9333ea;" id="drStatToday">—</div>
+            <div style="font-size:0.8rem;color:#a855f7;">Today</div>
+          </div>
+        </div>
+
+        <!-- Appointments list for doctor -->
+        <div class="panel-card">
+          <div class="panel-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="calendar-check" style="width:18px;height:18px;"></i><h3>My Appointments</h3></div>
+            <div style="display:flex;gap:0.5rem;">
+              <select id="drAptFilter" class="form-input" style="width:auto;font-size:0.8rem;padding:0.3rem 0.6rem;" onchange="loadDoctorAppointments()">
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <button onclick="loadDoctorAppointments()" style="background:none;border:none;cursor:pointer;color:var(--blue-600);font-size:0.8rem;font-weight:600;">↻</button>
+            </div>
+          </div>
+          <div class="panel-card-body" id="drAppointmentsList">
+            <p style="color:var(--slate-400);font-size:0.875rem;text-align:center;padding:1.5rem 0;">No appointments yet.</p>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tele-doctor -->
+
+  </div><!-- /container -->
+</div><!-- /page-telemedicine -->
+
+<!-- ── Book Appointment Modal ── -->
+<div id="bookAptModal" class="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:none;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:1rem;padding:2rem;width:100%;max-width:500px;margin:1rem;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+      <h3 style="margin:0;color:var(--slate-800);font-size:1.15rem;">Book Appointment</h3>
+      <button onclick="closeBookModal()" style="background:none;border:none;cursor:pointer;color:#64748b;font-size:1.4rem;line-height:1;">×</button>
+    </div>
+    <div id="bookAptDoctorInfo" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.75rem;padding:0.875rem 1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem;">
+      <div id="bookAptDrAvatar" style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:0.95rem;flex-shrink:0;">DR</div>
+      <div><div style="font-weight:700;color:var(--slate-800);" id="bookAptDrName">—</div>
+        <div style="font-size:0.8rem;color:#3b82f6;" id="bookAptDrSpec">—</div>
+        <div style="font-size:0.78rem;color:var(--slate-500);" id="bookAptDrFee">—</div>
+      </div>
+    </div>
+    <input type="hidden" id="bookAptDoctorId" />
+    <div class="form-group"><label>Patient Name</label><input type="text" id="bookAptPatName" class="form-input" /></div>
+    <div class="form-grid-2">
+      <div class="form-group"><label>Age</label><input type="number" id="bookAptAge" class="form-input" placeholder="25" /></div>
+      <div class="form-group"><label>Gender</label><select id="bookAptGender" class="form-input"><option>Male</option><option>Female</option><option>Other</option></select></div>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group"><label>Preferred Date</label><input type="date" id="bookAptDate" class="form-input" /></div>
+      <div class="form-group"><label>Time Slot</label>
+        <select id="bookAptSlot" class="form-input">
+          <option>9:00 AM – 10:00 AM</option><option>10:00 AM – 11:00 AM</option>
+          <option>11:00 AM – 12:00 PM</option><option>2:00 PM – 3:00 PM</option>
+          <option>3:00 PM – 4:00 PM</option><option>4:00 PM – 5:00 PM</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Consultation Mode</label>
+      <div class="radio-group">
+        <label class="radio-label"><input type="radio" name="bookMode" value="video" checked /> 📹 Video (Zoom)</label>
+        <label class="radio-label"><input type="radio" name="bookMode" value="audio" /> 📞 Audio Call</label>
+        <label class="radio-label"><input type="radio" name="bookMode" value="chat" /> 💬 Chat</label>
+      </div>
+    </div>
+    <div class="form-group"><label>Symptoms / Notes</label>
+      <textarea id="bookAptSymptoms" class="form-input" rows="2" placeholder="Describe your symptoms briefly…"></textarea>
+    </div>
+    <button class="btn-blue w-full" id="bookAptSubmitBtn" onclick="submitBookAppointment()">
+      <i data-lucide="calendar-check" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"></i> Confirm Booking
+    </button>
+  </div>
+</div>
+
+<!-- ── Charge Fee Modal ── -->
+<div id="chargeFeeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:1rem;padding:2rem;width:100%;max-width:360px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <h3 style="margin:0 0 1.25rem;color:var(--slate-800);">Charge Consultation Fee</h3>
+    <input type="hidden" id="chargeFeeAptId" />
+    <div class="form-group"><label>Fee Amount (₹)</label><input type="number" id="chargeFeeAmount" class="form-input" placeholder="300" min="0" /></div>
+    <div style="display:flex;gap:0.75rem;">
+      <button class="btn-blue" style="flex:1;" onclick="submitChargeFee()">Charge</button>
+      <button onclick="closeChargeFeeModal()" style="flex:1;padding:0.65rem;border:1.5px solid #e2e8f0;border-radius:0.65rem;background:#fff;cursor:pointer;font-weight:600;color:var(--slate-700);">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="page-medicines" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#16a34a,#15803d)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="pill" style="width:16px;height:16px"></i> Medicine Database</div>
+      <h1 class="fade-in-up visible">Search 500+ Medicines</h1>
+      <p class="fade-in-up visible delay-1">Find dosage information, side effects, and drug interactions</p>
+      <div class="hero-search-bar">
+        <i data-lucide="search" style="width:20px;height:20px;color:var(--slate-400)"></i>
+        <input type="text" id="medSearchInput" placeholder="Search by medicine name or category..." oninput="searchMedicines(this.value)" />
+        <button onclick="searchMedicines(document.getElementById('medSearchInput').value)">Search</button>
+      </div>
+    </div>
+  </div>
+  <div class="container" style="padding:3rem 1.5rem;">
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2rem;" id="medCategoryFilters">
+      <button class="filter-btn active" onclick="filterMedCategory('all',this)">All</button>
+      <button class="filter-btn" onclick="filterMedCategory('Analgesic',this)">Analgesic</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antibiotic',this)">Antibiotic</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antidiabetic',this)">Antidiabetic</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antihypertensive',this)">Antihypertensive</button>
+      <button class="filter-btn" onclick="filterMedCategory('Anticoagulant',this)">Anticoagulant</button>
+      <button class="filter-btn" onclick="filterMedCategory('Vitamin',this)">Vitamin</button>
+    </div>
+    <div id="medicinesGrid" class="medicines-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--slate-400)">Loading medicines...</div>
+    </div>
+  </div>
+</div>
+
+<div id="page-pharmacy" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="map-pin" style="width:16px;height:16px"></i> Pharmacy Finder</div>
+      <h1 class="fade-in-up visible">Find Pharmacies</h1>
+      <p class="fade-in-up visible delay-1">Search by location or by medicine name</p>
+    </div>
+  </div>
+
+  <!-- TAB SWITCHER -->
+  <div class="container" style="padding-top:2rem;padding-bottom:0">
+    <div style="display:flex;gap:0.5rem;border-bottom:2px solid var(--slate-100);margin-bottom:0;flex-wrap:wrap;">
+      <button id="pharmTab-place"
+        class="pharm-tab-btn pharm-tab-active"
+        onclick="switchPharmacyTab('place')"
+        style="padding:0.7rem 1.4rem;font-weight:700;font-size:0.92rem;border:none;background:none;cursor:pointer;border-bottom:3px solid #7c3aed;color:#7c3aed;margin-bottom:-2px;">
+        <i data-lucide="map-pin" style="width:15px;height:15px;vertical-align:-2px;margin-right:4px"></i>
+        Find by Place
+      </button>
+      <button id="pharmTab-medicine"
+        class="pharm-tab-btn"
+        onclick="switchPharmacyTab('medicine')"
+        style="padding:0.7rem 1.4rem;font-weight:700;font-size:0.92rem;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;color:var(--slate-500);margin-bottom:-2px;">
+        <i data-lucide="pill" style="width:15px;height:15px;vertical-align:-2px;margin-right:4px"></i>
+        Find by Medicine
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 1: FIND BY PLACE ══ -->
+  <div id="pharmPanel-place" style="display:block;">
+    <div class="container" style="padding-top:1.75rem">
+      <div class="hero-search-bar" style="max-width:600px;margin:0 auto 1.5rem">
+        <i data-lucide="search" style="width:20px;height:20px;color:var(--slate-400)"></i>
+        <input type="text" id="placeSearchInput"
+          placeholder="Enter city, area or landmark (e.g. Koregaon Park, Pune)…"
+          oninput="placeSearchDebounced(this.value)" />
+        <button onclick="searchPharmaciesByPlace(document.getElementById('placeSearchInput').value)">Search</button>
+      </div>
+
+      <!-- Live Google Map -->
+      <div id="pharmacyGoogleMap"
+        style="width:100%;height:380px;border-radius:14px;overflow:hidden;border:1.5px solid var(--slate-100);background:var(--slate-50);margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;color:var(--slate-400);font-size:0.9rem;">
+        <div style="text-align:center;">
+          <i data-lucide="map" style="width:40px;height:40px;margin-bottom:0.75rem;opacity:0.35;display:block;margin-left:auto;margin-right:auto;"></i>
+          Map will appear here after searching a location.
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;">
+        <h3 style="font-size:1.15rem;font-weight:800;">Nearby Pharmacies</h3>
+        <span id="placeResultCount" style="font-size:0.85rem;color:var(--slate-500);"></span>
+      </div>
+      <div id="pharmacyPlaceGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;padding-bottom:3rem;">
+        <div style="grid-column:1/-1;text-align:center;padding:4rem 2rem;color:var(--slate-400);">
+          <i data-lucide="map-pin" style="width:44px;height:44px;opacity:0.3;display:block;margin:0 auto 1rem;"></i>
+          <strong>Search a location above</strong>
+          <p style="font-size:0.875rem;margin-top:0.4rem;">Enter any city, locality or landmark to find pharmacies near that area using OpenStreetMap.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PANEL 2: FIND BY MEDICINE ══ -->
+  <div id="pharmPanel-medicine" style="display:none;">
+    <div class="container" style="padding-top:1.75rem">
+      <div class="hero-search-bar" style="max-width:600px;margin:0 auto 1.5rem">
+        <i data-lucide="search" style="width:20px;height:20px;color:var(--slate-400)"></i>
+        <input type="text" id="pharmMedSearchInput"
+          placeholder="Search medicine name (e.g. Paracetamol, Metformin)…"
+          oninput="pharmMedAutoSearch(this.value)" />
+        <button onclick="searchPharmByMedicine(document.getElementById('pharmMedSearchInput').value)">Search</button>
+      </div>
+
+      <!-- KPI Row -->
+      <div id="pharmMedKpiRow" style="display:none;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;" class="analytics-kpi-row">
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)"><i data-lucide="pill" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="pharmMedKpiMed" style="font-size:1rem;">—</div><div class="kpi-lbl">Medicine</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)"><i data-lucide="check-circle" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="pharmMedKpiIn">0</div><div class="kpi-lbl">In Stock</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#eab308,#ca8a04)"><i data-lucide="alert-triangle" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="pharmMedKpiLow">0</div><div class="kpi-lbl">Low Stock</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i data-lucide="x-circle" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="pharmMedKpiOut">0</div><div class="kpi-lbl">Out of Stock</div></div>
+      </div>
+
+      <!-- Filter Row -->
+      <div id="pharmMedFilterRow" style="display:none;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <span style="font-weight:600;font-size:0.9rem;color:var(--slate-600)">Filter:</span>
+        <button class="inv-filter-btn active" id="pmF-all"       onclick="setPharmMedFilter('all')">All</button>
+        <button class="inv-filter-btn"        id="pmF-in_stock"  onclick="setPharmMedFilter('in_stock')">In Stock</button>
+        <button class="inv-filter-btn"        id="pmF-low_stock" onclick="setPharmMedFilter('low_stock')">Low Stock</button>
+        <button class="inv-filter-btn"        id="pmF-out_of_stock" onclick="setPharmMedFilter('out_of_stock')">Out of Stock</button>
+        <button class="inv-filter-btn"        id="pmF-delivery"  onclick="setPharmMedFilter('delivery')" style="margin-left:auto">🛵 Has Delivery</button>
+        <button class="inv-filter-btn"        id="pmF-24hr"      onclick="setPharmMedFilter('24hr')">🌙 24-Hour</button>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;">
+        <h3 id="pharmMedHeading" style="font-size:1.15rem;font-weight:800;">Enter a medicine name to check stock</h3>
+        <span id="pharmMedCount" style="font-size:0.85rem;color:var(--slate-500);"></span>
+      </div>
+      <div id="pharmMedResultGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;padding-bottom:3rem;">
+        <div style="grid-column:1/-1;text-align:center;padding:5rem 2rem;color:var(--slate-400);">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+            <i data-lucide="pill" style="width:36px;height:36px;color:#7c3aed"></i>
+          </div>
+          <h4 style="font-size:1.1rem;font-weight:700;color:var(--slate-700);margin-bottom:0.5rem">Search for a Medicine</h4>
+          <p style="color:var(--slate-500);max-width:360px;margin:0 auto">Type a medicine name to see which pharmacies have it in stock and at what quantity.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ══════════════════════════════════════════════
+     PAGE: LIVE INVENTORY
+══════════════════════════════════════════════ -->
+<div id="page-inventory" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="package" style="width:16px;height:16px"></i> Live Inventory</div>
+      <h1 class="fade-in-up visible" id="invPageTitle">Medicine Stock Checker</h1>
+      <p class="fade-in-up visible delay-1" id="invPageSubtitle">Search any medicine to see real-time stock levels across all registered pharmacies</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PHARMACIST VIEW — shown only when role = pharmacist/admin
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="inv-pharmacist-section" style="display:none">
+    <div class="container" style="padding:2rem 1.5rem 0">
+
+      <!-- Alert banner -->
+      <div id="pharmacistAlertsBanner" style="margin-bottom:1.5rem">
+        <div class="pharm-alert-ok" style="opacity:0.5">Loading stock alerts…</div>
+      </div>
+
+      <!-- Toolbar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;">
+        <h3 style="font-size:1.15rem;font-weight:800;color:var(--slate-800)">
+          <i data-lucide="package" style="width:18px;height:18px;vertical-align:-3px;margin-right:4px"></i>
+          My Pharmacy Stock
+        </h3>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+          <input type="text" id="pharmInvSearch" placeholder="Search medicine…"
+            style="padding:0.45rem 0.75rem;border:1.5px solid var(--slate-200);border-radius:8px;font-size:0.875rem;min-width:180px"
+            oninput="searchInventory(this.value.toLowerCase())" />
+          <button class="inv-filter-btn active" onclick="filterInventoryCategory('all',this)">All</button>
+          <button class="inv-filter-btn" onclick="filterInventoryCategory('low',this)">Low Stock</button>
+          <button class="inv-filter-btn" onclick="filterInventoryCategory('out',this)">Out of Stock</button>
+          <button class="inv-filter-btn" onclick="filterInventoryCategory('ok',this)">In Stock</button>
+          <button class="btn-blue" style="padding:0.45rem 1rem;font-size:0.875rem" onclick="openModal('inventoryModal')">
+            <i data-lucide="plus" style="width:15px;height:15px;vertical-align:-2px"></i> Add Medicine
+          </button>
+        </div>
+      </div>
+
+      <!-- Stock table -->
+      <div style="overflow-x:auto;border-radius:12px;border:1.5px solid var(--slate-100);background:#fff;margin-bottom:2rem">
+        <table class="data-table" style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th>Medicine Name</th>
+              <th>Category</th>
+              <th>Quantity</th>
+              <th>Form</th>
+              <th>Manufacturer</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="pharmInventoryTable">
+            <tr><td colspan="7" class="empty-row">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PUBLIC VIEW — shown for patients / guests / doctors
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="inv-public-section">
+    <div class="container" style="padding-top:2rem">
+      <div class="hero-search-bar" style="max-width:600px;margin:0 auto 2rem">
+        <i data-lucide="search" style="width:20px;height:20px;color:var(--slate-400)"></i>
+        <input type="text" id="inventorySearchInput" placeholder="Search medicine name (e.g. Paracetamol, Metformin)…" oninput="inventoryAutoSearch(this.value)" />
+        <button onclick="searchLiveInventory(document.getElementById('inventorySearchInput').value)">Search</button>
+      </div>
+    </div>
+
+    <div class="container" style="padding:0 1.5rem 3rem;">
+      <!-- Summary KPI bar -->
+      <div id="invKpiRow" style="display:none;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;" class="analytics-kpi-row">
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)"><i data-lucide="search" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="invKpiMed">—</div><div class="kpi-lbl">Medicine</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)"><i data-lucide="check-circle" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="invKpiInStock">0</div><div class="kpi-lbl">In Stock</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#eab308,#ca8a04)"><i data-lucide="alert-triangle" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="invKpiLow">0</div><div class="kpi-lbl">Low Stock</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i data-lucide="x-circle" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="invKpiOut">0</div><div class="kpi-lbl">Out of Stock</div></div>
+      </div>
+
+      <!-- Filter row -->
+      <div id="invFilterRow" style="display:none;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <span style="font-weight:600;font-size:0.9rem;color:var(--slate-600)">Filter:</span>
+        <button class="inv-filter-btn active" id="invF-all" onclick="setInvFilter('all')">All</button>
+        <button class="inv-filter-btn" id="invF-in_stock" onclick="setInvFilter('in_stock')">In Stock</button>
+        <button class="inv-filter-btn" id="invF-low_stock" onclick="setInvFilter('low_stock')">Low Stock</button>
+        <button class="inv-filter-btn" id="invF-out_of_stock" onclick="setInvFilter('out_of_stock')">Out of Stock</button>
+        <button class="inv-filter-btn" id="invF-delivery" onclick="setInvFilter('delivery')" style="margin-left:auto">🛵 Has Delivery</button>
+        <button class="inv-filter-btn" id="invF-24hr" onclick="setInvFilter('24hr')">🌙 24-Hour</button>
+      </div>
+
+      <!-- Results heading -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;">
+        <h3 id="invResultHeading" style="font-size:1.2rem;font-weight:800;">Enter a medicine name to check stock</h3>
+        <span id="invResultCount" style="font-size:0.85rem;color:var(--slate-500);"></span>
+      </div>
+
+      <!-- Results grid -->
+      <div id="inventoryResultGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;">
+        <div id="invEmptyState" style="grid-column:1/-1;text-align:center;padding:5rem 2rem;">
+          <div style="width:72px;height:72px;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+            <i data-lucide="package-search" style="width:36px;height:36px;color:#7c3aed"></i>
+          </div>
+          <h4 style="font-size:1.1rem;font-weight:700;color:var(--slate-700);margin-bottom:0.5rem">Search for a Medicine</h4>
+          <p style="color:var(--slate-500);max-width:360px;margin:0 auto">Type a medicine name in the search bar above to see which pharmacies have it in stock and how many units are available.</p>
+          <button class="btn-blue" style="margin-top:1.5rem;" onclick="searchLiveInventory('')">View All Stock</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="page-pharmacy" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="map-pin" style="width:16px;height:16px"></i> Pharmacy Finder</div>
+      <h1 class="fade-in-up visible">Find Nearby Pharmacies</h1>
+      <p class="fade-in-up visible delay-1">Check live medicine availability across all registered pharmacies</p>
+      <div class="hero-search-bar">
+        <i data-lucide="search" style="width:20px;height:20px;color:var(--slate-400)"></i>
+        <input type="text" id="pharmaSearchInput" placeholder="Search by medicine or pharmacy name..." oninput="searchPharmacy(this.value)" />
+        <button onclick="searchPharmacy(document.getElementById('pharmaSearchInput').value)">Search</button>
+      </div>
+    </div>
+  </div>
+  <div class="container" style="padding:3rem 1.5rem;">
+    <div class="pharmacy-map-placeholder">
+      <div class="map-pin-group">
+        <div class="map-pin" style="left:20%;top:30%"><div class="pin-dot blue"></div><div class="pin-label">Nashik Central</div></div>
+        <div class="map-pin" style="left:45%;top:50%"><div class="pin-dot green"></div><div class="pin-label">Village Health Store</div></div>
+        <div class="map-pin" style="left:70%;top:35%"><div class="pin-dot purple"></div><div class="pin-label">Rural Medical Centre</div></div>
+        <div class="map-pin" style="left:60%;top:70%"><div class="pin-dot red"></div><div class="pin-label">City Pharmacy</div></div>
+      </div>
+      <div class="map-legend">
+        <span><span class="legend-dot" style="background:var(--green-500)"></span> In Stock</span>
+        <span><span class="legend-dot" style="background:#eab308"></span> Low Stock</span>
+        <span><span class="legend-dot" style="background:var(--red-500)"></span> Out of Stock</span>
+      </div>
+    </div>
+    <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:1.25rem;">All Pharmacies & Stock</h3>
+    <div id="pharmacyGrid" class="pharmacy-cards-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--slate-400)">Loading pharmacies...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: ANALYTICS
+══════════════════════════════════════════════ -->
+<div id="page-analytics" class="page">
+  <!-- Dynamic hero set by JS -->
+  <div class="page-hero" id="analyticsHero" style="background:linear-gradient(135deg,#ea580c,#dc2626)">
+    <div class="container text-center">
+      <div class="page-hero-badge" id="analyticsHeroBadge"><i data-lucide="bar-chart-2" style="width:16px;height:16px"></i> Analytics</div>
+      <h1 class="fade-in-up visible" id="analyticsHeroTitle">Health Insights</h1>
+      <p class="fade-in-up visible delay-1" id="analyticsHeroSub">Real-time data on patient outcomes, drug safety, and system usage</p>
+    </div>
+  </div>
+
+  <!-- ══ DOCTOR ANALYTICS ══ -->
+  <div id="analytics-doctor" style="display:none">
+    <div class="container" style="padding:3rem 1.5rem;">
+      <!-- KPI Row -->
+      <div class="analytics-kpi-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)"><i data-lucide="users" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="drKpiExamined">—</div><div class="kpi-lbl">Patients Examined</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i data-lucide="repeat" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="drKpiRevisit">—</div><div class="kpi-lbl">Revisit Patients</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)"><i data-lucide="heart" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="drKpiCured">—</div><div class="kpi-lbl">Satisfied / Cured</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#a855f7,#9333ea)"><i data-lucide="send" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="drKpiReferred">—</div><div class="kpi-lbl">Referred to Specialist</div></div></div>
+      </div>
+      <div class="analytics-kpi-row" style="grid-template-columns:repeat(3,1fr);margin-top:0">
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490)"><i data-lucide="indian-rupee" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="drKpiFees">—</div><div class="kpi-lbl">Consultation Fees (₹)</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#dc2626,#b91c1c)"><i data-lucide="clock" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="drKpiHours">—</div><div class="kpi-lbl">Active Hours (Today)</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#0d9488,#0f766e)"><i data-lucide="database" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="drKpiDhr">—</div><div class="kpi-lbl">Digital Health Records</div></div></div>
+      </div>
+
+      <!-- Time Period Selector -->
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <span style="font-weight:700;color:var(--slate-700);font-size:0.9rem;">Report Period:</span>
+        <button class="analytics-period-btn active" onclick="setDrPeriod('weekly',this)">Weekly</button>
+        <button class="analytics-period-btn" onclick="setDrPeriod('monthly',this)">Monthly</button>
+        <button class="analytics-period-btn" onclick="setDrPeriod('yearly',this)">Yearly</button>
+      </div>
+
+      <!-- Charts Row 1 -->
+      <div class="analytics-charts">
+        <div class="chart-panel" style="grid-column:1/-1">
+          <h4 id="drTrendTitle">📈 Weekly Patient Activity</h4>
+          <div class="chart-wrap" style="height:280px"><canvas id="drTrendChart"></canvas></div>
+        </div>
+      </div>
+      <div class="analytics-charts">
+        <div class="chart-panel">
+          <h4>💰 Consultation Fees (₹)</h4>
+          <div class="chart-wrap"><canvas id="drFeesChart"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <h4>⏰ Active Hours Distribution</h4>
+          <div class="chart-wrap"><canvas id="drHoursChart"></canvas></div>
+        </div>
+      </div>
+      <div class="analytics-charts">
+        <div class="chart-panel">
+          <h4>🔄 Revisit vs New Patients</h4>
+          <div class="chart-wrap"><canvas id="drRevisitChart"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <h4>✅ Patient Outcomes</h4>
+          <div class="chart-wrap"><canvas id="drOutcomeChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Digital Health Records Card -->
+      <div class="panel-card" style="margin-top:0.5rem;">
+        <div class="panel-card-header"><i data-lucide="database" style="width:20px;height:20px;color:#0d9488"></i><h3>Digital Health Records</h3><span class="badge badge-ok" style="margin-left:auto">Live</span></div>
+        <div class="panel-card-body">
+          <div id="drDhrGrid" class="dhr-grid">
+            <div class="dhr-card"><div class="dhr-card-icon" style="background:#eff6ff"><i data-lucide="file-text" style="color:#2563eb;width:20px;height:20px"></i></div><div><div class="dhr-val" id="dhrPrescriptions">—</div><div class="dhr-sub">Prescriptions Stored</div></div></div>
+            <div class="dhr-card"><div class="dhr-card-icon" style="background:#f0fdf4"><i data-lucide="activity" style="color:#16a34a;width:20px;height:20px"></i></div><div><div class="dhr-val" id="dhrLabReports">—</div><div class="dhr-sub">Lab Reports</div></div></div>
+            <div class="dhr-card"><div class="dhr-card-icon" style="background:#fef9c3"><i data-lucide="clipboard" style="color:#d97706;width:20px;height:20px"></i></div><div><div class="dhr-val" id="dhrNotes">—</div><div class="dhr-sub">Clinical Notes</div></div></div>
+            <div class="dhr-card"><div class="dhr-card-icon" style="background:#fdf4ff"><i data-lucide="image" style="color:#9333ea;width:20px;height:20px"></i></div><div><div class="dhr-val" id="dhrImaging">—</div><div class="dhr-sub">Imaging Records</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safety Alerts -->
+      <div class="panel-card" style="margin-top:1.5rem;">
+        <div class="panel-card-header"><i data-lucide="alert-triangle" style="width:20px;height:20px;color:var(--red-600)"></i><h3>Recent Drug Safety Alerts</h3></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Patient</th><th>Drug A</th><th>Drug B</th><th>Interaction Effect</th><th>Severity</th></tr></thead>
+            <tbody id="alertsTable"><tr><td colspan="5" class="empty-row">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PATIENT ANALYTICS ══ -->
+  <div id="analytics-patient" style="display:none">
+    <div class="container" style="padding:3rem 1.5rem;">
+      <!-- KPI Row -->
+      <div class="analytics-kpi-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#ea580c,#dc2626)"><i data-lucide="stethoscope" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="ptKpiVisits">—</div><div class="kpi-lbl">Doctor Visits</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)"><i data-lucide="shield-check" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="ptKpiSafe">—</div><div class="kpi-lbl">Safe Prescriptions</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i data-lucide="alert-circle" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="ptKpiWarning">—</div><div class="kpi-lbl">Prescription Warnings</div></div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="analytics-charts">
+        <div class="chart-panel" style="grid-column:1/-1">
+          <h4>📊 Health Progress Chart</h4>
+          <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+            <button class="analytics-period-btn active" onclick="setPtMetric('bp',this)">Blood Pressure</button>
+            <button class="analytics-period-btn" onclick="setPtMetric('weight',this)">Weight (kg)</button>
+            <button class="analytics-period-btn" onclick="setPtMetric('sugar',this)">Blood Sugar</button>
+            <button class="analytics-period-btn" onclick="setPtMetric('spo2',this)">SpO2 %</button>
+          </div>
+          <div class="chart-wrap" style="height:280px"><canvas id="ptHealthChart"></canvas></div>
+        </div>
+      </div>
+      <div class="analytics-charts">
+        <div class="chart-panel">
+          <h4>🛡️ Prescription Safety Status</h4>
+          <div class="chart-wrap"><canvas id="ptSafetyChart"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <h4>🩺 Visit Frequency (Last 6 Months)</h4>
+          <div class="chart-wrap"><canvas id="ptVisitChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Prescriptions Card -->
+      <div class="panel-card" style="margin-top:0.5rem;">
+        <div class="panel-card-header"><i data-lucide="pill" style="width:20px;height:20px;color:#ea580c"></i><h3>Active Prescriptions — Safety Status</h3></div>
+        <div class="panel-card-body" id="ptPrescriptionList">
+          <div class="pt-rx-item pt-rx-safe"><div class="pt-rx-status"><i data-lucide="shield-check" style="width:16px;height:16px;color:#16a34a"></i> SAFE</div><div><strong>Metformin 500mg</strong> — Twice daily with meals</div></div>
+          <div class="pt-rx-item pt-rx-safe"><div class="pt-rx-status"><i data-lucide="shield-check" style="width:16px;height:16px;color:#16a34a"></i> SAFE</div><div><strong>Lisinopril 10mg</strong> — Once daily morning</div></div>
+          <div class="pt-rx-item pt-rx-warning"><div class="pt-rx-status"><i data-lucide="alert-triangle" style="width:16px;height:16px;color:#d97706"></i> CAUTION</div><div><strong>Aspirin 75mg</strong> — Check with doctor if taking blood thinners</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PHARMACIST ANALYTICS ══ -->
+  <div id="analytics-pharmacist" style="display:none">
+    <div class="container" style="padding:3rem 1.5rem;">
+      <!-- KPI Row -->
+      <div class="analytics-kpi-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#0d9488,#0f766e)"><i data-lucide="shopping-bag" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="phKpiSold">—</div><div class="kpi-lbl">Medicines Sold</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)"><i data-lucide="indian-rupee" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="phKpiRevenue">—</div><div class="kpi-lbl">Revenue (₹)</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)"><i data-lucide="trending-up" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="phKpiProfit">—</div><div class="kpi-lbl">Net Profit (₹)</div></div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i data-lucide="package" style="width:22px;height:22px;color:white"></i></div><div><div class="kpi-val" id="phKpiItems">—</div><div class="kpi-lbl">Active SKUs</div></div></div>
+      </div>
+
+      <!-- Time Period Selector -->
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <span style="font-weight:700;color:var(--slate-700);font-size:0.9rem;">Sales Period:</span>
+        <button class="analytics-period-btn active" onclick="setPhPeriod('weekly',this)">Weekly</button>
+        <button class="analytics-period-btn" onclick="setPhPeriod('monthly',this)">Monthly</button>
+        <button class="analytics-period-btn" onclick="setPhPeriod('yearly',this)">Yearly</button>
+      </div>
+
+      <!-- Charts -->
+      <div class="analytics-charts">
+        <div class="chart-panel" style="grid-column:1/-1">
+          <h4 id="phTrendTitle">📈 Weekly Sales Trend</h4>
+          <div class="chart-wrap" style="height:280px"><canvas id="phSalesTrendChart"></canvas></div>
+        </div>
+      </div>
+      <div class="analytics-charts">
+        <div class="chart-panel">
+          <h4>💊 Category-wise Medicine Sales</h4>
+          <div class="chart-wrap"><canvas id="phCategoryChart"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <h4>💰 Revenue vs Profit Breakdown</h4>
+          <div class="chart-wrap"><canvas id="phProfitChart"></canvas></div>
+        </div>
+      </div>
+      <div class="analytics-charts">
+        <div class="chart-panel">
+          <h4>🏆 Top 5 Selling Medicines</h4>
+          <div class="chart-wrap"><canvas id="phTopMedsChart"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <h4>📦 Stock Status Overview</h4>
+          <div class="chart-wrap"><canvas id="phStockChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ADMIN ANALYTICS (Original + Enhanced) ══ -->
+  <div id="analytics-admin" style="display:none">
+    <div class="container" style="padding:3rem 1.5rem;">
+      <div class="analytics-kpi-row" id="analyticsKpi">
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><i data-lucide="users" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="kpiPat">—</div><div class="kpi-lbl">Total Patients</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)"><i data-lucide="file-text" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="kpiPres">—</div><div class="kpi-lbl">Prescriptions</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i data-lucide="alert-triangle" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="kpiAlerts">—</div><div class="kpi-lbl">Safety Alerts</div></div>
+        <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#a855f7,#9333ea)"><i data-lucide="package" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="kpiInv">—</div><div class="kpi-lbl">Inventory Items</div></div>
+      </div>
+      <div class="analytics-charts">
+        <div class="chart-panel"><h4>Prescriptions Safety Status</h4><div class="chart-wrap"><canvas id="safetyChart"></canvas></div></div>
+        <div class="chart-panel"><h4>Medicine Category Distribution</h4><div class="chart-wrap"><canvas id="categoryChart"></canvas></div></div>
+        <div class="chart-panel" style="grid-column:1/-1"><h4>Monthly Patient Registrations</h4><div class="chart-wrap" style="max-height:280px"><canvas id="trendChart"></canvas></div></div>
+      </div>
+      <div class="panel-card" style="margin-top:2rem;">
+        <div class="panel-card-header"><i data-lucide="alert-triangle" style="width:20px;height:20px;color:var(--red-600)"></i><h3>Recent Safety Alerts</h3></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Patient</th><th>Drug A</th><th>Drug B</th><th>Interaction Effect</th><th>Severity</th></tr></thead>
+            <tbody id="alertsTableAdmin"><tr><td colspan="5" class="empty-row">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: AI SAFETY GUARD
+══════════════════════════════════════════════ -->
+<div id="page-ai-safety-guard" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#059669,#0d9488)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="shield" style="width:16px;height:16px"></i> AI-Powered Clinical Intelligence</div>
+      <h1 class="fade-in-up visible">Advanced AI Healthcare Solutions</h1>
+      <p class="fade-in-up visible delay-1">Smart diagnostic assistance and personalized wellness planning powered by AI</p>
+    </div>
+  </div>
+  <div class="container" style="padding:3rem 1.5rem;">
+    <div class="clinical-options">
+      <div class="clinical-option-card" id="clinicalOptionDiagnostic" onclick="showClinicalOption('diagnostic')">
+        <div class="clinical-option-icon gradient-blue"><i data-lucide="activity" style="width:24px;height:24px"></i></div>
+        <div>
+          <h4>Smart Diagnostic Assistant</h4>
+          <p>Analyze symptoms, lab values and history to suggest clinical pathways.</p>
+        </div>
+      </div>
+      <div class="clinical-option-card" id="clinicalOptionWellness" onclick="showClinicalOption('wellness')">
+        <div class="clinical-option-icon gradient-green"><i data-lucide="heart" style="width:24px;height:24px"></i></div>
+        <div>
+          <h4>Personalized Wellness AI</h4>
+          <p>Create tailored health plans based on genetics and lifestyle data.</p>
+        </div>
+      </div>
+    </div>
+    <div class="analytics-kpi-row" id="safetyKpi">
+      <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)"><i data-lucide="users" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="safetyKpiPatients">—</div><div class="kpi-lbl">Total Patients</div></div>
+      <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)"><i data-lucide="file-text" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="safetyKpiPrescriptions">—</div><div class="kpi-lbl">Prescriptions</div></div>
+      <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#ef4444,#dc2626)"><i data-lucide="alert-triangle" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="safetyKpiAlerts">—</div><div class="kpi-lbl">Active Alerts</div></div>
+      <div class="kpi-card"><div class="kpi-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)"><i data-lucide="search" style="width:22px;height:22px;color:white"></i></div><div class="kpi-val" id="safetyKpiIssues">—</div><div class="kpi-lbl">Potential Issues</div></div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="safety-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;">
+      <!-- Smart Diagnostic Assistant -->
+      <div class="panel-card" id="diagnosticPanel" style="display:none;">
+        <div class="panel-card-header"><i data-lucide="activity" style="width:20px;height:20px;color:var(--blue-600)"></i><h3>Smart Diagnostic Assistant</h3></div>
+        <div class="panel-card-body">
+          <p class="mb-1">AI-driven differential diagnosis support that analyzes symptoms, lab results, and patient history to suggest potential clinical pathways.</p>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Patient ID (optional)</label>
+              <input type="number" id="diagnosticPatientId" class="form-input" placeholder="Existing patient ID" />
+            </div>
+            <div class="form-group">
+              <label>Age</label>
+              <input type="number" id="diagnosticAge" class="form-input" placeholder="e.g., 54" />
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Gender</label>
+              <select id="diagnosticGender" class="form-input">
+                <option value="">Select gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Pre-existing Conditions</label>
+              <input type="text" id="diagnosticHistory" class="form-input" placeholder="e.g., Type 2 diabetes, hypertension" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Patient Symptoms</label>
+            <textarea id="diagnosticSymptoms" class="form-input" rows="4" placeholder="Describe symptoms, e.g., persistent cough, nocturnal fever, weight loss"></textarea>
+            <div style="margin-top:0.45rem;font-size:0.8rem;color:#64748b;">Direct identifiers such as names, phone numbers, and email addresses are automatically redacted before AI processing.</div>
+          </div>
+          <div class="form-group">
+            <label>Lab Results (optional text)</label>
+            <textarea id="diagnosticLabs" class="form-input" rows="3" placeholder="e.g., Hb: 10 g/dL, WBC: 12k, CRP: 45"></textarea>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label>Current Medications (optional)</label>
+              <input type="text" id="diagnosticMedications" class="form-input" placeholder="e.g., Metformin, aspirin" />
+            </div>
+            <div class="form-group">
+              <label>Known Allergies (optional)</label>
+              <input type="text" id="diagnosticAllergies" class="form-input" placeholder="e.g., Penicillin" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Lab Report PDF / TXT / CSV (optional)</label>
+            <input type="file" id="diagnosticLabFile" class="form-input" accept=".pdf,.txt,.csv,.json" />
+          </div>
+          <button class="btn-blue w-full" id="analyzeDiagnosticBtn" onclick="startDeepDive()">
+            <i data-lucide="search" style="width:16px;height:16px"></i> Analyze Case
+          </button>
+          <div id="diagnosticResults" style="margin-top:1rem;display:none;">
+            <div class="result-header" style="font-weight:700;margin-bottom:0.5rem;">Diagnostic Analysis:</div>
+            <div id="diagnosticContent"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personalized Wellness AI -->
+      <div class="panel-card" id="wellnessPanel" style="display:none;">
+        <div class="panel-card-header"><i data-lucide="heart" style="width:20px;height:20px;color:var(--green-600)"></i><h3>Personalized Wellness AI</h3></div>
+        <div class="panel-card-body">
+          <p class="mb-1">Generates tailored health optimization plans based on genetic markers, lifestyle habits, and real-time biometric data.</p>
+          <div class="form-group">
+            <label>Patient ID</label>
+            <input type="number" id="wellnessPatientId" class="form-input" placeholder="Enter patient ID" />
+          </div>
+          <div class="form-group">
+            <label>Genetic Markers (optional)</label>
+            <input type="text" id="wellnessGenetics" class="form-input" placeholder="e.g., APOE4+, MTHFR, Caffeine Sensitivity" />
+          </div>
+          <button class="btn-green w-full" id="generateWellnessBtn" onclick="generateWellnessPlan()">
+            <i data-lucide="user-check" style="width:16px;height:16px"></i> View Wellness Plan
+          </button>
+          <div id="wellnessResults" style="margin-top:1rem;display:none;">
+            <div class="result-header" style="font-weight:700;margin-bottom:0.5rem;">Personalized Plan:</div>
+            <div id="wellnessContent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clinical Insights Panel -->
+    <div class="panel-card" style="margin-top:2rem;">
+      <div class="panel-card-header"><i data-lucide="brain" style="width:20px;height:20px;color:var(--purple-600)"></i><h3>Clinical Insights Dashboard</h3></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Insight Type</th>
+              <th>Priority</th>
+              <th>Recommendation</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="clinicalInsightsTable">
+            <tr><td colspan="5" class="empty-row">Loading clinical insights...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI Recommendations Panel -->
+    <div class="panel-card" style="margin-top:2rem;">
+      <div class="panel-card-header"><i data-lucide="lightbulb" style="width:20px;height:20px;color:var(--yellow-600)"></i><h3>AI Recommendations</h3></div>
+      <div class="panel-card-body">
+        <div class="form-group">
+          <label>Health Query</label>
+          <input type="text" id="aiQuery" class="form-input" placeholder="Enter health-related question or symptom" />
+        </div>
+        <button class="btn-yellow w-full" onclick="getAIRecommendations()">
+          <i data-lucide="brain" style="width:16px;height:16px"></i> Get AI Recommendations
+        </button>
+        <div id="recommendationsResults" style="margin-top:1rem;display:none;">
+          <div class="result-header" style="font-weight:700;margin-bottom:0.5rem;">AI Recommendations:</div>
+          <div id="recommendationsContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: PATIENT PORTAL
+══════════════════════════════════════════════ -->
+<div id="page-portal" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#0891b2,#0e7490)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="user-circle" style="width:16px;height:16px"></i> Patient Portal</div>
+      <h1 class="fade-in-up visible">Your Health, Your Control</h1>
+      <p class="fade-in-up visible delay-1">Register, view your records, and manage your healthcare journey</p>
+    </div>
+  </div>
+  <div class="container" style="padding:3rem 1.5rem;">
+    <div class="portal-grid">
+      <div class="panel-card">
+        <div class="panel-card-header"><i data-lucide="user-plus" style="width:20px;height:20px"></i><h3>Self Registration</h3></div>
+        <div class="panel-card-body">
+          <div class="form-grid-2">
+            <div class="form-group"><label>Full Name</label><input type="text" id="portalName" class="form-input" placeholder="Your name" /></div>
+            <div class="form-group"><label>Age</label><input type="number" id="portalAge" class="form-input" placeholder="25" /></div>
+            <div class="form-group"><label>Gender</label><select id="portalGender" class="form-input"><option>Male</option><option>Female</option><option>Other</option></select></div>
+            <div class="form-group"><label>Blood Group</label><select id="portalBlood" class="form-input"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+            <div class="form-group"><label>Phone</label><input type="tel" id="portalPhone" class="form-input" placeholder="+91 9999999999" /></div>
+            <div class="form-group"><label>Village / City</label><input type="text" id="portalVillage" class="form-input" placeholder="Nashik" /></div>
+          </div>
+          <div class="form-group"><label>Current Medications</label><input type="text" id="portalMeds" class="form-input" placeholder="Aspirin, Metformin (comma separated)" /></div>
+          <div class="form-group"><label>Known Allergies</label><input type="text" id="portalAllergies" class="form-input" placeholder="Penicillin" /></div>
+          <button class="btn-blue w-full" onclick="portalRegister()"><i data-lucide="save" style="width:16px;height:16px"></i> Register My Profile</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <div class="panel-card">
+          <div class="panel-card-header"><i data-lucide="search" style="width:20px;height:20px"></i><h3>Look Up My Record</h3></div>
+          <div class="panel-card-body">
+            <div class="form-group"><label>Your Patient ID or Name</label>
+              <div style="display:flex;gap:0.5rem;">
+                <input type="text" id="portalLookup" class="form-input" placeholder="Name or ID #" style="flex:1" />
+                <button class="btn-blue" onclick="portalLookup()" style="border-radius:0.6rem;white-space:nowrap;padding:0.6rem 1rem;font-size:0.875rem;">Find</button>
+              </div>
+            </div>
+            <div id="portalResult"></div>
+          </div>
+        </div>
+        <div class="panel-card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid var(--green-200)">
+          <div class="panel-card-header"><i data-lucide="heart" style="width:20px;height:20px;color:var(--green-600)"></i><h3 style="color:var(--green-800)">Daily Health Tips</h3></div>
+          <div class="panel-card-body">
+            <div id="healthTip" class="health-tip-card"></div>
+            <button class="btn-sm btn-sm-green" onclick="nextHealthTip()" style="margin-top:1rem;">Next Tip →</button>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-header"><i data-lucide="activity" style="width:20px;height:20px"></i><h3>BMI Calculator</h3></div>
+          <div class="panel-card-body">
+            <div class="form-grid-2">
+              <div class="form-group"><label>Height (cm)</label><input type="number" id="bmiHeight" class="form-input" placeholder="170" oninput="calcBMI()" /></div>
+              <div class="form-group"><label>Weight (kg)</label><input type="number" id="bmiWeight" class="form-input" placeholder="65" oninput="calcBMI()" /></div>
+            </div>
+            <div id="bmiResult"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: ABOUT US
+══════════════════════════════════════════════ -->
+<div id="page-about" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#1e293b,#334155)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="users" style="width:16px;height:16px"></i> About Us</div>
+      <h1 class="fade-in-up visible">Our Mission</h1>
+      <p class="fade-in-up visible delay-1">Building a healthier India, one village at a time</p>
+    </div>
+  </div>
+  <section style="padding:5rem 0;">
+    <div class="container">
+      <div class="about-story-grid">
+        <div class="fade-in-up">
+          <div class="feature-num blue" style="margin-bottom:1.5rem;">OUR STORY</div>
+          <h2 class="section-title" style="text-align:left">Born from a Real Problem</h2>
+          <p style="color:var(--slate-600);line-height:1.8;margin-bottom:1rem;">In rural India, thousands of patients die or suffer every year from preventable medication errors — not because doctors are careless, but because they lack information. A patient in a remote village takes Aspirin daily. A telemedicine doctor prescribes Warfarin without knowing. The combination causes internal bleeding.</p>
+          <p style="color:var(--slate-600);line-height:1.8;margin-bottom:1rem;">MediGuard AI was built to solve exactly this problem. By creating a connected healthcare ecosystem — from patient registration to AI-powered drug safety checks — we ensure that every prescription is safe, every medicine is available, and every patient gets the care they deserve.</p>
+          <div class="story-stats">
+            <div class="story-stat"><div class="story-stat-num">3+</div><div class="story-stat-lbl">Years in Development</div></div>
+            <div class="story-stat"><div class="story-stat-num">15+</div><div class="story-stat-lbl">Drug Interactions Tracked</div></div>
+            <div class="story-stat"><div class="story-stat-num">100%</div><div class="story-stat-lbl">Open Source</div></div>
+          </div>
+        </div>
+        <div class="fade-in-up delay-2">
+          <div class="about-img"><img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800" alt="Healthcare team" loading="lazy" onerror="this.src='https://placehold.co/600x400/1e293b/white?text=Our+Team'" /></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section style="background:var(--slate-50);padding:5rem 0;">
+    <div class="container">
+      <div class="text-center mb-16 fade-in-up"><h2 class="section-title">What Drives Us</h2></div>
+      <div class="mvv-grid">
+        <div class="mvv-card fade-in-up"><div class="mvv-icon gradient-blue"><i data-lucide="target" style="width:28px;height:28px;color:white"></i></div><h3>Mission</h3><p>To prevent medication errors and connect rural patients with quality healthcare through AI-powered tools that work even offline.</p></div>
+        <div class="mvv-card fade-in-up delay-1"><div class="mvv-icon gradient-green"><i data-lucide="eye" style="width:28px;height:28px;color:white"></i></div><h3>Vision</h3><p>A world where every patient — regardless of where they live — has access to safe, accurate, and affordable healthcare.</p></div>
+        <div class="mvv-card fade-in-up delay-2"><div class="mvv-icon gradient-purple"><i data-lucide="heart-handshake" style="width:28px;height:28px;color:white"></i></div><h3>Values</h3><p>Safety first. Accessibility for all. Technology with empathy. Data privacy. Rural-first design thinking.</p></div>
+      </div>
+    </div>
+  </section>
+  <section style="padding:5rem 0;">
+    <div class="container">
+      <div class="text-center mb-16 fade-in-up"><h2 class="section-title">Meet Our Team</h2><p class="section-desc">Passionate people dedicated to transforming rural healthcare</p></div>
+      <div class="team-grid">
+        <div class="team-card fade-in-up"><div class="team-avatar" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">RS</div><h4>Rahul Sharma</h4><p class="team-role">Founder & Lead Developer</p><p class="team-bio">Full-stack developer with a passion for healthcare tech. Built MediGuard AI to solve real problems in rural India.</p><div class="team-tags"><span>React</span><span>Node.js</span><span>AI/ML</span></div></div>
+        <div class="team-card fade-in-up delay-1"><div class="team-avatar" style="background:linear-gradient(135deg,#22c55e,#16a34a)">PK</div><h4>Priya Kulkarni</h4><p class="team-role">Medical Advisor</p><p class="team-bio">MBBS with 10 years of rural healthcare experience. Provides medical guidance and validates drug interaction data.</p><div class="team-tags"><span>MBBS</span><span>Telemedicine</span><span>Clinical</span></div></div>
+        <div class="team-card fade-in-up delay-2"><div class="team-avatar" style="background:linear-gradient(135deg,#a855f7,#9333ea)">AM</div><h4>Anil Mehta</h4><p class="team-role">Backend & Database Engineer</p><p class="team-bio">Specialist in healthcare data systems and SQLite optimization for offline-capable applications.</p><div class="team-tags"><span>SQLite</span><span>Express</span><span>APIs</span></div></div>
+        <div class="team-card fade-in-up delay-3"><div class="team-avatar" style="background:linear-gradient(135deg,#f97316,#ea580c)">SJ</div><h4>Sneha Joshi</h4><p class="team-role">UI/UX Designer</p><p class="team-bio">Designs interfaces that are accessible, multilingual, and easy-to-use even for first-time smartphone users.</p><div class="team-tags"><span>Figma</span><span>CSS</span><span>A11y</span></div></div>
+      </div>
+    </div>
+  </section>
+  <section style="background:var(--slate-900);color:white;padding:5rem 0;">
+    <div class="container">
+      <div class="text-center mb-16 fade-in-up"><h2 class="section-title" style="color:white;">Our Journey</h2></div>
+      <div class="journey-timeline">
+        <div class="journey-item fade-in-up"><div class="journey-year">2022</div><div class="journey-dot"></div><div class="journey-content"><h4>Idea Born</h4><p>After witnessing a medication error in a rural clinic, the idea for MediGuard AI was conceived.</p></div></div>
+        <div class="journey-item fade-in-up delay-1"><div class="journey-year">2023</div><div class="journey-dot"></div><div class="journey-content"><h4>First Prototype</h4><p>Built first working version of the drug interaction checker and patient database.</p></div></div>
+        <div class="journey-item fade-in-up delay-2"><div class="journey-year">2024</div><div class="journey-dot"></div><div class="journey-content"><h4>Telemedicine Added</h4><p>Integrated video consultation booking and pharmacy inventory tracking.</p></div></div>
+        <div class="journey-item fade-in-up delay-3"><div class="journey-year">2025</div><div class="journey-dot"></div><div class="journey-content"><h4>Full Platform Launch</h4><p>Launched complete MediGuard AI platform with analytics, patient portal, and admin panel.</p></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: CONTACT
+══════════════════════════════════════════════ -->
+<div id="page-contact" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#1d4ed8,#4f46e5)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="mail" style="width:16px;height:16px"></i> Contact</div>
+      <h1 class="fade-in-up visible">Get In Touch</h1>
+      <p class="fade-in-up visible delay-1">Have a question or want to partner with us? We'd love to hear from you.</p>
+    </div>
+  </div>
+  <div class="container" style="padding:3rem 1.5rem;">
+    <div class="contact-grid">
+      <div class="panel-card">
+        <div class="panel-card-header"><i data-lucide="send" style="width:20px;height:20px"></i><h3>Send a Message</h3></div>
+        <div class="panel-card-body">
+          <div class="form-grid-2">
+            <div class="form-group"><label>Your Name</label><input type="text" id="contactName" class="form-input" placeholder="Dr. Sharma" /></div>
+            <div class="form-group"><label>Email</label><input type="email" id="contactEmail" class="form-input" placeholder="you@example.com" /></div>
+          </div>
+          <div class="form-group"><label>Subject</label>
+            <select id="contactSubject" class="form-input">
+              <option>General Enquiry</option><option>Partnership / Integration</option><option>Technical Support</option><option>Medical Advice</option><option>Bug Report</option><option>Feature Request</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Message</label><textarea id="contactMessage" class="form-input" rows="5" placeholder="Your message here..."></textarea></div>
+          <button class="btn-blue w-full" onclick="sendMessage()"><i data-lucide="send" style="width:16px;height:16px"></i> Send Message</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <div class="panel-card">
+          <div class="panel-card-header"><i data-lucide="info" style="width:20px;height:20px"></i><h3>Contact Information</h3></div>
+          <div class="panel-card-body">
+            <div class="contact-info-list">
+              <div class="contact-info-item"><div class="contact-info-icon gradient-blue"><i data-lucide="mail" style="width:16px;height:16px;color:white"></i></div><div><strong>Email</strong><p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6a020f0606052a070f0e030d1f0b180e440b03">[email&#160;protected]</a></p></div></div>
+              <div class="contact-info-item"><div class="contact-info-icon gradient-green"><i data-lucide="phone" style="width:16px;height:16px;color:white"></i></div><div><strong>Phone</strong><p>+91 98765 43210</p></div></div>
+              <div class="contact-info-item"><div class="contact-info-icon gradient-purple"><i data-lucide="map-pin" style="width:16px;height:16px;color:white"></i></div><div><strong>Location</strong><p>Nashik, Maharashtra, India</p></div></div>
+              <div class="contact-info-item"><div class="contact-info-icon gradient-red"><i data-lucide="clock" style="width:16px;height:16px;color:white"></i></div><div><strong>Hours</strong><p>Mon–Sat, 9 AM – 6 PM IST</p></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-header"><i data-lucide="help-circle" style="width:20px;height:20px"></i><h3>Frequently Asked Questions</h3></div>
+          <div class="panel-card-body" style="padding:0">
+            <div class="faq-list" id="faqList">
+              <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Is MediGuard AI free to use? <i data-lucide="chevron-down" style="width:16px;height:16px"></i></div><div class="faq-a">Yes! MediGuard AI is completely free for patients and healthcare workers in rural areas. We're mission-driven, not profit-driven.</div></div>
+              <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Does it work without internet? <i data-lucide="chevron-down" style="width:16px;height:16px"></i></div><div class="faq-a">Yes! Patient records and drug interaction data are cached locally. The system continues to work offline and syncs when connection is restored.</div></div>
+              <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How accurate is the drug checker? <i data-lucide="chevron-down" style="width:16px;height:16px"></i></div><div class="faq-a">Our database is curated by certified medical professionals and updated regularly. However, it should be used as a decision-support tool, not a replacement for medical judgment.</div></div>
+              <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Can I integrate it into my clinic? <i data-lucide="chevron-down" style="width:16px;height:16px"></i></div><div class="faq-a">Absolutely! We offer a REST API that any clinic, hospital, or pharmacy can integrate with. Contact us for partnership details.</div></div>
+              <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Is patient data secure? <i data-lucide="chevron-down" style="width:16px;height:16px"></i></div><div class="faq-a">All data is stored locally on your server with bcrypt-hashed passwords and JWT authentication. We never transmit patient data to external servers.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: DASHBOARD
+══════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page">
+
+<!-- ══════════ ROLE DASHBOARD SYSTEM ══════════ -->
+<style>
+/* ── Dashboard Shell ── */
+#dash-shell{display:none;height:calc(100vh - 64px);flex-direction:row;overflow:hidden}
+#dash-shell.active{display:flex}
+#dash-no-auth{padding:4rem 2rem;text-align:center;display:none}
+#dash-no-auth.active{display:block}
+
+/* ── SIDEBAR ── */
+.ds-sidebar{width:220px;background:#0f172a;display:flex;flex-direction:column;flex-shrink:0;height:calc(100vh - 64px);position:sticky;top:64px;align-self:flex-start;overflow-y:auto}
+.ds-logo{display:flex;align-items:center;gap:0.6rem;padding:1rem 0.875rem;border-bottom:1px solid rgba(255,255,255,0.07)}
+.ds-logo-icon{width:28px;height:28px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ds-logo-icon svg{width:15px;height:15px;fill:none;stroke:white;stroke-width:2.2}
+.ds-logo-text{font-size:0.82rem;font-weight:800;color:white;letter-spacing:-0.01em}
+.ds-role-badge{font-size:0.58rem;font-weight:700;color:rgba(255,255,255,0.88);text-transform:uppercase;letter-spacing:0.08em;margin-top:1px}
+.ds-sec-label{font-size:0.6rem;font-weight:700;color:rgba(255,255,255,0.80);text-transform:uppercase;letter-spacing:0.1em;padding:1rem 0.875rem 0.35rem}
+.ds-nav-item{display:flex;align-items:center;gap:0.55rem;padding:0.5rem 0.875rem;cursor:pointer;transition:all 0.15s;color:rgba(255,255,255,0.92);font-size:0.8rem;font-weight:500;border-left:2px solid transparent;text-decoration:none}
+.ds-nav-item:hover{background:rgba(255,255,255,0.07);color:#fff}
+.ds-nav-item.active{background:rgba(37,99,235,0.2);color:white;border-left-color:#2563eb}
+.ds-nav-item svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0}
+.ds-footer{padding:0.875rem;border-top:1px solid rgba(255,255,255,0.07);margin-top:auto}
+.ds-user{display:flex;align-items:center;gap:0.6rem}
+.ds-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:white;flex-shrink:0}
+.ds-user-name{font-size:0.75rem;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ds-user-role{font-size:0.62rem;color:rgba(255,255,255,0.85)}
+
+/* ── MAIN ── */
+.ds-main{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;min-height:0;height:calc(100vh - 64px);position:sticky;top:64px;align-self:flex-start}
+.ds-topbar{background:white;border-bottom:1px solid #e2e8f0;padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.ds-topbar h1{font-size:1.05rem;font-weight:700;color:#0f172a;margin:0}
+.ds-topbar p{font-size:0.72rem;color:#1a2332;margin:1px 0 0}
+.ds-content{padding:1.5rem;flex:1}
+
+/* ── GRIDS ── */
+.dg4{display:grid;grid-template-columns:repeat(4,1fr);gap:0.875rem;margin-bottom:1rem}
+.dg3{display:grid;grid-template-columns:repeat(3,1fr);gap:0.875rem;margin-bottom:1rem}
+.dg2{display:grid;grid-template-columns:repeat(2,1fr);gap:0.875rem;margin-bottom:1rem}
+.dg21{display:grid;grid-template-columns:2fr 1fr;gap:0.875rem;margin-bottom:1rem}
+.dg12{display:grid;grid-template-columns:1fr 2fr;gap:0.875rem;margin-bottom:1rem}
+.dgap{margin-bottom:1rem}
+
+/* ── CARDS ── */
+.dc{background:white;border:1px solid #e2e8f0;border-radius:0.75rem;padding:1.1rem;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.dc-title{font-size:0.72rem;font-weight:700;color:#0d1117;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.875rem;display:flex;align-items:center;gap:0.4rem}
+.dc-title svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2}
+.dc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem}
+.dc-hdr h3{font-size:0.85rem;font-weight:700;color:#0f172a;margin:0}
+
+/* ── STAT CARDS ── */
+.dsc{background:white;border:1px solid #e2e8f0;border-radius:0.75rem;padding:1.1rem;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.dsc-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:0.5rem}
+.dsc-icon svg{width:17px;height:17px;fill:none;stroke:white;stroke-width:2}
+.dsc-lbl{font-size:0.72rem;font-weight:600;color:#1a2332}
+.dsc-val{font-size:1.55rem;font-weight:800;color:#000;line-height:1.1;margin:2px 0}
+.dsc-sub{font-size:0.68rem;color:#1a2332}
+.dsc-up{color:#16a34a;font-size:0.68rem;font-weight:600}
+.dsc-dn{color:#dc2626;font-size:0.68rem;font-weight:600}
+.si-b{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.si-g{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.si-p{background:linear-gradient(135deg,#a855f7,#9333ea)}
+.si-a{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.si-r{background:linear-gradient(135deg,#f87171,#dc2626)}
+.si-c{background:linear-gradient(135deg,#22d3ee,#0891b2)}
+
+/* ── PILL BADGES ── */
+.dp{display:inline-flex;align-items:center;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:99px}
+.dp-b{background:#eff6ff;color:#1e40af}
+.dp-g{background:#f0fdf4;color:#15803d}
+.dp-r{background:#fef2f2;color:#991b1b}
+.dp-a{background:#fffbeb;color:#92400e}
+.dp-p{background:#faf5ff;color:#6b21a8}
+.dp-c{background:#ecfeff;color:#155e75}
+.dp-s{background:#e2e8f0;color:#0d1117}
+
+/* ── PROGRESS BAR ── */
+.dpb{height:6px;background:#f1f5f9;border-radius:99px;overflow:hidden;margin-top:3px}
+.dpf{height:100%;border-radius:99px}
+
+/* ── TABLE ── */
+.dt-wrap{overflow-x:auto;border-radius:0.5rem;border:1px solid #e2e8f0}
+.dt{width:100%;border-collapse:collapse;font-size:0.77rem}
+.dt th{text-align:left;font-size:0.63rem;font-weight:700;color:#0d1117;text-transform:uppercase;letter-spacing:0.05em;padding:0.45rem 0.7rem;border-bottom:1px solid #e2e8f0;background:#f1f5f9}
+.dt td{padding:0.55rem 0.7rem;border-bottom:1px solid #e8edf4;color:#0d1117}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:#f8fafc}
+
+/* ── LIST ITEMS ── */
+.dli{display:flex;align-items:center;gap:0.65rem;padding:0.55rem 0;border-bottom:1px solid #f1f5f9}
+.dli:last-child{border-bottom:none}
+.dli-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dli-icon svg{width:14px;height:14px;fill:none;stroke:white;stroke-width:2}
+.dli-name{font-size:0.8rem;font-weight:600;color:#0f172a}
+.dli-sub{font-size:0.68rem;color:#1a2332;margin-top:1px}
+
+/* ── VITALS ── */
+.dvr{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid #f1f5f9}
+.dvr:last-child{border-bottom:none}
+.dvl{font-size:0.75rem;color:#0d1117}
+.dvv{font-size:0.82rem;font-weight:700;color:#000}
+.dvs{font-size:0.63rem;font-weight:600;padding:2px 7px;border-radius:99px}
+.vs-n{background:#f0fdf4;color:#15803d}
+.vs-w{background:#fffbeb;color:#92400e}
+.vs-d{background:#fef2f2;color:#991b1b}
+
+/* ── ALERT ITEMS ── */
+.dai{display:flex;gap:0.65rem;padding:0.65rem;border-radius:0.5rem;margin-bottom:0.4rem}
+.dai:last-child{margin-bottom:0}
+.dai-r{background:#fef2f2;border-left:3px solid #dc2626}
+.dai-a{background:#fffbeb;border-left:3px solid #d97706}
+.dai-b{background:#eff6ff;border-left:3px solid #2563eb}
+.dai svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;flex-shrink:0;margin-top:1px}
+.dai-r svg{color:#dc2626}.dai-a svg{color:#d97706}.dai-b svg{color:#2563eb}
+.dai strong{display:block;font-size:0.77rem;font-weight:700;color:#0f172a}
+.dai span{font-size:0.7rem;color:#0d1117}
+
+/* ── TIMELINE ── */
+.dtl{display:flex;gap:0.875rem;margin-bottom:1rem;position:relative}
+.dtl::before{content:'';position:absolute;left:10px;top:20px;width:1px;height:calc(100% + 0.25rem);background:#e2e8f0}
+.dtl:last-child::before{display:none}
+.dtld{width:22px;height:22px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:white;z-index:1}
+.dtld svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.5}
+.dtl-b{border-color:#2563eb;color:#2563eb}.dtl-g{border-color:#16a34a;color:#16a34a}
+.dtl-p{border-color:#9333ea;color:#9333ea}.dtl-a{border-color:#d97706;color:#d97706}
+.dtlc .dt-title{font-size:0.78rem;font-weight:600;color:#0f172a}
+.dtlc .dt-date{font-size:0.67rem;color:#1a2332;margin-top:2px}
+
+/* ── APPT SLOT ── */
+.das{display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0.75rem;border-radius:0.5rem;margin-bottom:0.4rem;border:1px solid #e2e8f0;font-size:0.77rem}
+.das-t{font-size:0.68rem;font-weight:700;color:#0d1117;min-width:48px}
+.das-n{font-size:0.78rem;font-weight:600;color:#000}
+.das-s{font-size:0.65rem;color:#1a2332}
+.das.confirmed{border-left:3px solid #16a34a}.das.pending{border-left:3px solid #d97706}.das.telehealth{border-left:3px solid #2563eb}
+
+/* ── TASK ── */
+.dtk{display:flex;align-items:center;gap:0.55rem;padding:0.45rem 0;border-bottom:1px solid #f1f5f9}
+.dtk:last-child{border-bottom:none}
+.dtk-cb{width:15px;height:15px;border-radius:3px;border:1.5px solid #cbd5e1;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dtk-cb.done{background:#16a34a;border-color:#16a34a}
+.dtk-cb.done::after{content:'✓';font-size:9px;color:white;line-height:1}
+.dtk-txt{font-size:0.77rem;color:#0d1117}.dtk-txt.done{text-decoration:line-through;color:#1a2332}
+
+/* ── CALENDAR ── */
+.dcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:0.6rem}
+.dcal-dh{text-align:center;font-size:0.58rem;font-weight:700;color:#1a2332;padding:3px 0}
+.dcal-d{text-align:center;font-size:0.68rem;padding:4px 1px;border-radius:5px;cursor:pointer;color:#0d1117;transition:all 0.15s}
+.dcal-d:hover{background:#f1f5f9}
+.dcal-d.today{background:#2563eb;color:white;font-weight:700}
+.dcal-d.has-appt{position:relative}
+.dcal-d.has-appt::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:#16a34a}
+.dcal-d.empty{color:transparent;pointer-events:none}
+
+/* ── MED ITEM ── */
+.dmi{display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;border-bottom:1px solid #f1f5f9}
+.dmi:last-child{border-bottom:none}
+.dmi-icon{width:26px;height:26px;background:linear-gradient(135deg,#a855f7,#9333ea);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dmi-icon svg{width:13px;height:13px;fill:none;stroke:white;stroke-width:2}
+.dmi-n{font-size:0.78rem;font-weight:600;color:#0f172a}
+.dmi-d{font-size:0.67rem;color:#1a2332}
+
+/* ── CHART WRAPS ── */
+.dch{position:relative;width:100%}
+.dch-sm{height:160px}.dch-md{height:220px}.dch-lg{height:280px}
+
+/* ── KANBAN ── */
+.dkb{display:flex;gap:0.75rem;overflow-x:auto;padding-bottom:0.5rem}
+.dkb-col{min-width:155px;flex-shrink:0}
+.dkb-hdr{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:space-between}
+.dkb-cnt{background:#cbd5e1;color:#0d1117;width:17px;height:17px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700}
+.dkb-card{background:white;border:1px solid #d1d9e6;border-radius:0.4rem;padding:0.55rem;margin-bottom:0.35rem;font-size:0.72rem;color:#0d1117;cursor:grab;box-shadow:0 1px 2px rgba(0,0,0,0.07)}
+
+/* ── INV ITEM ── */
+.dinv{margin-bottom:0.75rem}
+.dinv-hdr{display:flex;justify-content:space-between;margin-bottom:3px}
+.dinv-n{font-size:0.75rem;font-weight:600;color:#0f172a}
+.dinv-v{font-size:0.68rem;font-weight:700}
+
+/* GAUGE ── */
+.dgr{display:flex;align-items:center;gap:0.65rem;padding:0.4rem 0}
+.dgb{flex:1;height:7px;background:#f1f5f9;border-radius:99px;overflow:hidden}
+.dgf{height:100%;border-radius:99px}
+
+/* ── NO AUTH STATE ── */
+.dash-locked{text-align:center;padding:4rem 2rem;max-width:480px;margin:0 auto}
+.dash-locked .lock-icon{width:72px;height:72px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+.dash-locked .lock-icon svg{width:36px;height:36px;fill:none;stroke:#64748b;stroke-width:1.5}
+.dash-locked h2{font-size:1.5rem;font-weight:800;color:#0f172a;margin-bottom:0.75rem}
+.dash-locked p{color:#0d1117;margin-bottom:2rem;line-height:1.6}
+.role-select-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.875rem;margin-top:1.5rem;text-align:left;max-width:460px;margin-left:auto;margin-right:auto}
+.role-select-card{background:white;border:1.5px solid #e2e8f0;border-radius:0.75rem;padding:1.1rem;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;gap:0.6rem}
+.role-select-card:hover{border-color:#2563eb;transform:translateY(-2px);box-shadow:0 4px 16px rgba(37,99,235,0.12)}
+.rsc-icon{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.rsc-icon svg{width:20px;height:20px;fill:none;stroke:white;stroke-width:2}
+.rsc-pt .rsc-icon{background:linear-gradient(135deg,#0891b2,#0e7490)}
+.rsc-dr .rsc-icon{background:linear-gradient(135deg,#2563eb,#1d4ed8)}
+.rsc-ph .rsc-icon{background:linear-gradient(135deg,#16a34a,#15803d)}
+.rsc-ad .rsc-icon{background:linear-gradient(135deg,#9333ea,#7c3aed)}
+.rsc-h3{font-size:0.88rem;font-weight:700;color:#0f172a}
+.rsc-p{font-size:0.7rem;color:#1a2332;line-height:1.4}
+
+@media(max-width:900px){
+  .ds-sidebar{width:50px;min-width:50px;height:calc(100vh - 64px)}
+  .ds-logo-text,.ds-role-badge,.ds-sec-label,.ds-nav-item span,.ds-user-name,.ds-user-role{display:none}
+  .ds-nav-item{justify-content:center;padding:0.6rem}
+  .ds-user{justify-content:center}
+  .dg4{grid-template-columns:repeat(2,1fr)}
+  .dg21,.dg12{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .dg3,.dg4{grid-template-columns:1fr 1fr}
+  .dg2{grid-template-columns:1fr}
+}
+
+/* ══════════════════════════════════════════════
+   DASHBOARD — DARK MODE
+══════════════════════════════════════════════ */
+
+/* ── Shell & Background ── */
+body.dark-theme #dash-shell { background: #080c16; }
+body.dark-theme .ds-main { background: #0d1117; }
+body.dark-theme .ds-content { background: #0d1117; }
+
+/* ── Topbar ── */
+body.dark-theme .ds-topbar { background: #111827; border-bottom-color: #1e293b; }
+body.dark-theme .ds-topbar h1 { color: #f1f5f9; }
+body.dark-theme .ds-topbar p { color: #64748b; }
+
+/* ── Sidebar (already dark by default, just ensure consistency) ── */
+body.dark-theme .ds-sidebar { background: #080c16; }
+body.dark-theme .ds-logo { border-bottom-color: rgba(255,255,255,0.05); }
+body.dark-theme .ds-footer { border-top-color: rgba(255,255,255,0.05); }
+
+/* ── Cards ── */
+body.dark-theme .dc { background: #111827; border-color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+body.dark-theme .dc-title { color: #64748b; }
+body.dark-theme .dc-hdr h3 { color: #e2e8f0; }
+
+/* ── Stat Cards ── */
+body.dark-theme .dsc { background: #111827; border-color: #1e293b; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+body.dark-theme .dsc-lbl { color: #94a3b8; }
+body.dark-theme .dsc-val { color: #f1f5f9; }
+body.dark-theme .dsc-sub { color: #64748b; }
+
+/* ── Pills / Badges ── */
+body.dark-theme .dp-b { background: rgba(37,99,235,0.18); color: #93c5fd; }
+body.dark-theme .dp-g { background: rgba(22,163,74,0.18); color: #86efac; }
+body.dark-theme .dp-r { background: rgba(220,38,38,0.18); color: #fca5a5; }
+body.dark-theme .dp-a { background: rgba(217,119,6,0.18); color: #fcd34d; }
+body.dark-theme .dp-p { background: rgba(147,51,234,0.18); color: #d8b4fe; }
+body.dark-theme .dp-c { background: rgba(8,145,178,0.18); color: #67e8f9; }
+body.dark-theme .dp-s { background: #1e293b; color: #94a3b8; }
+
+/* ── Progress bars ── */
+body.dark-theme .dpb { background: #1e293b; }
+
+/* ── Table ── */
+body.dark-theme .dt-wrap { border-color: #1e293b; }
+body.dark-theme .dt th { background: #0d1117; color: #64748b; border-bottom-color: #1e293b; }
+body.dark-theme .dt td { color: #94a3b8; border-bottom-color: #1a2233; }
+body.dark-theme .dt td strong, body.dark-theme .dt td b { color: #e2e8f0; }
+body.dark-theme .dt tr:hover td { background: #0d1117; }
+
+/* ── Appointment Slots ── */
+body.dark-theme .das { background: #111827; border-color: #1e293b; }
+body.dark-theme .das-t { color: #64748b; }
+body.dark-theme .das-n { color: #e2e8f0; }
+body.dark-theme .das-s { color: #64748b; }
+body.dark-theme .das.confirmed { border-left-color: #16a34a; }
+body.dark-theme .das.pending   { border-left-color: #d97706; }
+body.dark-theme .das.telehealth{ border-left-color: #2563eb; }
+
+/* ── Alert Items ── */
+body.dark-theme .dai-r { background: rgba(220,38,38,0.12); border-left-color: #dc2626; }
+body.dark-theme .dai-a { background: rgba(217,119,6,0.12);  border-left-color: #d97706; }
+body.dark-theme .dai-b { background: rgba(37,99,235,0.12);  border-left-color: #2563eb; }
+body.dark-theme .dai strong { color: #e2e8f0; }
+body.dark-theme .dai span   { color: #64748b; }
+
+/* ── List Items ── */
+body.dark-theme .dli { border-bottom-color: #1e293b; }
+body.dark-theme .dli-name { color: #e2e8f0; }
+body.dark-theme .dli-sub  { color: #64748b; }
+
+/* ── Vitals Rows ── */
+body.dark-theme .dvr { border-bottom-color: #1e293b; }
+body.dark-theme .dvl { color: #94a3b8; }
+body.dark-theme .dvv { color: #f1f5f9; }
+body.dark-theme .vs-n { background: rgba(22,163,74,0.15); color: #86efac; }
+body.dark-theme .vs-w { background: rgba(217,119,6,0.15);  color: #fcd34d; }
+body.dark-theme .vs-d { background: rgba(220,38,38,0.15);  color: #fca5a5; }
+
+/* ── Timeline ── */
+body.dark-theme .dtl::before { background: #1e293b; }
+body.dark-theme .dtld { background: #111827; }
+body.dark-theme .dtlc .dt-title { color: #e2e8f0; }
+body.dark-theme .dtlc .dt-date  { color: #64748b; }
+
+/* ── Tasks ── */
+body.dark-theme .dtk { border-bottom-color: #1e293b; }
+body.dark-theme .dtk-cb { border-color: #334155; }
+body.dark-theme .dtk-txt { color: #94a3b8; }
+body.dark-theme .dtk-txt.done { color: #475569; }
+
+/* ── Calendar ── */
+body.dark-theme .dcal-dh { color: #475569; }
+body.dark-theme .dcal-d  { color: #64748b; }
+body.dark-theme .dcal-d:hover { background: #1e293b; }
+body.dark-theme .dcal-d.today { background: #2563eb; color: white; }
+
+/* ── Medications ── */
+body.dark-theme .dmi { border-bottom-color: #1e293b; }
+body.dark-theme .dmi-n { color: #e2e8f0; }
+body.dark-theme .dmi-d { color: #64748b; }
+
+/* ── Inventory bars ── */
+body.dark-theme .dinv-n { color: #e2e8f0; }
+
+/* ── Gauge ── */
+body.dark-theme .dgb { background: #1e293b; }
+
+/* ── Kanban ── */
+body.dark-theme .dkb-card { background: #1a2233; border-color: #1e293b; color: #94a3b8; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+body.dark-theme .dkb-cnt  { background: #1e293b; color: #64748b; }
+
+/* ── Patient inline profile text ── */
+body.dark-theme .dc [style*="color:#0f172a"],
+body.dark-theme .dc [style*="color:#1e293b"],
+body.dark-theme .dc [style*="color:#334155"],
+body.dark-theme .dc [style*="color:#475569"] { color: #e2e8f0 !important; }
+body.dark-theme .dc [style*="color:#64748b"]  { color: #94a3b8 !important; }
+body.dark-theme .dc [style*="color:#94a3b8"]  { color: #64748b !important; }
+body.dark-theme .dsc [style*="color:#0f172a"],
+body.dark-theme .dsc [style*="color:#1e293b"] { color: #f1f5f9 !important; }
+
+/* ── No-auth locked screen ── */
+body.dark-theme .dash-locked h2 { color: #f1f5f9; }
+body.dark-theme .dash-locked p  { color: #64748b; }
+body.dark-theme .dash-locked .lock-icon { background: linear-gradient(145deg,#1e293b,#0f172a); }
+body.dark-theme .role-select-card { background: #111827; border-color: #1e293b; }
+body.dark-theme .role-select-card:hover { border-color: #2563eb; }
+body.dark-theme .rsc-h3 { color: #f1f5f9; }
+body.dark-theme .rsc-p  { color: #64748b; }
+
+/* ── Inline bg overrides for chart sections ── */
+body.dark-theme .dc [style*="background:#f8fafc"],
+body.dark-theme .dc [style*="background:#f1f5f9"],
+body.dark-theme .dc [style*="background:#eff6ff"],
+body.dark-theme .dc [style*="background:#f0fdf4"],
+body.dark-theme .dc [style*="background:#faf5ff"],
+body.dark-theme .dc [style*="background:#ecfeff"],
+body.dark-theme .dc [style*="background:#fffbeb"],
+body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) saturate(1.4); }
+</style>
+
+<!-- NO-AUTH STATE -->
+<div id="dash-no-auth">
+  <div class="dash-locked">
+    <div class="lock-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2>Your Dashboard</h2>
+    <p>Log in to access your personalized healthcare dashboard. Choose your role to see a preview of what's available.</p>
+    <div class="role-select-grid">
+      <div class="role-select-card rsc-pt" onclick="openModal('loginModal')">
+        <div class="rsc-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="rsc-h3">Patient</div>
+        <div class="rsc-p">Health records, vitals, appointments & medications</div>
+      </div>
+      <div class="role-select-card rsc-dr" onclick="openModal('loginModal')">
+        <div class="rsc-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="rsc-h3">Doctor</div>
+        <div class="rsc-p">Schedule, EHR, alerts & clinical analytics</div>
+      </div>
+      <div class="role-select-card rsc-ph" onclick="openModal('loginModal')">
+        <div class="rsc-icon"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>
+        <div class="rsc-h3">Pharmacist</div>
+        <div class="rsc-p">Inventory, revenue & prescription tracking</div>
+      </div>
+      <div class="role-select-card rsc-ad" onclick="openModal('loginModal')">
+        <div class="rsc-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+        <div class="rsc-h3">Administrator</div>
+        <div class="rsc-p">KPIs, user management & system oversight</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUTHENTICATED DASHBOARD SHELL -->
+<div id="dash-shell">
+  <!-- Sidebar -->
+  <aside class="ds-sidebar" id="ds-sidebar">
+    <div class="ds-logo">
+      <div class="ds-logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div>
+        <div class="ds-logo-text">MediGuard</div>
+        <div class="ds-role-badge" id="ds-role-badge">AI</div>
+      </div>
+    </div>
+    <nav id="ds-nav" style="flex:1;padding-bottom:1rem"></nav>
+    <div class="ds-footer">
+      <div class="ds-user">
+        <div class="ds-avatar" id="ds-avatar">U</div>
+        <div>
+          <div class="ds-user-name" id="ds-uname">User</div>
+          <div class="ds-user-role" id="ds-urole">Role</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="ds-main">
+    <div class="ds-topbar">
+      <div>
+        <h1 id="ds-page-title">Dashboard</h1>
+        <p id="ds-page-sub">Loading…</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <div id="ds-topbar-avatar" class="ds-avatar" style="width:32px;height:32px;font-size:0.68rem">U</div>
+      </div>
+    </div>
+    <div class="ds-content" id="ds-content">
+      <p style="color:#94a3b8;padding:2rem">Loading dashboard…</p>
+    </div>
+  </main>
+</div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PAGE: ADMIN PANEL
+══════════════════════════════════════════════ -->
+<div id="page-admin" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#334155,#1e293b)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="settings" style="width:16px;height:16px"></i> Admin Panel</div>
+      <h1 class="fade-in-up visible">System Administration</h1>
+      <p class="fade-in-up visible delay-1">Manage users, drug interactions, system settings, and reports</p>
+    </div>
+  </div>
+  <div class="container" style="padding:2rem 1.5rem 4rem;">
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="switchAdminTab('users')"><i data-lucide="users" style="width:16px;height:16px"></i> Users</button>
+      <button class="dash-tab" onclick="switchAdminTab('drugdb')"><i data-lucide="database" style="width:16px;height:16px"></i> Drug DB</button>
+      <button class="dash-tab" onclick="switchAdminTab('alerts')"><i data-lucide="bell" style="width:16px;height:16px"></i> Alerts Log</button>
+      <button class="dash-tab" onclick="switchAdminTab('settings')"><i data-lucide="settings" style="width:16px;height:16px"></i> Settings</button>
+    </div>
+
+    <div id="atab-users" class="tab-panel active">
+      <div class="panel-header">
+        <h3>Registered Users</h3>
+        <button class="btn-blue" onclick="openModal('registerModal')" style="font-size:0.875rem;padding:0.5rem 1rem;border-radius:0.6rem;">
+          <i data-lucide="user-plus" style="width:14px;height:14px"></i> Add User
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th>
+          </thead>
+          <tbody id="usersTable"><tr><td colspan="6" class="empty-row">Loading users...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="atab-drugdb" class="tab-panel">
+      <div class="panel-header">
+        <h3>Drug Interaction Database</h3>
+        <button class="btn-blue" onclick="openModal('addInteractionModal')" style="font-size:0.875rem;padding:0.5rem 1rem;border-radius:0.6rem;">
+          <i data-lucide="plus" style="width:14px;height:14px"></i> Add Interaction
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <th>Drug A</th><th>Drug B</th><th>Effect</th><th>Severity</th>
+          </thead>
+          <tbody id="adminInteractionsTable"><tr><td colspan="4" class="empty-row">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="atab-alerts" class="tab-panel">
+      <div class="panel-header"><h3>Safety Alert Log</h3></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <th>Patient</th><th>Drug A</th><th>Drug B</th><th>Effect</th><th>Date</th>
+          </thead>
+          <tbody id="adminAlertsTable"><tr><td colspan="5" class="empty-row">Loading alerts...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="atab-settings" class="tab-panel">
+      <div class="settings-grid">
+        <div class="panel-card">
+          <div class="panel-card-header"><i data-lucide="shield" style="width:20px;height:20px"></i><h3>Safety Settings</h3></div>
+          <div class="panel-card-body">
+            <div class="setting-row"><div><strong>Auto Safety Check</strong><p>Run AI drug interaction check on every new prescription</p></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+            <div class="setting-row"><div><strong>Block Dangerous Prescriptions</strong><p>Prevent CRITICAL interaction prescriptions from being saved</p></div><label class="toggle"><input type="checkbox" /><span class="toggle-slider"></span></label></div>
+            <div class="setting-row"><div><strong>Email Safety Alerts</strong><p>Send email notifications for every safety alert fired</p></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label></div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-header"><i data-lucide="database" style="width:20px;height:20px"></i><h3>Database Stats</h3></div>
+          <div class="panel-card-body" id="dbStatsPanel">
+            <div class="db-stat-row"><span>Patients</span><strong id="dbStatPat">—</strong></div>
+            <div class="db-stat-row"><span>Prescriptions</span><strong id="dbStatPres">—</strong></div>
+            <div class="db-stat-row"><span>Safety Alerts</span><strong id="dbStatAlert">—</strong></div>
+            <div class="db-stat-row"><span>Inventory Items</span><strong id="dbStatInv">—</strong></div>
+            <div class="db-stat-row"><span>Drug Interactions</span><strong id="dbStatDrug">—</strong></div>
+            <div class="db-stat-row"><span>Users</span><strong id="dbStatUser">—</strong></div>
+            <button class="btn-sm btn-sm-blue" onclick="loadAdminStats()" style="margin-top:0.75rem;">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-header"><i data-lucide="server" style="width:20px;height:20px"></i><h3>System Info</h3></div>
+          <div class="panel-card-body">
+            <div class="db-stat-row"><span>Backend</span><strong>Python Flask</strong></div>
+            <div class="db-stat-row"><span>Database</span><strong>MySQL</strong></div>
+            <div class="db-stat-row"><span>Auth</span><strong>SHA-256 + Token</strong></div>
+            <div class="db-stat-row"><span>Version</span><strong>1.0.0</strong></div>
+            <div class="db-stat-row"><span>Port</span><strong>5001</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">
+          <div class="footer-logo-icon"><i data-lucide="activity" style="width:20px;height:20px;stroke-width:2.5;color:white"></i></div>
+          <span>MediGuard AI</span>
+        </div>
+        <p class="footer-text">A Smart Healthcare Hub connecting villages, cities, and pharmacies for safer healthcare delivery.</p>
+      </div>
+      <div>
+        <h3>Platform</h3>
+        <ul>
+          <li><a onclick="navigate('home')">Home</a></li>
+          <li><a onclick="navigate('features')">Features</a></li>
+          <li><a onclick="navigate('howitworks')">How It Works</a></li>
+          <li><a onclick="navigate('dashboard')">Dashboard</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Services</h3>
+        <ul>
+          <li><a onclick="navigate('telemedicine')">Telemedicine</a></li>
+          <li><a onclick="navigate('medicines')">Medicine Database</a></li>
+          <li><a onclick="navigate('inventory')">Live Inventory</a></li>
+          <li><a onclick="navigate('pharmacy')">Pharmacy Finder</a></li>
+          <li><a onclick="navigate('analytics')">Analytics</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Company</h3>
+        <ul>
+          <li><a onclick="navigate('about')">About Us</a></li>
+          <li><a onclick="navigate('contact')">Contact</a></li>
+          <li><a onclick="navigate('portal')">Patient Portal</a></li>
+          <li><a onclick="navigate('admin')">Admin Panel</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-divider">
+      <p>© <span id="year"></span> MediGuard AI. Saving lives through smart healthcare technology.</p>
+    </div>
+  </div>
+</footer>
+<!-- ══════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════ -->
+<div id="loginModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'loginModal')">
+  <div class="modal" style="max-width:460px;padding:0;overflow:hidden;border-radius:1.25rem;">
+    <div style="background: linear-gradient(135deg,#0d9488,#0284c7); padding: 1.6rem 1.75rem 1.2rem; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="display:flex;align-items:center;gap:0.55rem;margin-bottom:0.25rem;">
+          <span style="font-size:1.4rem;">🛡️</span>
+          <h3 style="margin:0;font-size:1.15rem;font-weight:800;color:#fff;">Login to MediGuard AI</h3>
+        </div>
+        <p style="margin:0;font-size:0.78rem;color:rgba(255,255,255,0.75);">Secure · Private · Always available</p>
+      </div>
+      <button onclick="closeModal('loginModal')" class="modal-close" style="color:#fff;opacity:0.8;background:rgba(255,255,255,0.15); border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <i data-lucide="x" style="width:18px;height:18px"></i>
+      </button>
+    </div>
+    <div style="display:flex;border-bottom:2px solid #f1f5f9;background:#fafafa;">
+      <button class="login-tab active" id="tabGoogle" onclick="switchLoginTab('google')" style="flex:1;padding:0.75rem 0.25rem;font-size:0.8rem;"><span style="font-size:1rem;">G</span><br/>Google</button>
+      <button class="login-tab" id="tabEmail" onclick="switchLoginTab('email')" style="flex:1;padding:0.75rem 0.25rem;font-size:0.8rem;"><i data-lucide="mail" style="width:14px;height:14px;vertical-align:middle;"></i><br/>Email</button>
+      <button class="login-tab" id="tabPhone" onclick="switchLoginTab('phone')" style="flex:1;padding:0.75rem 0.25rem;font-size:0.8rem;"><i data-lucide="smartphone" style="width:14px;height:14px;vertical-align:middle;"></i><br/>Phone</button>
+    </div>
+    <div class="modal-body" style="padding:1.6rem 1.75rem 1.75rem;">
+      <div id="panelGoogle">
+        <p style="text-align:center;color:var(--slate-500);font-size:0.85rem;margin-bottom:1.25rem;">Sign in instantly with your Google account. No password needed.</p>
+        <!-- Google GSI: g_id_onload handles token callback; renderButton() fills #googleBtnContainer -->
+        <div id="g_id_onload"
+             data-client_id="846528397740-o1i1fpnhm8138bm5019sjtmf4sneiut3.apps.googleusercontent.com"
+             data-callback="handleGoogleCredential"
+             data-auto_prompt="false"
+             data-cancel_on_tap_outside="false">
+        </div>
+        <!-- Google renders its official button here via renderButton() -->
+        <div id="googleBtnContainer" style="display:flex;justify-content:center;margin-bottom:0.85rem;min-height:44px;align-items:center;">
+          <!-- Fallback shown only while GSI loads -->
+          <button id="googleSignInBtn" onclick="triggerGoogleSignIn()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.75rem;padding:0.8rem 1rem;border:2px solid #e2e8f0;border-radius:0.75rem;background:#fff;font-family:inherit;font-size:0.92rem;font-weight:700;color:#374151;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;" onmouseover="this.style.borderColor='#3b82f6';this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.15)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.4-.1-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 16 19.2 13 24 13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 16.1 3 9.3 7.9 6.3 14.7z"/><path fill="#FBBC05" d="M24 45c5.9 0 10.9-2 14.5-5.4l-6.7-5.5C29.8 35.9 27 37 24 37c-6.1 0-10.7-3.1-11.8-7.5l-7 5.4C8.3 41.1 15.5 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-.7 2.4-2.2 4.4-4.3 5.8l6.7 5.5C42.4 36.7 45 31 45 24c0-1.4-.1-2.7-.5-4z"/></svg>
+            Continue with Google
+          </button>
+        </div>
+        <div id="googleStatus" style="display:none;text-align:center;padding:0.6rem;border-radius:0.6rem;font-size:0.82rem;font-weight:600;margin-top:0.5rem;"></div>
+        <p style="text-align:center;margin-top:1.1rem;font-size:0.8rem;color:var(--slate-500);">Don't have an account? <a onclick="closeModal('loginModal');openModal('registerModal')" style="color:var(--blue-600);cursor:pointer;font-weight:700;">Register here</a></p>
+      </div>
+      <div id="panelEmail" style="display:none;">
+        <div class="form-group" style="margin-bottom:1rem;"><label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Email address</label><div style="position:relative;"><i data-lucide="mail" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#94a3b8;pointer-events:none;"></i><input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" style="padding-left:2.4rem;" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()" /></div></div>
+        <div class="form-group" style="margin-bottom:1.25rem;"><div style="display:flex;justify-content:space-between;align-items:center;"><label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Password</label><a style="font-size:0.76rem;color:var(--blue-600);cursor:pointer;font-weight:600;">Forgot password?</a></div><div style="position:relative;"><i data-lucide="lock" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#94a3b8;pointer-events:none;"></i><input type="password" id="loginPassword" class="form-input" placeholder="••••••••" style="padding-left:2.4rem;padding-right:2.75rem;" onkeydown="if(event.key==='Enter')loginUserWithCaptcha()" /><button onclick="togglePasswordVisibility('loginPassword',this)" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;"><i data-lucide="eye" style="width:16px;height:16px;"></i></button></div></div>
+        <div id="captchaBox" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:0.75rem;padding:0.9rem 1rem;margin-bottom:1.1rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.55rem;">
+            <span style="font-size:0.75rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.05em;">Security Verification</span>
+            <button onclick="refreshCaptcha()" title="New captcha" style="background:none;border:none;cursor:pointer;color:#64748b;padding:0.3rem;border-radius:0.4rem;display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;transition:background 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width:13px;height:13px;"></i> Refresh</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="position:relative;flex-shrink:0;border-radius:0.5rem;overflow:hidden;border:1.5px solid #cbd5e1;">
+              <canvas id="captchaCanvas" width="160" height="52" style="display:block;"></canvas>
+            </div>
+            <div style="flex:1;">
+              <input type="text" id="captchaAnswer" class="form-input" placeholder="Type characters above" maxlength="6" autocomplete="off" spellcheck="false" style="font-size:0.92rem;margin:0;letter-spacing:0.12em;font-family:monospace;" oninput="this.value=this.value.toUpperCase()" />
+              <div id="captchaStatus" style="font-size:0.72rem;margin-top:0.3rem;min-height:1rem;color:#64748b;">Enter the characters shown in the image</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-blue w-full" onclick="loginUserWithCaptcha()" style="font-size:0.92rem;padding:0.75rem;"><i data-lucide="log-in" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"></i> Login</button>
+        <p style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--slate-500);">Don't have an account? <a onclick="closeModal('loginModal');openModal('registerModal')" style="color:var(--blue-600);cursor:pointer;font-weight:700;">Register here</a></p>
+      </div>
+      <div id="panelPhone" style="display:none;">
+        <div id="phoneStep1">
+          <p style="font-size:0.82rem;color:var(--slate-500);margin-bottom:1.1rem;display:flex;align-items:center;gap:0.4rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="#25d366" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.557 4.126 1.533 5.862L.054 23.25a.75.75 0 0 0 .916.916l5.453-1.479A11.952 11.952 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg> We'll send a 6-digit OTP to your <strong style="color:#25d366;">WhatsApp</strong></p>
+          <div class="form-group" style="margin-bottom:1.1rem;"><label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Country &amp; Phone</label><div style="display:flex;gap:0.5rem;"><div style="position:relative;flex-shrink:0;"><button id="ccBtn" onclick="toggleCountryDropdown()" style="display:flex;align-items:center;gap:0.4rem;padding:0.65rem 0.75rem;border:1.5px solid #e2e8f0;border-radius:0.65rem;background:#fff;font-family:inherit;font-size:0.88rem;font-weight:700;color:#1e293b;cursor:pointer;min-width:90px;white-space:nowrap;"><span id="ccFlag">🇮🇳</span><span id="ccCode">+91</span><i data-lucide="chevron-down" style="width:13px;height:13px;color:#64748b;"></i></button><div id="ccDropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:#fff;border:1.5px solid #e2e8f0;border-radius:0.75rem;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:999;min-width:260px;overflow:hidden;"><div style="padding:0.6rem;"><input type="text" id="ccSearch" placeholder="Search country…" oninput="filterCountries(this.value)" style="width:100%;padding:0.5rem 0.75rem;border:1.5px solid #e2e8f0;border-radius:0.55rem;font-size:0.82rem;font-family:inherit;outline:none;box-sizing:border-box;" /></div><ul id="ccList" style="max-height:200px;overflow-y:auto;list-style:none;margin:0;padding:0 0.4rem 0.4rem;"></ul></div></div><input type="tel" id="phoneInput" class="form-input" placeholder="9876543210" style="flex:1;" onkeydown="if(event.key==='Enter')sendOTP()" /></div></div>
+          <button class="btn-blue w-full" id="sendOtpBtn" onclick="sendOTP()" style="font-size:0.92rem;padding:0.75rem;background:linear-gradient(135deg,#25d366,#128c7e);border-color:#25d366;"><svg viewBox="0 0 24 24" width="16" height="16" fill="white" style="vertical-align:middle;margin-right:6px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.557 4.126 1.533 5.862L.054 23.25a.75.75 0 0 0 .916.916l5.453-1.479A11.952 11.952 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg> Send OTP via WhatsApp</button>
+        </div>
+        <div id="phoneStep2" style="display:none;">
+          <div style="text-align:center;margin-bottom:1.25rem;padding:0.9rem;background:#f0fdf4;border-radius:0.75rem;border:1.5px solid #bbf7d0;"><div style="font-size:1.5rem;margin-bottom:0.25rem;">📱</div><p style="margin:0;font-size:0.83rem;color:#166534;font-weight:600;" id="otpSentMsg">OTP sent!</p></div>
+          <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);display:block;margin-bottom:0.55rem;">Enter 6-digit OTP</label>
+          <div id="otpBoxes" style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.1rem;">
+            <input class="otp-box" maxlength="1" type="text" inputmode="numeric" oninput="otpBoxInput(this,0)" onkeydown="otpBoxKey(event,0)" style="width:42px;height:50px;text-align:center;font-size:1.35rem;font-weight:800;border:2px solid #e2e8f0;border-radius:0.65rem;font-family:monospace;outline:none;transition:border-color 0.15s;" />
+            <input class="otp-box" maxlength="1" type="text" inputmode="numeric" oninput="otpBoxInput(this,1)" onkeydown="otpBoxKey(event,1)" style="width:42px;height:50px;text-align:center;font-size:1.35rem;font-weight:800;border:2px solid #e2e8f0;border-radius:0.65rem;font-family:monospace;outline:none;transition:border-color 0.15s;" />
+            <input class="otp-box" maxlength="1" type="text" inputmode="numeric" oninput="otpBoxInput(this,2)" onkeydown="otpBoxKey(event,2)" style="width:42px;height:50px;text-align:center;font-size:1.35rem;font-weight:800;border:2px solid #e2e8f0;border-radius:0.65rem;font-family:monospace;outline:none;transition:border-color 0.15s;" />
+            <input class="otp-box" maxlength="1" type="text" inputmode="numeric" oninput="otpBoxInput(this,3)" onkeydown="otpBoxKey(event,3)" style="width:42px;height:50px;text-align:center;font-size:1.35rem;font-weight:800;border:2px solid #e2e8f0;border-radius:0.65rem;font-family:monospace;outline:none;transition:border-color 0.15s;" />
+            <input class="otp-box" maxlength="1" type="text" inputmode="numeric" oninput="otpBoxInput(this,4)" onkeydown="otpBoxKey(event,4)" style="width:42px;height:50px;text-align:center;font-size:1.35rem;font-weight:800;border:2px solid #e2e8f0;border-radius:0.65rem;font-family:monospace;outline:none;transition:border-color 0.15s;" />
+            <input class="otp-box" maxlength="1" type="text" inputmode="numeric" oninput="otpBoxInput(this,5)" onkeydown="otpBoxKey(event,5)" style="width:42px;height:50px;text-align:center;font-size:1.35rem;font-weight:800;border:2px solid #e2e8f0;border-radius:0.65rem;font-family:monospace;outline:none;transition:border-color 0.15s;" />
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+            <button class="btn-outline w-full" onclick="backToPhoneStep1()" style="font-size:0.88rem;padding:0.65rem;"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"></i> Change Number</button>
+            <button class="btn-blue w-full" onclick="verifyOTP()" style="font-size:0.88rem;padding:0.65rem;"><i data-lucide="check" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"></i> Verify OTP</button>
+          </div>
+          <p style="text-align:center;margin:0;font-size:0.76rem;color:#64748b;">Didn't receive OTP? <a id="resendLink" onclick="resendOTP()" style="color:var(--blue-600);cursor:pointer;font-weight:600;">Resend</a> <span id="otpTimer" style="color:#94a3b8;"></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="registerModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'registerModal')">
+  <div class="modal">
+    <div class="modal-header"><h3>Create Account</h3><button onclick="closeModal('registerModal')" class="modal-close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Full Name</label><input type="text" id="regName" class="form-input" placeholder="Dr. Rahul Sharma" /></div>
+      <div class="form-group"><label>Email</label><input type="email" id="regEmail" class="form-input" placeholder="you@example.com" /></div>
+      <div class="form-group"><label>Role</label><select id="regRole" class="form-input">
+          <option value="admin">Admin</option>
+          <option value="doctor">Doctor</option>
+          <option value="pharmacist">Pharmacist</option>
+          <option value="patient">Patient</option>
+        </select></select></div>
+              <div class="form-group"><label>Password</label><input type="password" id="regPassword" class="form-input" placeholder="Min 6 characters" /></div>
+      <button class="btn-blue w-full" onclick="registerUser()">Create Account</button>
+      <p style="text-align:center;margin-top:1rem;font-size:0.875rem;color:var(--slate-600)">Already have an account? <a onclick="closeModal('registerModal');openModal('loginModal')" style="color:var(--blue-600);cursor:pointer;font-weight:600;">Login here</a></p>
+    </div>
+  </div>
+</div>
+
+<div id="patientModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'patientModal')">
+  <div class="modal modal-lg">
+    <div class="modal-header"><h3>Register New Patient</h3><button onclick="closeModal('patientModal')" class="modal-close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group"><label>Full Name</label><input type="text" id="patName" class="form-input" /></div>
+        <div class="form-group"><label>Age</label><input type="number" id="patAge" class="form-input" /></div>
+        <div class="form-group"><label>Gender</label><select id="patGender" class="form-input"><option>Male</option><option>Female</option><option>Other</option></select></div>
+        <div class="form-group"><label>Blood Group</label><select id="patBlood" class="form-input"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="patPhone" class="form-input" /></div>
+        <div class="form-group"><label>Village / City</label><input type="text" id="patVillage" class="form-input" /></div>
+      </div>
+      <div class="form-group"><label>Current Medications</label><input type="text" id="patMeds" class="form-input" placeholder="Aspirin, Metformin" /></div>
+      <div class="form-group"><label>Known Allergies</label><input type="text" id="patAllergies" class="form-input" /></div>
+      <button class="btn-blue w-full" onclick="addPatient()">Register Patient</button>
+    </div>
+  </div>
+</div>
+
+<div id="prescriptionModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'prescriptionModal')">
+  <div class="modal modal-lg">
+    <div class="modal-header"><h3>Create Prescription</h3><button onclick="closeModal('prescriptionModal')" class="modal-close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group"><label>Patient ID</label><input type="number" id="presPatId" class="form-input" /></div>
+        <div class="form-group"><label>Medicine Name</label><input type="text" id="presMed" class="form-input" /></div>
+        <div class="form-group"><label>Dosage</label><input type="text" id="presDosage" class="form-input" placeholder="500mg twice daily" /></div>
+        <div class="form-group"><label>Duration</label><input type="text" id="presDuration" class="form-input" placeholder="7 days" /></div>
+      </div>
+      <div class="form-group"><label>Doctor Name</label><input type="text" id="presDoctor" class="form-input" /></div>
+      <div class="form-group"><label>Reminder Time</label><select id="presReminder" class="form-input"><option value="">No reminder</option><option value="morning">Morning (8:00 AM)</option><option value="afternoon">Afternoon (2:00 PM)</option><option value="evening">Evening (6:00 PM)</option><option value="night">Night (9:00 PM)</option></select></div>
+      <div class="form-group"><label>Notes</label><textarea id="presNotes" class="form-input" rows="3"></textarea></div>
+      <div id="presInteractionWarning" class="hidden"></div>
+      <button class="btn-blue w-full" onclick="addPrescription()">
+        <i data-lucide="shield-check" style="width:16px;height:16px"></i> Issue Prescription (with Safety Check + Auto Deduct)
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="inventoryModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'inventoryModal')">
+  <div class="modal modal-lg">
+    <div class="modal-header"><h3>Update Medicine Stock</h3><button onclick="closeModal('inventoryModal')" class="modal-close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="modal-body">
+      <div class="form-grid-2">
+        <div class="form-group"><label>Medicine Name</label><input type="text" id="invMed" class="form-input" /></div>
+        <div class="form-group"><label>Category</label><select id="invCategory" class="form-input"><option>Analgesic</option><option>Antibiotic</option><option>Antidiabetic</option><option>Antihypertensive</option><option>Anticoagulant</option><option>Vitamin</option><option>Other</option></select></div>
+        <div class="form-group"><label>Quantity</label><input type="number" id="invQty" class="form-input" /></div>
+        <div class="form-group"><label>Unit</label><select id="invUnit" class="form-input"><option>Tablets</option><option>Capsules</option><option>ml</option><option>Strips</option><option>Bottles</option></select></div>
+        <div class="form-group"><label>Pharmacy / Manufacturer</label><input type="text" id="invPharmacy" class="form-input" /></div>
+        <div class="form-group"><label>Min Stock Level</label><input type="number" id="invMinStock" class="form-input" placeholder="10" /></div>
+      </div>
+      <button class="btn-blue w-full" onclick="updateInventory()">Save to Inventory</button>
+    </div>
+  </div>
+</div>
+
+<div id="viewPatientModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'viewPatientModal')">
+  <div class="modal modal-lg">
+    <div class="modal-header"><h3>Patient Details</h3><button onclick="closeModal('viewPatientModal')" class="modal-close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="modal-body" id="viewPatientBody"></div>
+  </div>
+</div>
+
+<div id="addInteractionModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'addInteractionModal')">
+  <div class="modal">
+    <div class="modal-header"><h3>Add Drug Interaction</h3><button onclick="closeModal('addInteractionModal')" class="modal-close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Drug A</label><input type="text" id="newDrugA" class="form-input" placeholder="Aspirin" /></div>
+      <div class="form-group"><label>Drug B</label><input type="text" id="newDrugB" class="form-input" placeholder="Warfarin" /></div>
+      <div class="form-group"><label>Interaction Effect</label><textarea id="newDrugEffect" class="form-input" rows="2" placeholder="Increased bleeding risk..."></textarea></div>
+      <div class="form-group"><label>Severity</label><select id="newDrugSeverity" class="form-input"><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></div>
+      <button class="btn-blue w-full" onclick="addDrugInteraction()"><i data-lucide="plus" style="width:16px;height:16px"></i> Add Interaction</button>
+    </div>
+  </div>
+</div>
+
+<div id="uploadReportModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'uploadReportModal')">
+  <div class="modal">
+    <div class="modal-header"><h3>Upload Medical Report</h3><button onclick="closeModal('uploadReportModal')" class="modal-close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Patient ID</label><input type="number" id="reportPatientId" class="form-input" /></div>
+      <div class="form-group"><label>Report File</label><input type="file" id="reportFile" class="form-input" accept=".pdf,.jpg,.jpeg,.png" /></div>
+      <button class="btn-blue w-full" onclick="uploadReport()"><i data-lucide="upload" style="width:16px;height:16px"></i> Upload</button>
+    </div>
+  </div>
+</div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="script.js"></script>
+<script src="features.js"></script>
+<!-- Floating Chatbot Button -->
+<div id="chatbotFab" class="chatbot-fab" onclick="toggleChatbot()">
+  <i data-lucide="message-circle" style="width:28px;height:28px;"></i>
+</div>
+
+<!-- Chatbot Overlay (hidden by default) -->
+<div id="chatbotOverlay" class="chatbot-overlay" style="display: none;">
+  <div class="chatbot-header">
+    <span>MediGuard AI Assistant</span>
+    <button onclick="toggleChatbot()" class="chatbot-close">&times;</button>
+  </div>
+  <div class="chatbot-messages" id="chatbotMessages">
+    <div class="chatbot-message bot">Hello! How can I help you today?</div>
+  </div>
+  <div class="chatbot-input-area">
+    <input type="text" id="chatbotInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendChatMessage()" />
+    <button onclick="sendChatMessage()">Send</button>
+  </div>
+</div>
+
+<!-- ── Hidden Google Translate widget (engine only, no visible bar) ── -->
+<div id="google_translate_element" style="display:none;visibility:hidden;position:absolute;"></div>
+
+<!-- ══════════════════════════════════════════════
+     LANGUAGE PICKER MODAL
+══════════════════════════════════════════════ -->
+<div id="langModal" onclick="if(event.target===this)closeLangModal()">
+  <div class="lm-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;">
+      <h3 style="margin:0;">🌐 Choose Language</h3>
+      <button class="lm-close" onclick="closeLangModal()">✕</button>
+    </div>
+
+    <!-- Quick-pick: the three most relevant languages -->
+    <button class="lm-btn" data-lang-btn="en" onclick="changeLanguage('en')">
+      <span class="lm-flag">🇬🇧</span>
+      <span><div class="lm-label">English</div><div class="lm-sub">Default language</div></span>
+    </button>
+    <button class="lm-btn" data-lang-btn="hi" onclick="changeLanguage('hi')">
+      <span class="lm-flag">🇮🇳</span>
+      <span><div class="lm-label">हिन्दी</div><div class="lm-sub">Hindi</div></span>
+    </button>
+    <button class="lm-btn" data-lang-btn="mr" onclick="changeLanguage('mr')">
+      <span class="lm-flag">🇮🇳</span>
+      <span><div class="lm-label">मराठी</div><div class="lm-sub">Marathi</div></span>
+    </button>
+
+    <hr class="lm-sep">
+
+    <!-- More languages: exposes the native Google Translate selector -->
+    <button class="lm-btn" onclick="toggleMoreLangs(this)"
+      style="font-size:0.85rem;color:var(--slate-500);border-style:dashed;">
+      🌍 More languages…
+    </button>
+    <div id="gtMoreWrap">
+      <label>Select any language via Google Translate</label>
+      <!-- Google Translate injects its <select class="goog-te-combo"> inside #google_translate_element;
+           we clone it here dynamically via JS -->
+      <div id="gtNativeSelectSlot"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

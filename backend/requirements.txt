@@ -1,0 +1,8 @@
+flask
+flask-cors
+mysql-connector-python
+pandas
+python-dotenv
+reportlab
+requests
+pypdf
