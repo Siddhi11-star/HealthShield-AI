@@ -1,0 +1,496 @@
+/* ════════════════════════════════════════════════════════════
+   MediGuard AI — Comprehensive Fixes
+   • Dashboard responsiveness (mobile sidebar, grid collapse)
+   • Dark mode text visibility everywhere
+   • Light mode contrast improvements
+   ════════════════════════════════════════════════════════════ */
+
+/* ── CSS Variables for theme tokens ── */
+:root {
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+  --text-faint: #64748b;
+  --bg-card: #ffffff;
+  --bg-page: #f8fafc;
+  --border: #e2e8f0;
+}
+body.dark-theme {
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-faint: #64748b;
+  --bg-card: #111827;
+  --bg-page: #0d1117;
+  --border: #1e293b;
+}
+
+/* ════════════════════════════════════════════════
+   1. DASHBOARD DARK-MODE VISIBILITY (Comprehensive)
+   ════════════════════════════════════════════════ */
+
+/* Stat card labels & values */
+body.dark-theme .dsc-lbl  { color: #94a3b8 !important; }
+body.dark-theme .dsc-val  { color: #f1f5f9 !important; }
+body.dark-theme .dsc-sub  { color: #64748b !important; }
+body.dark-theme .dsc-up   { color: #4ade80 !important; }
+body.dark-theme .dsc-dn   { color: #f87171 !important; }
+
+/* Card titles and headers */
+body.dark-theme .dc-title { color: #94a3b8 !important; }
+body.dark-theme .dc-hdr h3 { color: #e2e8f0 !important; }
+body.dark-theme .dc      { background: #111827 !important; border-color: #1e293b !important; }
+body.dark-theme .dsc     { background: #111827 !important; border-color: #1e293b !important; }
+
+/* Topbar */
+body.dark-theme .ds-topbar   { background: #111827 !important; border-bottom-color: #1e293b !important; }
+body.dark-theme .ds-topbar h1 { color: #f1f5f9 !important; }
+body.dark-theme .ds-topbar p  { color: #94a3b8 !important; }
+
+/* Table cells */
+body.dark-theme .dt th       { background: #0d1117 !important; color: #94a3b8 !important; border-bottom-color: #1e293b !important; }
+body.dark-theme .dt td       { color: #cbd5e1 !important; border-bottom-color: #1a2233 !important; }
+body.dark-theme .dt td strong,
+body.dark-theme .dt td b     { color: #f1f5f9 !important; }
+body.dark-theme .dt-wrap     { border-color: #1e293b !important; }
+body.dark-theme .dt tr:hover td { background: rgba(255,255,255,0.03) !important; }
+
+/* List items */
+body.dark-theme .dli-name    { color: #e2e8f0 !important; }
+body.dark-theme .dli-sub     { color: #64748b !important; }
+body.dark-theme .dli         { border-bottom-color: #1e293b !important; }
+
+/* Vitals */
+body.dark-theme .dvl         { color: #94a3b8 !important; }
+body.dark-theme .dvv         { color: #f1f5f9 !important; }
+body.dark-theme .dvr         { border-bottom-color: #1e293b !important; }
+
+/* Alert items */
+body.dark-theme .dai strong  { color: #e2e8f0 !important; }
+body.dark-theme .dai span    { color: #94a3b8 !important; }
+
+/* Task items */
+body.dark-theme .dtk-txt     { color: #94a3b8 !important; }
+body.dark-theme .dtk-txt.done { color: #475569 !important; }
+body.dark-theme .dtk         { border-bottom-color: #1e293b !important; }
+body.dark-theme .dtk-cb      { border-color: #334155 !important; }
+
+/* Calendar */
+body.dark-theme .dcal-d      { color: #94a3b8 !important; }
+body.dark-theme .dcal-dh     { color: #475569 !important; }
+
+/* Meds */
+body.dark-theme .dmi-n       { color: #e2e8f0 !important; }
+body.dark-theme .dmi-d       { color: #64748b !important; }
+body.dark-theme .dmi         { border-bottom-color: #1e293b !important; }
+
+/* Appointments */
+body.dark-theme .das         { background: #111827 !important; border-color: #1e293b !important; }
+body.dark-theme .das-t       { color: #64748b !important; }
+body.dark-theme .das-n       { color: #e2e8f0 !important; }
+body.dark-theme .das-s       { color: #94a3b8 !important; }
+
+/* Timeline */
+body.dark-theme .dtlc .dt-title  { color: #e2e8f0 !important; }
+body.dark-theme .dtlc .dt-date   { color: #64748b !important; }
+body.dark-theme .dtl::before     { background: #1e293b !important; }
+body.dark-theme .dtld            { background: #111827 !important; }
+
+/* Inventory bars */
+body.dark-theme .dinv-n          { color: #e2e8f0 !important; }
+body.dark-theme .dinv-v          { color: #94a3b8 !important; }
+body.dark-theme .dgb             { background: #1e293b !important; }
+body.dark-theme .dpb             { background: #1e293b !important; }
+
+/* Kanban */
+body.dark-theme .dkb-card        { background: #1a2233 !important; border-color: #1e293b !important; color: #94a3b8 !important; }
+
+/* Role select cards (locked screen) */
+body.dark-theme .role-select-card  { background: #111827 !important; border-color: #1e293b !important; }
+body.dark-theme .rsc-h3            { color: #f1f5f9 !important; }
+body.dark-theme .rsc-p             { color: #94a3b8 !important; }
+body.dark-theme .dash-locked h2    { color: #f1f5f9 !important; }
+body.dark-theme .dash-locked p     { color: #94a3b8 !important; }
+body.dark-theme .dash-locked .lock-icon { background: linear-gradient(145deg,#1e293b,#0f172a) !important; }
+body.dark-theme .lock-icon svg     { stroke: #94a3b8 !important; }
+
+/* Dashboard main background */
+body.dark-theme #dash-shell    { background: #080c16 !important; }
+body.dark-theme .ds-main       { background: #0d1117 !important; }
+body.dark-theme .ds-content    { background: #0d1117 !important; }
+
+/* ── Inline-style override for hardcoded dark text inside cards ── */
+body.dark-theme .dc  *:not(button):not(a):not(.dp-b):not(.dp-g):not(.dp-r):not(.dp-a):not(.dp-p):not(.dp-c):not(.dp-s) {
+  --tw-dark-color-fix: 1;
+}
+
+/* Catch-all for any remaining deeply-nested dark text in dashboard cards */
+body.dark-theme .dc span:not([class]),
+body.dark-theme .dc p:not([class]) { color: #94a3b8; }
+body.dark-theme .dc h4:not([class]),
+body.dark-theme .dc h5:not([class]) { color: #e2e8f0; }
+
+/* Override inline bg styles in cards under dark theme */
+body.dark-theme .dc [style*="background:#f8fafc"],
+body.dark-theme .dc [style*="background: #f8fafc"],
+body.dark-theme .dsc [style*="background:#f8fafc"] { background: #1a2233 !important; }
+body.dark-theme .dc [style*="background:#f1f5f9"],
+body.dark-theme .dsc [style*="background:#f1f5f9"] { background: #1e293b !important; }
+body.dark-theme .dc [style*="background:#eff6ff"] { background: rgba(37,99,235,0.12) !important; }
+body.dark-theme .dc [style*="background:#f0fdf4"] { background: rgba(22,163,74,0.12) !important; }
+body.dark-theme .dc [style*="background:#faf5ff"] { background: rgba(147,51,234,0.12) !important; }
+body.dark-theme .dc [style*="background:#fffbeb"] { background: rgba(217,119,6,0.12) !important; }
+body.dark-theme .dc [style*="background:#fef2f2"] { background: rgba(220,38,38,0.12) !important; }
+body.dark-theme .dc [style*="background:#ecfeff"] { background: rgba(8,145,178,0.12) !important; }
+body.dark-theme .dc [style*="background:#fef9c3"] { background: rgba(202,138,4,0.12) !important; }
+
+/* Override inline text colours inside cards */
+body.dark-theme .dc [style*="color:#0f172a"],
+body.dark-theme .dsc [style*="color:#0f172a"] { color: #f1f5f9 !important; }
+body.dark-theme .dc [style*="color:#1e293b"],
+body.dark-theme .dsc [style*="color:#1e293b"] { color: #e2e8f0 !important; }
+body.dark-theme .dc [style*="color:#334155"],
+body.dark-theme .dsc [style*="color:#334155"] { color: #cbd5e1 !important; }
+body.dark-theme .dc [style*="color:#475569"],
+body.dark-theme .dsc [style*="color:#475569"] { color: #94a3b8 !important; }
+body.dark-theme .dc [style*="color:#64748b"],
+body.dark-theme .dsc [style*="color:#64748b"] { color: #64748b !important; }
+body.dark-theme .dc [style*="color:#1a2332"],
+body.dark-theme .dsc [style*="color:#1a2332"] { color: #94a3b8 !important; }
+body.dark-theme .dc [style*="color:#0d1117"],
+body.dark-theme .dsc [style*="color:#0d1117"] { color: #94a3b8 !important; }
+body.dark-theme .dc [style*="color:#000"],
+body.dark-theme .dsc [style*="color:#000"] { color: #f1f5f9 !important; }
+
+/* Table inside dc */
+body.dark-theme .dc .dt th { background: #0d1117 !important; color: #64748b !important; }
+body.dark-theme .dc .dt td { color: #94a3b8 !important; }
+
+/* ════════════════════════════════════════════════
+   2. LIGHT MODE CONTRAST IMPROVEMENTS
+   ════════════════════════════════════════════════ */
+/* These colors (#1a2332, #0d1117) were already dark – just clarify for light mode */
+.dsc-lbl  { color: #475569; }
+.dsc-sub  { color: #64748b; }
+.ds-topbar p { color: #64748b; }
+.dvl      { color: #475569; }
+.dli-sub  { color: #64748b; }
+.dmi-d    { color: #64748b; }
+.das-t    { color: #64748b; }
+.das-s    { color: #64748b; }
+.dtlc .dt-date { color: #64748b; }
+.dai span { color: #475569; }
+.dtk-txt  { color: #334155; }
+.dt td    { color: #1e293b; }
+.dt th    { color: #475569; }
+
+/* ════════════════════════════════════════════════
+   3. DASHBOARD MOBILE RESPONSIVENESS
+   ════════════════════════════════════════════════ */
+
+/* Mobile overlay for sidebar */
+#ds-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+#ds-sidebar-overlay.open { display: block; }
+
+/* Mobile sidebar toggle button */
+#ds-sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: 1.5px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  cursor: pointer;
+  color: #64748b;
+}
+body.dark-theme #ds-sidebar-toggle { border-color: #1e293b; color: #94a3b8; }
+
+@media (max-width: 900px) {
+  #ds-sidebar-toggle { display: flex; }
+
+  #dash-shell { height: auto; min-height: calc(100vh - 64px); flex-direction: column; overflow: visible; }
+  
+  .ds-sidebar {
+    position: fixed !important;
+    left: -260px;
+    top: 64px;
+    width: 240px !important;
+    height: calc(100vh - 64px) !important;
+    z-index: 1000;
+    transition: left 0.25s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+  }
+  .ds-sidebar.open { left: 0 !important; }
+  .ds-sidebar .ds-logo-text,
+  .ds-sidebar .ds-role-badge,
+  .ds-sidebar .ds-sec-label,
+  .ds-sidebar .ds-nav-item span,
+  .ds-sidebar .ds-user-name,
+  .ds-sidebar .ds-user-role { display: block !important; }
+  .ds-sidebar .ds-nav-item  { justify-content: flex-start !important; padding: 0.5rem 0.875rem !important; }
+  .ds-sidebar .ds-user      { justify-content: flex-start !important; }
+  
+  .ds-main {
+    position: static !important;
+    height: auto !important;
+    min-height: calc(100vh - 64px);
+  }
+  
+  .ds-topbar { position: sticky; top: 64px; }
+  
+  .dg4 { grid-template-columns: repeat(2, 1fr) !important; }
+  .dg3 { grid-template-columns: repeat(2, 1fr) !important; }
+  .dg21, .dg12 { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 640px) {
+  .dg4 { grid-template-columns: 1fr 1fr !important; }
+  .dg3 { grid-template-columns: 1fr 1fr !important; }
+  .dg2 { grid-template-columns: 1fr !important; }
+  .ds-content { padding: 1rem !important; }
+  .dsc { padding: 0.875rem !important; }
+  .dc  { padding: 0.875rem !important; }
+  .dsc-val { font-size: 1.3rem !important; }
+}
+
+@media (max-width: 400px) {
+  .dg4, .dg3 { grid-template-columns: 1fr !important; }
+}
+
+/* Topbar sidebar toggle placement */
+.ds-topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ════════════════════════════════════════════════
+   4. GENERAL DARK MODE PAGE FIXES
+   ════════════════════════════════════════════════ */
+body.dark-theme {
+  background: #0d1117;
+  color: #e2e8f0;
+}
+
+/* Panel cards throughout the site */
+body.dark-theme .panel-card {
+  background: #111827;
+  border-color: #1e293b;
+}
+body.dark-theme .panel-card-header {
+  border-bottom-color: #1e293b;
+  color: #e2e8f0;
+}
+body.dark-theme .panel-card-header h3 { color: #e2e8f0; }
+body.dark-theme .panel-card-body { color: #94a3b8; }
+
+/* Form inputs in dark mode */
+body.dark-theme .form-input,
+body.dark-theme input[type="text"],
+body.dark-theme input[type="email"],
+body.dark-theme input[type="number"],
+body.dark-theme input[type="tel"],
+body.dark-theme input[type="date"],
+body.dark-theme input[type="password"],
+body.dark-theme textarea,
+body.dark-theme select {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+body.dark-theme .form-input:focus { border-color: #3b82f6; background: #1a2233; }
+body.dark-theme .form-input::placeholder { color: #475569; }
+
+/* Analytics page */
+body.dark-theme .analytics-kpi-row .kpi-card { background: #111827; border-color: #1e293b; }
+body.dark-theme .kpi-val { color: #f1f5f9; }
+body.dark-theme .kpi-lbl { color: #94a3b8; }
+
+/* Chart panel */
+body.dark-theme .chart-panel { background: #111827; border-color: #1e293b; }
+body.dark-theme .chart-panel h4 { color: #e2e8f0; }
+
+/* Data tables outside dashboard */
+body.dark-theme .table-wrap { border-color: #1e293b; }
+body.dark-theme .data-table th { background: #0d1117; color: #94a3b8; border-bottom-color: #1e293b; }
+body.dark-theme .data-table td { color: #cbd5e1; border-bottom-color: #1e293b; }
+body.dark-theme .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Doctor/patient cards in telemedicine */
+body.dark-theme #drProfileCard {
+  background: #111827 !important;
+  border-color: #1e293b !important;
+}
+body.dark-theme #drProfileCard [style*="color:var(--slate-800)"],
+body.dark-theme #drProfileCard [style*="color:var(--slate-500)"],
+body.dark-theme #drProfileCard [style*="color:var(--slate-400)"] { color: #94a3b8 !important; }
+
+/* Page heroes are fine as-is (colored backgrounds) */
+
+/* Notification dropdown dark */
+body.dark-theme #notifDropdown {
+  background: #111827 !important;
+  border-color: #1e293b !important;
+}
+body.dark-theme #notifDropdown strong { color: #e2e8f0 !important; }
+
+/* ════════════════════════════════════════════════
+   5. FEATURE SECTION DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .feature-section { background: transparent; }
+body.dark-theme .feature-content-title { color: #f1f5f9; }
+body.dark-theme .feature-content-desc { color: #94a3b8; }
+body.dark-theme .feature-num         { background: rgba(37,99,235,0.15); }
+body.dark-theme .feature-num.blue    { background: rgba(37,99,235,0.15); color: #93c5fd; }
+body.dark-theme .feature-num.green   { background: rgba(22,163,74,0.15); color: #86efac; }
+body.dark-theme .feature-num.red     { background: rgba(220,38,38,0.15); color: #fca5a5; }
+body.dark-theme .feature-num.purple  { background: rgba(147,51,234,0.15); color: #d8b4fe; }
+body.dark-theme .point-card          { background: #111827; border-color: #1e293b; }
+body.dark-theme .point-card h4       { color: #e2e8f0; }
+body.dark-theme .point-card p        { color: #94a3b8; }
+
+/* Feature page heading dark mode */
+body.dark-theme #page-features .page-hero h1 { color: #fff; }
+body.dark-theme #page-features .page-hero p  { color: rgba(255,255,255,0.8); }
+body.dark-theme #page-features .container > .feature-section { border-bottom-color: #1e293b; }
+
+/* ════════════════════════════════════════════════
+   6. HOW IT WORKS DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .step-card { background: #111827 !important; border-color: #1e293b !important; }
+body.dark-theme .step-card h3 { color: #f1f5f9 !important; }
+body.dark-theme .step-card .step-main { color: #94a3b8 !important; }
+body.dark-theme .step-arrow { color: #334155 !important; }
+
+/* ════════════════════════════════════════════════
+   7. ABOUT / CONTACT / PORTAL DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .mvv-card { background: #111827; border-color: #1e293b; }
+body.dark-theme .mvv-card h3 { color: #f1f5f9; }
+body.dark-theme .mvv-card p  { color: #94a3b8; }
+body.dark-theme .team-card   { background: #111827; border-color: #1e293b; }
+body.dark-theme .team-card h4 { color: #f1f5f9; }
+body.dark-theme .team-card .team-role { color: #94a3b8; }
+body.dark-theme .team-card .team-bio  { color: #64748b; }
+body.dark-theme .faq-item    { border-bottom-color: #1e293b; }
+body.dark-theme .faq-q       { color: #e2e8f0; }
+body.dark-theme .faq-a       { color: #94a3b8; }
+body.dark-theme .contact-info-item strong { color: #e2e8f0; }
+body.dark-theme .contact-info-item p     { color: #94a3b8; }
+
+/* ════════════════════════════════════════════════
+   8. NAVBAR DARK MODE IMPROVEMENTS
+   ════════════════════════════════════════════════ */
+body.dark-theme #mainNav { background: #080c16; border-bottom-color: #1e293b; }
+body.dark-theme .nav-links a { color: #cbd5e1; }
+body.dark-theme .nav-links a:hover { color: #fff; }
+body.dark-theme .nav-drop-menu { background: #111827; border-color: #1e293b; }
+body.dark-theme .nav-drop-menu a { color: #cbd5e1; }
+body.dark-theme .nav-drop-menu a:hover { background: #1e293b; color: #fff; }
+body.dark-theme .mobile-menu { background: #111827; }
+body.dark-theme .mobile-menu a { color: #cbd5e1; border-bottom-color: #1e293b; }
+body.dark-theme .mobile-menu-section { color: #475569; }
+
+/* ════════════════════════════════════════════════
+   9. STATS BAR / HOME PAGE DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .stats-bar { background: #080c16; border-top-color: #1e293b; border-bottom-color: #1e293b; }
+body.dark-theme .stat-number { color: #f1f5f9; }
+body.dark-theme .stat-label  { color: #94a3b8; }
+body.dark-theme .feature-card { background: #111827; border-color: #1e293b; }
+body.dark-theme .feature-card h3 { color: #f1f5f9; }
+body.dark-theme .feature-card p  { color: #94a3b8; }
+
+/* ════════════════════════════════════════════════
+   10. FOOTER DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme footer { background: #080c16; }
+body.dark-theme .footer-text { color: #64748b; }
+body.dark-theme footer h3 { color: #94a3b8; }
+body.dark-theme footer a  { color: #64748b; }
+body.dark-theme footer a:hover { color: #e2e8f0; }
+body.dark-theme .footer-divider { border-top-color: #1e293b; }
+body.dark-theme .footer-divider p { color: #475569; }
+
+/* ════════════════════════════════════════════════
+   11. MEDICINE / INVENTORY / PHARMACY DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .filter-btn       { background: #1e293b; border-color: #334155; color: #94a3b8; }
+body.dark-theme .filter-btn:hover { background: #334155; }
+body.dark-theme .filter-btn.active { background: rgba(37,99,235,0.2); border-color: #3b82f6; color: #93c5fd; }
+body.dark-theme .inv-filter-btn   { background: #1e293b; border-color: #334155; color: #94a3b8; }
+body.dark-theme .inv-filter-btn.active { background: rgba(37,99,235,0.2); border-color: #3b82f6; color: #93c5fd; }
+
+/* ════════════════════════════════════════════════
+   12. CHAT BOT DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .chatbot-overlay  { background: #111827; border-color: #1e293b; }
+body.dark-theme .chatbot-header   { background: linear-gradient(135deg, #1d4ed8, #0891b2); }
+body.dark-theme .chatbot-messages { background: #0d1117; }
+body.dark-theme .chatbot-message.bot { background: #1e293b; color: #e2e8f0; }
+body.dark-theme .chatbot-input-area { background: #111827; border-top-color: #1e293b; }
+body.dark-theme .chatbot-input-area input { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+
+/* ════════════════════════════════════════════════
+   13. MODAL DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .modal { background: #111827 !important; }
+body.dark-theme .modal-header { border-bottom-color: #1e293b !important; }
+body.dark-theme .modal-header h3 { color: #f1f5f9 !important; }
+body.dark-theme .modal-body label { color: #94a3b8 !important; }
+body.dark-theme .modal-backdrop { background: rgba(0,0,0,0.7) !important; }
+
+/* ════════════════════════════════════════════════
+   14. TABS DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .dash-tab        { color: #94a3b8; border-bottom-color: transparent; }
+body.dark-theme .dash-tab:hover  { color: #e2e8f0; }
+body.dark-theme .dash-tab.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+
+/* Admin panel dark mode */
+body.dark-theme #page-admin .panel-card { background: #111827; border-color: #1e293b; }
+body.dark-theme .setting-row { border-bottom-color: #1e293b; }
+body.dark-theme .setting-row strong { color: #e2e8f0; }
+body.dark-theme .setting-row p  { color: #94a3b8; }
+body.dark-theme .db-stat-row { border-bottom-color: #1e293b; }
+body.dark-theme .db-stat-row span  { color: #94a3b8; }
+body.dark-theme .db-stat-row strong { color: #e2e8f0; }
+
+/* ════════════════════════════════════════════════
+   15. HEALTH TIP + BMI CARD DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme .panel-card[style*="background:linear-gradient(135deg,#f0fdf4"] {
+  background: linear-gradient(135deg, rgba(22,163,74,0.1), rgba(21,128,61,0.1)) !important;
+  border-color: rgba(22,163,74,0.3) !important;
+}
+body.dark-theme .health-tip-card { color: #e2e8f0; }
+
+/* ════════════════════════════════════════════════
+   16. BENEFITS / WHY SECTION
+   ════════════════════════════════════════════════ */
+body.dark-theme .benefit-card { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+body.dark-theme .benefit-card h3 { color: #f1f5f9; }
+body.dark-theme .benefit-card p  { color: #94a3b8; }
+
+/* ════════════════════════════════════════════════
+   17. HOW IT WORKS FEATURE GRID DARK MODE
+   ════════════════════════════════════════════════ */
+body.dark-theme section[style*="background:#f8fafc"] { background: #0d1117 !important; }
+body.dark-theme section[style*="background:linear-gradient(180deg,#fff5f5"] {
+  background: linear-gradient(180deg, rgba(220,38,38,0.05) 0%, transparent 100%) !important;
+}
+body.dark-theme .panel-card[style*="border-top:3px"] { background: #111827 !important; border-color: #1e293b !important; }
+body.dark-theme .panel-card[style*="border-top:3px"] h3 { color: #e2e8f0 !important; }
+body.dark-theme .panel-card[style*="border-top:3px"] p  { color: #94a3b8 !important; }
+
+/* Mobile topbar inner flex */
+.ds-topbar { align-items: center; justify-content: space-between; }
+.ds-topbar-inner { display: flex; align-items: center; gap: 0.75rem; flex: 1; }

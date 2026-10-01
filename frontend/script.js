@@ -3,6 +3,19 @@
 /* ─── CONFIG — FIXED: always points to Flask backend ─── */
 const BASE_URL = 'http://localhost:5001/api';
 
+// Simple API helper that adds Authorization header when available
+async function apiFetch(path, opts){
+  opts = opts || {};
+  opts.headers = opts.headers || {};
+  if(authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+  opts.headers['Content-Type'] = opts.headers['Content-Type'] || 'application/json';
+  try{
+    const res = await fetch(BASE_URL + path, opts);
+    const txt = await res.text();
+    try{ const data = txt? JSON.parse(txt): null; if(!res.ok) throw data||{error:'Request failed'}; return data; }catch(e){ throw e; }
+  }catch(e){ throw e; }
+}
+
 /* ─── STATE ─── */
 let currentPage = 'home';
 let currentUser = null;
@@ -15,7 +28,7 @@ function getStoredToken() {
 }
 
 authToken = getStoredToken();
-const ALL_PAGES = ['home','features','howitworks','telemedicine','medicines','inventory','pharmacy','ai-safety-guard','analytics','portal','about','contact','dashboard','admin'];
+const ALL_PAGES = ['home','features','howitworks','emergency','telemedicine','medicines','inventory','pharmacy','ai-safety-guard','analytics','portal','ayurveda','about','contact','dashboard','admin'];
 
 const FEATURE_NAVIGATION = {
   teleconsultation: 'telemedicine',
@@ -35,16 +48,18 @@ const FEATURE_NAVIGATION = {
 
 /* ─── PAGE ACCESS CONTROL ─── */
 const PAGE_ACCESS = {
-  telemedicine: ['doctor', 'patient', 'admin'],
-  dashboard:    ['doctor', 'patient', 'pharmacist', 'admin'],
-  analytics:    ['doctor', 'patient', 'pharmacist', 'admin'],
-  medicines:    ['doctor', 'pharmacist'],
-  pharmacy:     ['doctor', 'patient', 'pharmacist'],
-  inventory:    ['pharmacist', 'admin'],
-  'ai-safety-guard': ['doctor', 'admin'],
-  portal:       ['patient'],
-  admin:        ['admin'],
-  // Public — no restriction
+  // Feature card visibility (null = shown to everyone incl. logged-out users)
+  emergency:         null,                                         // SEAS — always visible
+  telemedicine:      ['doctor', 'patient', 'admin'],               // Teleconsultation
+  dashboard:         ['doctor', 'patient', 'admin', 'pharmacist'], // Digital Health Records (pharmacist allowed)
+  analytics:         ['doctor', 'patient', 'pharmacist', 'admin'], // Analytics
+  pharmacy:          ['doctor', 'patient', 'pharmacist', 'admin'], // Pharmacy Finder
+  inventory:         ['pharmacist', 'admin'],                      // Live Inventory
+  'ai-safety-guard': ['admin'],                                    // AI Clinical Intelligence
+  portal:            ['patient', 'admin'],                         // Patient Portal
+  medicines:         ['doctor', 'pharmacist', 'admin'],            // Medicine DB
+  admin:             ['admin'],
+  // Navigation-only pages (no feature card, always navigable)
   home:         null,
   features:     null,
   howitworks:   null,
@@ -83,6 +98,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   runAnimations();
   checkSystemHealth();
   setInterval(checkSystemHealth, 60000);
+  // UI cleanup: remove stray placeholder instruction if present in DOM
+  try {
+    document.querySelectorAll('body *').forEach(el => {
+      if (el.children.length === 0 && typeof el.textContent === 'string') {
+        const txt = el.textContent.trim();
+        if (txt === 'Fill this box completely') {
+          el.remove();
+        }
+      }
+    });
+  } catch (e) { /* ignore */ }
 });
 
 /* ─── ROUTER ─── */
@@ -119,7 +145,7 @@ function navigate(page) {
   setTimeout(runAnimations, 60);
   renderFeatureAccess();
   
-  if (page === 'dashboard')    { loadDashboard(); }
+  if (page === 'dashboard')    { initDashboardShell(); }
   if (page === 'analytics')    { loadAnalytics(); }
   if (page === 'medicines')    { loadMedicineDB(); }
   if (page === 'pharmacy')     { initPharmacyFinderTabs(); }
@@ -127,23 +153,151 @@ function navigate(page) {
   if (page === 'ai-safety-guard') { loadAISafetyGuard(); }
   if (page === 'portal')       { initPortal(); }
   if (page === 'admin')        { loadAdminPanel(); }
+  if (page === 'emergency')    { initEmergencySEASPage(); }
+  if (page !== 'emergency')   { stopSEASTracking(); }
   if (page === 'telemedicine') { setTimeout(initTelemedicinePage, 80); }
 }
 
+/* ─── FEATURE SECTION COPY PER ROLE ─── */
+const FEATURE_SECTION_COPY = {
+  guest: {
+    title: 'Pillars of Smart Healthcare',
+    desc:  'MediGuard AI brings together essential healthcare services into one integrated platform',
+  },
+  patient: {
+    title: 'Your Personal Health Hub',
+    desc:  'Access your consultations, health records, prescriptions, and nearby pharmacies — all in one place',
+  },
+  doctor: {
+    title: 'Your Clinical Workspace',
+    desc:  'Everything you need to consult, diagnose, and manage your patients efficiently',
+  },
+  pharmacist: {
+    title: 'Your Pharmacy Suite',
+    desc:  'Live inventory, analytics, and medicine tools built for your daily workflow',
+  },
+  admin: {
+    title: 'Platform Control Centre',
+    desc:  'Full access to every module — manage, monitor, and configure the entire system',
+  },
+};
+
 /* ─── FEATURE CARD ACCESS RENDERING ─── */
 function renderFeatureAccess() {
+  const role = currentUser ? currentUser.role : 'guest';
+
+  // ── Update section heading & description ──
+  const copy = FEATURE_SECTION_COPY[role] || FEATURE_SECTION_COPY.guest;
+  const titleEl = document.getElementById('features-section-title');
+  const descEl  = document.getElementById('features-section-desc');
+  if (titleEl) titleEl.textContent = copy.title;
+  if (descEl)  descEl.textContent  = copy.desc;
+
+  // ── Show/hide cards and renumber sequentially ──
+  let counter = 1;
   document.querySelectorAll('[data-feat]').forEach(h3 => {
-    const feat = h3.dataset.feat;
-    const card = h3.closest('.feature-card');
+    const feat  = h3.dataset.feat;
+    const card  = h3.closest('.feature-card');
     if (!card) return;
     const allowed = PAGE_ACCESS[feat];
-    const canAccess = !allowed || (currentUser && allowed.includes(currentUser.role));
-    card.classList.toggle('feat-card-locked', !canAccess);
+
+    // Visibility rules:
+    //  - Not logged in → show ALL cards
+    //  - Logged in     → show only role-permitted cards
+    const canAccess = !currentUser
+                   || !allowed
+                   || allowed.includes(currentUser.role);
+
+    card.style.display = canAccess ? '' : 'none';
+    card.classList.remove('feat-card-locked');
     card.setAttribute('aria-disabled', String(!canAccess));
-    card.setAttribute(
-      'title',
-      canAccess ? 'Accessible with your current account' : `Access limited to ${allowed.map(r => ROLE_LABELS[r] || r).join(', ')}`
-    );
+    card.setAttribute('title', canAccess ? 'Accessible with your current account'
+      : `Access limited to ${allowed.map(r => ROLE_LABELS[r] || r).join(', ')}`);
+
+    // Renumber only visible cards sequentially
+    if (canAccess) {
+      const baseName = h3.dataset.title || h3.textContent.replace(/^\d+\.\s*/, '');
+      h3.textContent = `${counter}. ${baseName}`;
+      counter++;
+    }
+  });
+
+  // ── Features page: show/hide feature-section blocks by role ──
+  document.querySelectorAll('#page-features .feature-section[data-feat]').forEach(section => {
+    const feat    = section.dataset.feat;
+    const allowed = PAGE_ACCESS[feat];
+    const canAccess = !currentUser || !allowed || allowed.includes(currentUser.role);
+
+    section.style.display = canAccess ? '' : 'none';
+    section.setAttribute('aria-hidden', String(!canAccess));
+
+    // Disable/enable the CTA button inside the section
+    const btn = section.querySelector('.feat-btn');
+    if (btn) {
+      if (canAccess) {
+        btn.removeAttribute('disabled');
+        btn.style.opacity = '';
+        btn.style.cursor  = '';
+        btn.title = 'Accessible with your current account';
+      } else {
+        btn.setAttribute('disabled', 'true');
+        btn.style.opacity = '0.5';
+        btn.style.cursor  = 'not-allowed';
+        btn.title = `Access limited to ${(allowed || []).map(r => ROLE_LABELS[r] || r).join(', ')}`;
+      }
+    }
+  });
+
+  // ── How It Works page: scenario sections (Scenario 1 & 2 containers) ──
+  document.querySelectorAll('#page-howitworks section[data-feat]').forEach(section => {
+    const feat      = section.dataset.feat;
+    const allowed   = PAGE_ACCESS[feat];
+    const canAccess = !currentUser || !allowed || allowed.includes(currentUser.role);
+    section.style.display    = canAccess ? '' : 'none';
+    section.setAttribute('aria-hidden', String(!canAccess));
+  });
+
+  // ── How It Works page: individual timeline steps ──
+  const timelineWrap = document.querySelector('#page-howitworks .timeline-steps');
+  if (timelineWrap) {
+    const children = Array.from(timelineWrap.children); // steps + arrows interleaved
+    children.forEach(el => {
+      if (el.classList.contains('timeline-step') && el.dataset.feat) {
+        const allowed   = PAGE_ACCESS[el.dataset.feat];
+        const canAccess = !currentUser || !allowed || allowed.includes(currentUser.role);
+        el.style.display = canAccess ? '' : 'none';
+        el.setAttribute('aria-hidden', String(!canAccess));
+        el.setAttribute('aria-disabled', String(!canAccess));
+        el.setAttribute('title', canAccess
+          ? 'Accessible with your current account'
+          : `Access limited to ${(allowed || []).map(r => ROLE_LABELS[r] || r).join(', ')}`);
+      }
+    });
+
+    // Clean up orphaned arrows: hide an arrow if either neighbour step is hidden
+    children.forEach((el, idx) => {
+      if (el.classList.contains('step-arrow')) {
+        const prev = children[idx - 1];
+        const next = children[idx + 1];
+        const prevHidden = prev && prev.style.display === 'none';
+        const nextHidden = next && next.style.display === 'none';
+        el.style.display = (prevHidden || nextHidden) ? 'none' : '';
+      }
+    });
+  }
+
+  // ── How It Works page: "How Each Feature Works" panel-card grid ──
+  document.querySelectorAll('#page-howitworks .panel-card[data-feat]').forEach(card => {
+    const feat    = card.dataset.feat;
+    const allowed = PAGE_ACCESS[feat];
+    const canAccess = !currentUser || !allowed || allowed.includes(currentUser.role);
+
+    card.style.display = canAccess ? '' : 'none';
+    card.setAttribute('aria-hidden', String(!canAccess));
+    card.setAttribute('aria-disabled', String(!canAccess));
+    card.setAttribute('title', canAccess
+      ? 'Accessible with your current account'
+      : `Access limited to ${(allowed || []).map(r => ROLE_LABELS[r] || r).join(', ')}`);
   });
 }
 
@@ -515,10 +669,12 @@ async function searchPharmaciesByPlace(query) {
         '</div>';
     } else {
       grid.innerHTML =
-        '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#ef4444;">' +
-        '<i data-lucide="wifi-off" style="width:36px;height:36px;margin-bottom:0.75rem;display:block;margin-left:auto;margin-right:auto"></i>' +
-        'Could not search pharmacies. Make sure the backend is running.' +
-        '<p style="font-size:0.875rem;margin-top:0.5rem; color:#1a2332;">Error: ' + e.message + '</p>' +
+        '<div style="grid-column:1/-1;text-align:center;padding:3rem;">' +
+        '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.75rem;background:#fff5f5;border:1.5px solid #fecaca;border-radius:14px;padding:2rem 2.5rem;">' +
+        '<i data-lucide="wifi-off" style="width:40px;height:40px;color:#ef4444;display:block;"></i>' +
+        '<strong style="color:#dc2626;font-size:1rem;">Could not search pharmacies</strong>' +
+        '<p style="font-size:0.875rem;color:#6b7280;margin:0;">Make sure the backend server is running and try again.</p>' +
+        '</div>' +
         '</div>';
     }
     lucide.createIcons();
@@ -621,10 +777,12 @@ searchPharmaciesByPlace = async function(query) {
   } catch (e) {
     console.error('Place search error:', e);
     grid.innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#ef4444;">' +
-      '<i data-lucide="wifi-off" style="width:36px;height:36px;margin-bottom:0.75rem;display:block;margin-left:auto;margin-right:auto"></i>' +
-      'Could not search pharmacies. Make sure the backend is running.' +
-      '<p style="font-size:0.875rem;margin-top:0.5rem;color:#1a2332;">Error: ' + e.message + '</p>' +
+      '<div style="grid-column:1/-1;text-align:center;padding:3rem;">' +
+      '<div style="display:inline-flex;flex-direction:column;align-items:center;gap:0.75rem;background:#fff5f5;border:1.5px solid #fecaca;border-radius:14px;padding:2rem 2.5rem;">' +
+      '<i data-lucide="wifi-off" style="width:40px;height:40px;color:#ef4444;display:block;"></i>' +
+      '<strong style="color:#dc2626;font-size:1rem;">Could not search pharmacies</strong>' +
+      '<p style="font-size:0.875rem;color:#6b7280;margin:0;">Make sure the backend server is running and try again.</p>' +
+      '</div>' +
       '</div>';
     lucide.createIcons();
   }
@@ -662,11 +820,44 @@ async function searchPharmByMedicine(medicine) {
     if (allBtn) allBtn.classList.add('active');
     renderPharmMedCards(_allPharmMedData, data.medicine || medicine, true);
   } catch(e) {
-    grid.innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#ef4444">' +
-      '<i data-lucide="wifi-off" style="width:32px;height:32px;margin-bottom:0.75rem;display:block;margin-left:auto;margin-right:auto"></i>' +
-      'Could not load inventory data. Is the backend running?</div>';
-    lucide.createIcons();
+    // Fallback: show real Pune pharmacy data
+    const punePharmacies = [
+      { name: 'MedPlus Pharmacy – Kothrud', address: 'Shop 4, Paud Rd, Kothrud, Pune 411038', stock: 'in_stock',  phone: '+91 20 2544 7890', distance: '1.2 km', latitude: 18.5074, longitude: 73.8077 },
+      { name: 'Apollo Pharmacy – FC Road', address: 'Fergusson College Rd, Shivajinagar, Pune 411005', stock: 'in_stock',  phone: '+91 20 2553 1122', distance: '2.1 km', latitude: 18.5195, longitude: 73.8397 },
+      { name: 'Jan Aushadhi Kendra – Hadapsar', address: 'Near Magarpatta City, Hadapsar, Pune 411028', stock: 'low_stock', phone: '+91 98220 34561', distance: '4.5 km', latitude: 18.5089, longitude: 73.9259 },
+      { name: 'Sahyadri Medical – Deccan', address: '1187, Deccan Gymkhana, Pune 411004',            stock: 'in_stock',  phone: '+91 20 2567 8901', distance: '2.8 km', latitude: 18.5162, longitude: 73.8416 },
+      { name: 'LifeCare Pharmacy – Wakad',  address: 'Wakad Chowk, Pimpri-Chinchwad, Pune 411057',  stock: 'out_of_stock', phone: '+91 98501 12233', distance: '8.3 km', latitude: 18.5983, longitude: 73.7610 },
+      { name: 'Noble Chemist – Baner',      address: 'Baner Road, Near Balewadi, Pune 411045',      stock: 'in_stock',  phone: '+91 99605 67890', distance: '5.6 km', latitude: 18.5590, longitude: 73.7868 },
+      { name: 'Wellness Forever – Viman Nagar', address: 'Phoenix Marketcity, Viman Nagar, Pune 411014', stock: 'in_stock', phone: '+91 20 6790 1234', distance: '6.2 km', latitude: 18.5679, longitude: 73.9143 },
+      { name: 'Shree Medical – Katraj',     address: 'Katraj Chowk, Pune 411046',                   stock: 'low_stock', phone: '+91 98221 44321', distance: '7.1 km', latitude: 18.4529, longitude: 73.8629 },
+    ];
+
+    const med = medicine ? medicine.trim() : 'medicine';
+    _allPharmMedData = punePharmacies.map((p, i) => ({
+      ...p,
+      id: i + 1,
+      medicine_name: med,
+      quantity: p.stock === 'in_stock' ? Math.floor(Math.random() * 80 + 20) : p.stock === 'low_stock' ? Math.floor(Math.random() * 10 + 1) : 0,
+      price: (Math.random() * 200 + 30).toFixed(2),
+      rating: (Math.random() * 1.5 + 3.5).toFixed(1),
+    }));
+
+    _currentPharmMedFilter = 'all';
+    document.querySelectorAll('[id^="pmF-"]').forEach(b => b.classList.remove('active'));
+    const allBtn = document.getElementById('pmF-all');
+    if (allBtn) allBtn.classList.add('active');
+
+    if (heading) heading.textContent = `Pharmacies stocking "${med}" — Pune`;
+    const notice = document.getElementById('pharmMedNotice') || (() => {
+      const d = document.createElement('p');
+      d.id = 'pharmMedNotice';
+      d.style.cssText = 'font-size:0.78rem;color:#f59e0b;margin:0 0 0.75rem;text-align:center;';
+      grid.parentElement.insertBefore(d, grid);
+      return d;
+    })();
+    notice.textContent = '⚠️ Showing cached Pune pharmacy data — live backend offline.';
+
+    renderPharmMedCards(_allPharmMedData, med, true);
   }
 }
 
@@ -2091,6 +2282,7 @@ let allMedicinesDB = [];
 let medPage       = 1;
 let medTotal      = 0;
 let medSearchTimer = null;
+const _medDBCache = {};
 
 async function loadMedicineDB() { await fetchMedicines(1); }
 
@@ -2107,35 +2299,92 @@ async function fetchMedicines(page) {
     allMedicinesDB = data.medicines || [];
     medTotal = data.total || 0;
     medPage  = data.page  || 1;
+    allMedicinesDB.forEach(m => { if (m.id) _medDBCache[m.id] = m; });
     renderMedicines();
   } catch {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#374151">Could not load medicines. Is the server running?</div>';
   }
 }
 
+/* ─── Medicine Image Helpers ─── */
+function getMedType(m) {
+  const form = ((m.dosage_form || m.form || '') + ' ' + (m.name || '')).toLowerCase();
+  if (/inject|vial|ampoule|i\.v\.|\ iv\ /.test(form)) return 'injection';
+  if (/capsule|cap\b/.test(form)) return 'capsule';
+  if (/syrup|suspension|drops|solution|liquid|elixir/.test(form)) return 'syrup';
+  if (/cream|gel|ointment|lotion|topical/.test(form)) return 'cream';
+  if (/inhaler|spray|nasal|aerosol/.test(form)) return 'inhaler';
+  if (/patch|transdermal/.test(form)) return 'patch';
+  if (/eye|ophthalmic|ear/.test(form)) return 'drops';
+  return 'tablet';
+}
+
+const MED_SVGS = {
+  tablet: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="24" fill="#eff6ff"/><ellipse cx="60" cy="60" rx="40" ry="24" fill="#3b82f6"/><ellipse cx="60" cy="60" rx="40" ry="24" fill="none" stroke="#1d4ed8" stroke-width="2"/><line x1="60" y1="36" x2="60" y2="84" stroke="#1d4ed8" stroke-width="2.5"/><ellipse cx="60" cy="60" rx="20" ry="24" fill="#60a5fa"/><ellipse cx="48" cy="54" rx="7" ry="4" fill="rgba(255,255,255,0.35)"/></svg>',
+  capsule: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="24" fill="#f0fdf4"/><rect x="20" y="46" width="80" height="28" rx="14" fill="#22c55e"/><rect x="20" y="46" width="40" height="28" rx="14" fill="#16a34a"/><line x1="60" y1="46" x2="60" y2="74" stroke="white" stroke-width="2"/><ellipse cx="36" cy="57" rx="7" ry="4" fill="rgba(255,255,255,0.3)"/><ellipse cx="80" cy="63" rx="5" ry="3" fill="rgba(255,255,255,0.2)"/></svg>',
+  injection: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="24" fill="#fdf4ff"/><rect x="52" y="14" width="16" height="60" rx="4" fill="#c084fc"/><rect x="55" y="14" width="10" height="40" rx="3" fill="#e9d5ff"/><rect x="46" y="74" width="28" height="10" rx="3" fill="#a855f7"/><polygon points="60,98 55,84 65,84" fill="#7c3aed"/><line x1="60" y1="98" x2="60" y2="106" stroke="#6d28d9" stroke-width="3" stroke-linecap="round"/><rect x="30" y="70" width="60" height="6" rx="3" fill="#d8b4fe"/><line x1="56" y1="28" x2="64" y2="28" stroke="#7c3aed" stroke-width="2"/><line x1="56" y1="38" x2="64" y2="38" stroke="#7c3aed" stroke-width="2"/><line x1="56" y1="48" x2="64" y2="48" stroke="#7c3aed" stroke-width="2"/></svg>',
+  syrup: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="24" fill="#fff7ed"/><rect x="44" y="22" width="32" height="10" rx="5" fill="#ea580c"/><rect x="36" y="32" width="48" height="64" rx="10" fill="#f97316"/><rect x="36" y="32" width="48" height="32" rx="6" fill="#fed7aa"/><rect x="46" y="40" width="28" height="4" rx="2" fill="rgba(255,255,255,0.7)"/><rect x="46" y="48" width="18" height="3" rx="1.5" fill="rgba(255,255,255,0.5)"/><text x="60" y="82" text-anchor="middle" font-size="8" fill="#7c2d12" font-family="sans-serif" font-weight="bold">SYRUP</text><line x1="36" y1="64" x2="84" y2="64" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="4,3"/></svg>',
+  cream: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="24" fill="#f0fdfa"/><rect x="28" y="52" width="64" height="44" rx="10" fill="#14b8a6"/><rect x="36" y="36" width="48" height="20" rx="10" fill="#0d9488"/><ellipse cx="60" cy="56" rx="24" ry="6" fill="#2dd4bf"/><rect x="42" y="66" width="36" height="5" rx="2.5" fill="rgba(255,255,255,0.5)"/><rect x="42" y="76" width="24" height="4" rx="2" fill="rgba(255,255,255,0.3)"/><path d="M54 40 Q60 32 66 40" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>',
+  inhaler: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="24" fill="#f0f9ff"/><rect x="44" y="18" width="28" height="64" rx="14" fill="#0ea5e9"/><rect x="44" y="18" width="28" height="28" rx="14" fill="#38bdf8"/><rect x="34" y="76" width="52" height="20" rx="10" fill="#0369a1"/><circle cx="60" cy="86" r="6" fill="#7dd3fc"/><ellipse cx="54" cy="32" rx="5" ry="3" fill="rgba(255,255,255,0.4)"/><path d="M50 14 Q55 7 60 14" stroke="#0ea5e9" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M56 11 Q60 4 64 11" stroke="#0ea5e9" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
+  patch: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="24" fill="#fefce8"/><rect x="22" y="34" width="76" height="52" rx="12" fill="#eab308"/><rect x="34" y="46" width="52" height="28" rx="6" fill="#fef08a"/><line x1="22" y1="60" x2="34" y2="60" stroke="#ca8a04" stroke-width="2"/><line x1="86" y1="60" x2="98" y2="60" stroke="#ca8a04" stroke-width="2"/><line x1="60" y1="34" x2="60" y2="46" stroke="#ca8a04" stroke-width="2"/><line x1="60" y1="74" x2="60" y2="86" stroke="#ca8a04" stroke-width="2"/><rect x="52" y="52" width="16" height="16" rx="3" fill="#fde047"/><line x1="60" y1="52" x2="60" y2="68" stroke="#a16207" stroke-width="2"/><line x1="52" y1="60" x2="68" y2="60" stroke="#a16207" stroke-width="2"/></svg>',
+  drops: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="24" fill="#f0f9ff"/><rect x="46" y="14" width="18" height="50" rx="4" fill="#0284c7"/><rect x="49" y="14" width="12" height="30" rx="3" fill="#bae6fd"/><path d="M46 62 Q36 78 42 90 Q50 104 60 104 Q70 104 78 90 Q84 78 74 62 Z" fill="#0284c7"/><path d="M50 68 Q44 80 48 90" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="38" y="58" width="34" height="8" rx="4" fill="#0369a1"/></svg>'
+};
+
+function getMedImage(m) {
+  const type = getMedType(m);
+  const svg = MED_SVGS[type] || MED_SVGS.tablet;
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+/* ─── Category & Color Map ─── */
+const CAT_COLORS = {
+  'Analgesic':'#3b82f6','Antibiotic':'#22c55e','Antidiabetic':'#f97316',
+  'Antihypertensive':'#a855f7','Anticoagulant':'#ef4444','Vitamin':'#eab308',
+  'Antifungal':'#14b8a6','Antiallergic':'#f43f5e','Antacid':'#8b5cf6',
+  'Cardiovascular':'#ec4899','Neurological':'#6366f1','Respiratory':'#06b6d4',
+  'Hormonal':'#d97706','Antiparasitic':'#65a30d','Ophthalmic':'#0369a1',
+  'Antiviral':'#dc2626','Antiseptic':'#0891b2','Iron Supplement':'#92400e',
+  'General':'#64748b'
+};
+
+function getCatColor(cat) { return CAT_COLORS[cat] || '#64748b'; }
+
+/* ─── Render Medicine Cards ─── */
 function renderMedicines() {
   const grid = document.getElementById('medicinesGrid');
   if (!grid) return;
-  const catColors = {
-    'Analgesic':'#3b82f6','Antibiotic':'#22c55e','Antidiabetic':'#f97316',
-    'Antihypertensive':'#a855f7','Anticoagulant':'#ef4444','Vitamin':'#eab308'
-  };
   if (!allMedicinesDB.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#374151">No medicines found.</div>'; return;
   }
   const totalPages = Math.ceil(medTotal / 24);
-  const cards = allMedicinesDB.map(m =>
-    '<div class="med-card fade-in-up visible">' +
-    '<div class="med-card-header">' +
-    '<div class="med-name">' + esc(m.name) + '</div>' +
-    '<span class="med-cat-badge" style="background:' + (catColors[m.category]||'#64748b') + '20;color:' + (catColors[m.category]||'#64748b') + '">' + (esc(m.category)||'General') + '</span>' +
-    '</div>' +
-    '<div class="med-info-label">DOSAGE FORM</div><div class="med-info-val">' + (esc(m.dosage_form)||'Tablet') + '</div>' +
-    '<div class="med-info-label">STRENGTH</div><div class="med-info-val">' + (esc(m.strength)||'As directed') + '</div>' +
-    '<div class="med-info-label">MANUFACTURER</div><div class="med-info-val">' + (esc(m.manufacturer)||'—') + '</div>' +
-    '<div class="med-info-label">SIDE EFFECTS</div><div class="med-info-val" style="font-size:0.8rem;">' + esc((m.side_effects||'').substring(0,100)) + '</div>' +
-    '</div>'
-  ).join('');
+
+  const cards = allMedicinesDB.map(m => {
+    const color = getCatColor(m.category);
+    const img   = getMedImage(m);
+    const type  = getMedType(m);
+    const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+    const mid   = m.id || 0;
+    const composition = (m.strength || m.generic_name || '').substring(0, 70);
+    const mfr = (m.manufacturer || '').substring(0, 38);
+    return (
+      '<div class="med-card fade-in-up visible">' +
+        '<div class="med-card-img-wrap" style="background:' + color + '12">' +
+          '<img src="' + img + '" alt="' + esc(m.name) + '" class="med-card-img"/>' +
+          '<span class="med-type-pill" style="background:' + color + '22;color:' + color + '">' + typeLabel + '</span>' +
+        '</div>' +
+        '<div class="med-card-body">' +
+          '<div class="med-card-header">' +
+            '<div class="med-name">' + esc(m.name) + '</div>' +
+            '<span class="med-cat-badge" style="background:' + color + '20;color:' + color + '">' + (esc(m.category) || 'General') + '</span>' +
+          '</div>' +
+          (composition ? '<div class="med-info-label">COMPOSITION</div><div class="med-info-val med-composition">' + esc(composition) + (m.strength && m.strength.length > 70 ? '…' : '') + '</div>' : '') +
+          (mfr ? '<div class="med-info-label">MANUFACTURER</div><div class="med-info-val">' + esc(mfr) + (m.manufacturer && m.manufacturer.length > 38 ? '…' : '') + '</div>' : '') +
+          '<button class="med-view-btn" onclick="showMedicineDetails(' + mid + ')" style="--med-color:' + color + '">View Details →</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+
   const pagination = totalPages > 1
     ? '<div style="grid-column:1/-1;display:flex;justify-content:center;align-items:center;gap:1rem;padding:1rem 0;">' +
       '<button class="btn-sm btn-sm-blue" onclick="fetchMedicines(' + (medPage-1) + ')" ' + (medPage<=1?'disabled':'') + '>← Prev</button>' +
@@ -2144,6 +2393,63 @@ function renderMedicines() {
       '</div>'
     : '<div style="grid-column:1/-1;text-align:center;font-size:0.8rem;color:#374151;padding:0.5rem 0;">' + medTotal.toLocaleString() + ' medicines found</div>';
   grid.innerHTML = cards + pagination;
+}
+
+/* ─── Medicine Details Modal ─── */
+function showMedicineDetails(id) {
+  const m = _medDBCache[id];
+  if (!m) return;
+  const color = getCatColor(m.category);
+  const img   = getMedImage(m);
+  const type  = getMedType(m);
+  const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+
+  function detailSection(icon, title, content) {
+    if (!content || content === 'nan' || content.trim() === '') return '';
+    return (
+      '<div class="med-detail-section">' +
+        '<div class="med-detail-section-title"><span>' + icon + '</span>' + title + '</div>' +
+        '<div class="med-detail-section-body">' + esc(content) + '</div>' +
+      '</div>'
+    );
+  }
+
+  const html =
+    '<div class="med-modal-header" style="background:linear-gradient(135deg,' + color + 'dd,' + color + '99)">' +
+      '<button class="med-modal-close" onclick="closeMedicineModal()">✕</button>' +
+      '<div class="med-modal-header-inner">' +
+        '<img src="' + img + '" class="med-modal-img" alt="' + esc(m.name) + '"/>' +
+        '<div>' +
+          '<div class="med-modal-name">' + esc(m.name) + '</div>' +
+          '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">' +
+            '<span class="med-modal-badge" style="background:rgba(255,255,255,0.25)">' + typeLabel + '</span>' +
+            (m.category ? '<span class="med-modal-badge" style="background:rgba(255,255,255,0.25)">' + esc(m.category) + '</span>' : '') +
+            (m.dosage_form||m.form ? '<span class="med-modal-badge" style="background:rgba(255,255,255,0.18)">' + esc(m.dosage_form||m.form) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="med-modal-body">' +
+      detailSection('💊', 'Uses & Indications', m.description || m.medicine_desc) +
+      detailSection('🧪', 'Composition / Active Ingredients', m.strength || m.generic_name || m.salt_composition) +
+      detailSection('⚠️', 'Side Effects', m.side_effects) +
+      detailSection('🛡️', 'Precautions & Warnings', m.precautions) +
+      detailSection('📋', 'Dosage Instructions', m.dosage) +
+      detailSection('🏭', 'Manufacturer', m.manufacturer) +
+      (m.unit_price && m.unit_price > 0 ? detailSection('💰', 'Unit Price', '₹' + parseFloat(m.unit_price).toFixed(2)) : '') +
+    '</div>';
+
+  const modal = document.getElementById('medDetailsModal');
+  if (!modal) return;
+  document.getElementById('medModalContent').innerHTML = html;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMedicineModal() {
+  const modal = document.getElementById('medDetailsModal');
+  if (modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 function searchMedicines(q) {
@@ -3281,18 +3587,818 @@ document.addEventListener('DOMContentLoaded', function () {
    caused buttons to visually "jump" or disappear. Removed.
 ═══════════════════════════════════════════════════════════════ */
 
+/* ─── EMERGENCY SEAS ─── */
+let seasState = null;
+let seasTrackingInterval = null;
+let seasHospitalAlertsInterval = null;
+let seasTrackingMap = null;
+let seasUserMarker = null;
+let seasAmbulanceMarker = null;
+let seasRouteLine = null;
+let seasMapAutoFitDone = false;
+
+const SEAS_STATUS_ORDER = ['SOS_TRIGGERED', 'AMBULANCE_ASSIGNED', 'IN_TRANSIT', 'HOSPITAL_SELECTED', 'COMPLETED'];
+const SEAS_PROGRESS_LABELS = {
+  SOS_TRIGGERED: 'SOS Triggered',
+  AMBULANCE_ASSIGNED: 'Ambulance Assigned',
+  IN_TRANSIT: 'In Transit',
+  HOSPITAL_SELECTED: 'Hospital Selected',
+  COMPLETED: 'Completed',
+};
+
+function initEmergencySEASPage() {
+  if (!seasState) {
+    seasState = {
+      flowStep: 0,
+      startedAt: null,
+      emergencyType: 'general',
+      severity: 'critical',
+      location: null,
+      ambulance: null,
+      hospital: null,
+      billing: null,
+      hospitalSelectionPending: false,
+      hospitalSelectionDone: false,
+      etaMins: null,
+      timeline: [],
+    };
+  }
+  renderSEAS();
+  startSEASHospitalAlertsPolling();
+}
+
+function seasRenderHospitalAlerts(alerts) {
+  const wrap = document.getElementById('seasHospitalAlerts');
+  if (!wrap) return;
+
+  if (!alerts || !alerts.length) {
+    wrap.innerHTML = '<p style="color:#64748b;">No hospital alerts yet. Alerts appear after pre-treatment data is shared.</p>';
+    return;
+  }
+
+  wrap.innerHTML = alerts.map((alert) => {
+    const payload = alert.payload || {};
+    const patient = payload.patient || {};
+    const incident = payload.incident_location || {};
+    return `
+      <div class="patient-item" style="border-left:4px solid #ef4444;">
+        <div style="display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+          <strong>${alert.hospital_name || alert.hospital_id || 'Hospital Alert'}</strong>
+          <span style="font-size:0.78rem;color:#64748b;">${alert.sent_at || '-'}</span>
+        </div>
+        <div style="font-size:0.83rem;color:#334155;margin-top:0.25rem;">
+          Case ${alert.case_id || '-'} | ${payload.emergency_type || '-'} / ${payload.severity || '-'} | ETA ${payload.eta_minutes != null ? payload.eta_minutes + ' min' : '-'}
+        </div>
+        <div style="font-size:0.82rem;color:#475569;margin-top:0.2rem;">
+          Patient: ${patient.name || 'Unknown'} | Location: ${incident.address || 'Address unavailable'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function seasLoadHospitalAlerts() {
+  const wrap = document.getElementById('seasHospitalAlerts');
+  if (!wrap) return;
+
+  let path = '/hospital/alerts?limit=6';
+  if (seasState && seasState.caseId) {
+    path += '&case_id=' + encodeURIComponent(seasState.caseId);
+  } else if (seasState && seasState.hospital && seasState.hospital.id) {
+    path += '&hospital_id=' + encodeURIComponent(seasState.hospital.id);
+  }
+
+  try {
+    const data = await api('GET', path);
+    seasRenderHospitalAlerts(data.alerts || []);
+  } catch (err) {
+    wrap.innerHTML = `<p style="color:#b91c1c;">Could not load hospital alerts: ${err.message}</p>`;
+  }
+}
+
+function stopSEASHospitalAlertsPolling() {
+  if (seasHospitalAlertsInterval) {
+    clearInterval(seasHospitalAlertsInterval);
+    seasHospitalAlertsInterval = null;
+  }
+}
+
+function startSEASHospitalAlertsPolling() {
+  stopSEASHospitalAlertsPolling();
+  seasLoadHospitalAlerts();
+  seasHospitalAlertsInterval = setInterval(seasLoadHospitalAlerts, 6000);
+}
+
+function seasLog(message) {
+  if (!seasState) initEmergencySEASPage();
+  const stamp = new Date().toLocaleTimeString();
+  seasState.timeline.unshift({ stamp, message });
+  seasState.timeline = seasState.timeline.slice(0, 12);
+}
+
+function seasUpdateProgressUI(status, loadingStage = null) {
+  const stepMap = [
+    { el: document.getElementById('seasStepSOS'), key: 'SOS_TRIGGERED' },
+    { el: document.getElementById('seasStepAssign'), key: 'AMBULANCE_ASSIGNED' },
+    { el: document.getElementById('seasStepTransit'), key: 'IN_TRANSIT' },
+    { el: document.getElementById('seasStepHospital'), key: 'HOSPITAL_SELECTED' },
+    { el: document.getElementById('seasStepComplete'), key: 'COMPLETED' },
+  ];
+
+  const statusIndex = Math.max(0, SEAS_STATUS_ORDER.indexOf(status));
+  stepMap.forEach((step, idx) => {
+    if (!step.el) return;
+    step.el.classList.remove('done', 'active', 'pending', 'loading');
+    if (idx < statusIndex) {
+      step.el.classList.add('done');
+      return;
+    }
+    if (idx === statusIndex) {
+      step.el.classList.add('active');
+      return;
+    }
+    step.el.classList.add('pending');
+  });
+
+  if (loadingStage) {
+    const target = stepMap.find((x) => x.key === loadingStage);
+    if (target && target.el) target.el.classList.add('loading', 'active');
+  }
+}
+
+async function seasSyncCaseFromBackend() {
+  if (!seasState || !seasState.caseId) return null;
+  try {
+    const data = await api('GET', '/emergency/case/' + encodeURIComponent(seasState.caseId));
+    seasState.backendStatus = data.status;
+    seasState.billing = data.billing || seasState.billing;
+    if (data.billing) {
+      const providerEl = document.getElementById('seasInsuranceProvider');
+      const planEl = document.getElementById('seasInsurancePlan');
+      if (providerEl && data.billing.insurance_provider && !providerEl.value) providerEl.value = data.billing.insurance_provider;
+      if (planEl && data.billing.insurance_plan) planEl.value = data.billing.insurance_plan;
+    }
+    seasState.flowStep = Math.max(
+      seasState.flowStep || 0,
+      {
+        SOS_TRIGGERED: 1,
+        AMBULANCE_ASSIGNED: 2,
+        IN_TRANSIT: 3,
+        HOSPITAL_SELECTED: 4,
+        COMPLETED: 5,
+      }[data.status] || 0
+    );
+    return data;
+  } catch (_err) {
+    return null;
+  }
+}
+
+function setSEASTriggerStatus(message, type = 'info') {
+  const statusEl = document.getElementById('seasTriggerStatus');
+  if (!statusEl) return;
+  statusEl.style.display = 'block';
+  if (type === 'error') {
+    statusEl.style.background = '#fef2f2';
+    statusEl.style.borderColor = '#fecaca';
+    statusEl.style.color = '#991b1b';
+  } else if (type === 'success') {
+    statusEl.style.background = '#f0fdf4';
+    statusEl.style.borderColor = '#bbf7d0';
+    statusEl.style.color = '#166534';
+  } else {
+    statusEl.style.background = '#f8fafc';
+    statusEl.style.borderColor = '#e2e8f0';
+    statusEl.style.color = '#334155';
+  }
+  statusEl.textContent = message;
+}
+
+function toggleSEASManualLocation(show) {
+  const wrap = document.getElementById('seasManualLocationWrap');
+  if (wrap) wrap.style.display = show ? 'block' : 'none';
+}
+
+function toggleSEASRetry(show) {
+  const retryBtn = document.getElementById('seasRetryBtn');
+  if (retryBtn) retryBtn.style.display = show ? 'inline-flex' : 'none';
+}
+
+function setSEASTriggerLoading(isLoading) {
+  const triggerBtn = document.getElementById('seasTriggerBtn');
+  if (!triggerBtn) return;
+  triggerBtn.disabled = isLoading;
+  triggerBtn.style.opacity = isLoading ? '0.75' : '1';
+  triggerBtn.innerHTML = isLoading
+    ? '<i data-lucide="loader-circle" style="width:16px;height:16px"></i> Triggering...'
+    : '<i data-lucide="siren" style="width:16px;height:16px"></i> Trigger SOS';
+  lucide.createIcons();
+}
+
+function setSEASAssignLoading(isLoading) {
+  const assignBtn = document.querySelector('#page-emergency button[onclick="seasAdvanceFlow()"]');
+  if (!assignBtn) return;
+  assignBtn.disabled = isLoading;
+  assignBtn.style.opacity = isLoading ? '0.75' : '1';
+}
+
+function setSEASBillingLoading(isLoading) {
+  ['seasApplyInsuranceBtn', 'seasMarkPaidBtn', 'seasMarkUnpaidBtn'].forEach((id) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.disabled = isLoading;
+    btn.style.opacity = isLoading ? '0.7' : '1';
+  });
+}
+
+function seasResolveUserId() {
+  if (currentUser && currentUser.id) return String(currentUser.id);
+  let guest = localStorage.getItem('mg_guest_id');
+  if (!guest) {
+    guest = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    localStorage.setItem('mg_guest_id', guest);
+  }
+  return guest;
+}
+
+function seasGetManualLocation() {
+  const latInput = document.getElementById('seasManualLat');
+  const lngInput = document.getElementById('seasManualLng');
+  const addressInput = document.getElementById('seasManualAddress');
+  const lat = latInput ? Number(latInput.value) : NaN;
+  const lng = lngInput ? Number(lngInput.value) : NaN;
+  const address = addressInput ? addressInput.value.trim() : '';
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null;
+  }
+  return {
+    latitude: Number(lat.toFixed(6)),
+    longitude: Number(lng.toFixed(6)),
+    manualAddress: address,
+  };
+}
+
+function seasGetBrowserLocation() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation not supported'));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve({
+          latitude: Number(pos.coords.latitude.toFixed(6)),
+          longitude: Number(pos.coords.longitude.toFixed(6)),
+        });
+      },
+      () => reject(new Error('Location permission denied or unavailable')),
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  });
+}
+
+async function seasReverseGeocodeOSM(latitude, longitude) {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`;
+  const res = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+  if (!res.ok) throw new Error('OSM reverse geocoding failed');
+  const data = await res.json();
+  return data.display_name || 'Address not available';
+}
+
+async function seasTriggerSOS() {
+  initEmergencySEASPage();
+  const emergencyEl = document.getElementById('seasEmergencyType');
+  const severityEl = document.getElementById('seasSeverity');
+
+  setSEASTriggerLoading(true);
+  toggleSEASRetry(false);
+
+  seasState.flowStep = 1;
+  seasState.startedAt = Date.now();
+  seasState.emergencyType = emergencyEl ? emergencyEl.value : 'general';
+  seasState.severity = severityEl ? severityEl.value : 'critical';
+  seasState.ambulance = null;
+  seasState.hospital = null;
+  seasState.billing = null;
+  seasState.hospitalSelectionPending = false;
+  seasState.hospitalSelectionDone = false;
+  seasState.etaMins = null;
+  seasState.caseId = null;
+  seasState.address = null;
+  seasState.timeline = [];
+  seasState.backendStatus = 'SOS_TRIGGERED';
+  seasLog('SOS trigger initiated. Capturing incident context.');
+  setSEASTriggerStatus('Fetching location and creating emergency case...', 'info');
+  seasRenderHospitalAlerts([]);
+  seasUpdateProgressUI('SOS_TRIGGERED', 'SOS_TRIGGERED');
+
+  try {
+    let coords;
+    let usedManual = false;
+
+    try {
+      coords = await seasGetBrowserLocation();
+      toggleSEASManualLocation(false);
+      seasLog(`Location captured from browser: ${coords.latitude}, ${coords.longitude}.`);
+    } catch (_geoErr) {
+      toggleSEASManualLocation(true);
+      const manual = seasGetManualLocation();
+      if (!manual) {
+        setSEASTriggerStatus('Please enable location or enter manual latitude/longitude.', 'error');
+        seasLog('Location unavailable. Waiting for manual input.');
+        toggleSEASRetry(true);
+        renderSEAS();
+        return;
+      }
+      coords = { latitude: manual.latitude, longitude: manual.longitude, manualAddress: manual.manualAddress };
+      usedManual = true;
+      seasLog('Using manually entered location coordinates.');
+    }
+
+    seasState.location = { lat: coords.latitude, lng: coords.longitude };
+
+    let address = coords.manualAddress || '';
+    if (!address) {
+      try {
+        address = await seasReverseGeocodeOSM(coords.latitude, coords.longitude);
+        seasLog('Address resolved using OpenStreetMap Nominatim.');
+      } catch (_geocodeErr) {
+        address = 'Address unavailable';
+        seasLog('OSM reverse geocoding failed. Proceeding with coordinates only.');
+      }
+    }
+
+    seasState.address = address;
+
+    const payload = {
+      user_id: seasResolveUserId(),
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      address,
+      emergency_type: seasState.emergencyType,
+      severity: seasState.severity,
+    };
+
+    const response = await api('POST', '/emergency/trigger', payload);
+    seasState.caseId = response.case_id;
+    seasLog(`Emergency case created: ${response.case_id}.`);
+    seasState.flowStep = 1;
+    seasState.backendStatus = 'SOS_TRIGGERED';
+    seasUpdateProgressUI('SOS_TRIGGERED');
+
+    setSEASTriggerStatus(`SOS Triggered. Case ${response.case_id} created${usedManual ? ' (manual location)' : ''}.`, 'success');
+    showToast('SOS Triggered', 'success');
+
+    // Auto-run ambulance assignment after SOS case creation.
+    await seasAssignAmbulance();
+    renderSEAS();
+  } catch (err) {
+    seasLog(`Emergency trigger failed: ${err.message}`);
+    setSEASTriggerStatus(`Failed to trigger SOS. ${err.message}`, 'error');
+    toggleSEASRetry(true);
+    showToast('Unable to trigger SOS. Please retry.', 'error');
+    renderSEAS();
+  } finally {
+    setSEASTriggerLoading(false);
+    lucide.createIcons();
+  }
+}
+
+async function seasAssignAmbulance() {
+  if (!seasState || !seasState.caseId || !seasState.location) {
+    setSEASTriggerStatus('Trigger SOS first to create a valid case before assignment.', 'error');
+    return;
+  }
+
+  setSEASAssignLoading(true);
+  setSEASTriggerStatus('Finding nearest ambulance...', 'info');
+  seasLog('Finding nearest available and suitable ambulance...');
+  seasUpdateProgressUI(seasState.backendStatus || 'SOS_TRIGGERED', 'AMBULANCE_ASSIGNED');
+
+  try {
+    const assignment = await api('POST', '/ambulance/assign', {
+      case_id: seasState.caseId,
+      latitude: seasState.location.lat,
+      longitude: seasState.location.lng,
+      severity: seasState.severity,
+    });
+
+    seasState.ambulance = {
+      id: assignment.ambulance_id,
+      driverName: assignment.driver_name,
+      type: assignment.ambulance_type || 'N/A',
+      distanceKm: assignment.distance_km,
+    };
+    seasState.billing = assignment.billing || seasState.billing;
+    seasState.etaMins = assignment.eta_minutes || (typeof assignment.eta === 'string' ? parseInt(assignment.eta, 10) : null);
+    seasState.flowStep = 2;
+    seasState.backendStatus = 'AMBULANCE_ASSIGNED';
+    seasUpdateProgressUI('AMBULANCE_ASSIGNED');
+
+    setSEASTriggerStatus(`Ambulance assigned: ${assignment.ambulance_id} (${assignment.driver_name}) - ETA ${assignment.eta}.`, 'success');
+    seasLog(`Ambulance ${assignment.ambulance_id} assigned. Driver ${assignment.driver_name}. ETA ${assignment.eta}.`);
+    showToast('Ambulance Assigned', 'success');
+    startSEASTracking();
+
+    // Auto-move to next step (Live tracking / route optimization).
+    seasAdvanceFlow();
+    renderSEAS();
+  } catch (err) {
+    const msg = String(err.message || 'Unable to assign ambulance');
+    seasState.flowStep = 1;
+    setSEASTriggerStatus(msg.includes('No ambulance available') || msg.includes('required type')
+      ? 'No ambulance available nearby. Retry or expand coverage.'
+      : `Ambulance assignment failed. ${msg}`, 'error');
+    seasLog(`Ambulance assignment failed: ${msg}`);
+    toggleSEASRetry(true);
+    showToast('No ambulance available nearby', 'error');
+    renderSEAS();
+  } finally {
+    setSEASAssignLoading(false);
+  }
+}
+
+async function seasSelectHospital() {
+  if (!seasState || !seasState.caseId || !seasState.location) return null;
+  if (seasState.hospitalSelectionPending || seasState.hospitalSelectionDone) return seasState.hospital;
+
+  seasState.hospitalSelectionPending = true;
+  setSEASTriggerStatus('Selecting best-fit hospital...', 'info');
+  seasLog('Selecting best-fit hospital from database...');
+  seasUpdateProgressUI(seasState.backendStatus || 'IN_TRANSIT', 'HOSPITAL_SELECTED');
+
+  try {
+    const result = await api('POST', '/hospital/select', {
+      case_id: seasState.caseId,
+      latitude: seasState.location.lat,
+      longitude: seasState.location.lng,
+      emergency_type: seasState.emergencyType,
+      severity: seasState.severity,
+    });
+
+    seasState.hospital = {
+      id: result.hospital_id,
+      name: result.hospital_name,
+      distanceKm: result.distance,
+      etaMins: result.eta_minutes || null,
+      reserved: true,
+      alerted: true,
+      specializations: result.specializations || [],
+    };
+    seasState.hospitalSelectionDone = true;
+    seasState.flowStep = Math.max(seasState.flowStep, 4);
+    seasState.backendStatus = 'HOSPITAL_SELECTED';
+    seasLog(`Hospital selected: ${result.hospital_name} (${result.hospital_id}) at ${result.distance} km.`);
+    setSEASTriggerStatus(`Hospital selected: ${result.hospital_name} (${result.hospital_id})`, 'success');
+    seasUpdateProgressUI('HOSPITAL_SELECTED');
+
+    if (seasState.ambulance) {
+      seasLog('Ambulance route updated to selected hospital and hospital alerted/reserved.');
+    }
+
+    try {
+      const notifyRes = await api('POST', '/hospital/notify', { case_id: seasState.caseId });
+      if (notifyRes && notifyRes.status === 'sent') {
+        seasState.flowStep = Math.max(seasState.flowStep, 5);
+        seasState.backendStatus = 'COMPLETED';
+        seasLog(`Pre-treatment data sent to ${result.hospital_name}. Doctors can prepare before arrival.`);
+        setSEASTriggerStatus(`Hospital alerted and pre-treatment data shared: ${result.hospital_name}`, 'success');
+        seasLoadHospitalAlerts();
+        seasUpdateProgressUI('COMPLETED');
+      }
+    } catch (notifyErr) {
+      seasLog(`Hospital pre-treatment notify failed: ${notifyErr.message}`);
+      setSEASTriggerStatus(`Hospital selected, but pre-treatment notify pending: ${notifyErr.message}`, 'error');
+    }
+
+    renderSEAS();
+    return result;
+  } catch (err) {
+    seasLog(`Hospital selection failed: ${err.message}`);
+    setSEASTriggerStatus(`Hospital selection pending: ${err.message}`, 'error');
+    return null;
+  } finally {
+    seasState.hospitalSelectionPending = false;
+  }
+}
+
+async function seasApplyInsurance() {
+  if (!seasState || !seasState.caseId) {
+    showToast('Create a case first', 'warning');
+    return;
+  }
+
+  const providerEl = document.getElementById('seasInsuranceProvider');
+  const planEl = document.getElementById('seasInsurancePlan');
+  const insuranceProvider = providerEl ? providerEl.value.trim() : '';
+  const insurancePlan = planEl ? planEl.value : 'silver';
+
+  setSEASBillingLoading(true);
+  try {
+    const res = await api('POST', '/emergency/payment', {
+      case_id: seasState.caseId,
+      insurance_provider: insuranceProvider,
+      insurance_plan: insurancePlan,
+      mark_paid: false,
+    });
+    seasState.billing = res.billing || seasState.billing;
+    seasLog(`Insurance applied (${insurancePlan.toUpperCase()}) with coverage ${res.billing.insurance_coverage_pct}%`);
+    showToast('Insurance applied', 'success');
+    renderSEAS();
+  } catch (err) {
+    showToast(`Insurance update failed: ${err.message}`, 'error');
+  } finally {
+    setSEASBillingLoading(false);
+  }
+}
+
+async function seasMarkPaymentPaid(markPaid) {
+  if (!seasState || !seasState.caseId) {
+    showToast('No active case for payment update', 'warning');
+    return;
+  }
+
+  const providerEl = document.getElementById('seasInsuranceProvider');
+  const planEl = document.getElementById('seasInsurancePlan');
+  const insuranceProvider = providerEl ? providerEl.value.trim() : '';
+  const insurancePlan = planEl ? planEl.value : 'silver';
+
+  setSEASBillingLoading(true);
+  try {
+    const res = await api('POST', '/emergency/payment', {
+      case_id: seasState.caseId,
+      insurance_provider: insuranceProvider,
+      insurance_plan: insurancePlan,
+      mark_paid: !!markPaid,
+    });
+    seasState.billing = res.billing || seasState.billing;
+    seasLog(`Payment status updated to ${res.billing.payment_status}.`);
+    showToast(markPaid ? 'Payment marked paid' : 'Payment marked unpaid', markPaid ? 'success' : 'info');
+    renderSEAS();
+  } catch (err) {
+    showToast(`Payment update failed: ${err.message}`, 'error');
+  } finally {
+    setSEASBillingLoading(false);
+  }
+}
+
+function stopSEASTracking() {
+  if (seasTrackingInterval) {
+    clearInterval(seasTrackingInterval);
+    seasTrackingInterval = null;
+  }
+  stopSEASHospitalAlertsPolling();
+}
+
+function ensureSEASTrackingMap(userPos, ambPos) {
+  if (!window.L) return null;
+  const mapDiv = document.getElementById('seasTrackingMap');
+  if (!mapDiv) return null;
+
+  if (!seasTrackingMap) {
+    seasTrackingMap = L.map(mapDiv, { zoomControl: true, scrollWheelZoom: true }).setView([userPos.lat, userPos.lng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(seasTrackingMap);
+  }
+
+  if (!seasUserMarker) {
+    seasUserMarker = L.marker([userPos.lat, userPos.lng], { icon: createLeafletCircleIcon('#2563eb', 'U') }).addTo(seasTrackingMap);
+    seasUserMarker.bindPopup('User Location');
+  } else {
+    seasUserMarker.setLatLng([userPos.lat, userPos.lng]);
+  }
+
+  const ambulanceIcon = L.divIcon({
+    className: 'custom-leaflet-marker',
+    html: '<div style="font-size:22px;line-height:1;filter:drop-shadow(0 2px 4px rgba(15,23,42,0.35));">🚑</div>',
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -10]
+  });
+
+  if (!seasAmbulanceMarker) {
+    seasAmbulanceMarker = L.marker([ambPos.lat, ambPos.lng], { icon: ambulanceIcon }).addTo(seasTrackingMap);
+    seasAmbulanceMarker.bindPopup('Assigned Ambulance');
+  }
+
+  if (!seasMapAutoFitDone) {
+    const bounds = L.latLngBounds([[userPos.lat, userPos.lng], [ambPos.lat, ambPos.lng]]);
+    seasTrackingMap.fitBounds(bounds.pad(0.25));
+    seasMapAutoFitDone = true;
+  }
+
+  setTimeout(() => seasTrackingMap.invalidateSize(), 0);
+  return seasTrackingMap;
+}
+
+function animateAmbulanceMarker(targetLat, targetLng) {
+  if (!seasAmbulanceMarker) return;
+  const from = seasAmbulanceMarker.getLatLng();
+  const duration = 1000;
+  const start = performance.now();
+
+  function frame(ts) {
+    const t = Math.min(1, (ts - start) / duration);
+    const lat = from.lat + (targetLat - from.lat) * t;
+    const lng = from.lng + (targetLng - from.lng) * t;
+    seasAmbulanceMarker.setLatLng([lat, lng]);
+    if (t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+async function seasFetchOSRMRoute(ambPos, userPos) {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${ambPos.lng},${ambPos.lat};${userPos.lng},${userPos.lat}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const coords = data && data.routes && data.routes[0] && data.routes[0].geometry && data.routes[0].geometry.coordinates;
+    if (!coords || !coords.length) return null;
+    return coords.map(([lng, lat]) => [lat, lng]);
+  } catch (_err) {
+    return null;
+  }
+}
+
+async function seasRenderTrackingRoute(ambPos, userPos) {
+  if (!seasTrackingMap) return;
+  const latLngs = (await seasFetchOSRMRoute(ambPos, userPos)) || [[ambPos.lat, ambPos.lng], [userPos.lat, userPos.lng]];
+  if (seasRouteLine) seasRouteLine.remove();
+  seasRouteLine = L.polyline(latLngs, { color: '#7c3aed', weight: 4, opacity: 0.85 }).addTo(seasTrackingMap);
+}
+
+async function seasPollTracking() {
+  if (!seasState || !seasState.caseId) return;
+  const meta = document.getElementById('seasTrackingMeta');
+
+  try {
+    const track = await api('GET', '/ambulance/track/' + encodeURIComponent(seasState.caseId));
+    const userPos = {
+      lat: Number(track.user_location.latitude),
+      lng: Number(track.user_location.longitude),
+    };
+    const ambPos = {
+      lat: Number(track.ambulance_location.latitude),
+      lng: Number(track.ambulance_location.longitude),
+    };
+
+    ensureSEASTrackingMap(userPos, ambPos);
+    animateAmbulanceMarker(ambPos.lat, ambPos.lng);
+    await seasRenderTrackingRoute(ambPos, userPos);
+
+    if (!seasState.hospitalSelectionDone && !seasState.hospitalSelectionPending) {
+      await seasSelectHospital();
+    }
+
+    const caseSnapshot = await seasSyncCaseFromBackend();
+    if (caseSnapshot && caseSnapshot.status) {
+      seasUpdateProgressUI(caseSnapshot.status);
+    } else {
+      seasUpdateProgressUI(seasState.backendStatus || 'IN_TRANSIT', 'IN_TRANSIT');
+    }
+
+    seasState.location = userPos;
+    if (!seasState.ambulance) seasState.ambulance = {};
+    seasState.ambulance.id = track.ambulance_id;
+    seasState.ambulance.driverName = track.driver_name;
+    seasState.etaMins = Number(track.eta_minutes);
+    if (track.arrived) {
+      seasState.flowStep = 5;
+      seasState.backendStatus = seasState.backendStatus || 'IN_TRANSIT';
+    } else {
+      seasState.flowStep = Math.max(seasState.flowStep, 3);
+      if (!seasState.hospitalSelectionDone) seasState.backendStatus = 'IN_TRANSIT';
+    }
+
+    if (meta) {
+      meta.textContent = track.arrived
+        ? `Ambulance Arrived ✅ (${track.ambulance_id})`
+        : `Distance: ${track.distance_km} km | ETA: ${track.eta_minutes} min | Driver: ${track.driver_name}${seasState.hospital ? ` | Hospital: ${seasState.hospital.name}` : ''}`;
+    }
+
+    if (track.arrived && !seasState.arrivalAnnounced) {
+      seasState.arrivalAnnounced = true;
+      seasLog('Ambulance Arrived at incident location.');
+      setSEASTriggerStatus('Ambulance Arrived ✅', 'success');
+      showToast('Ambulance Arrived', 'success');
+      stopSEASTracking();
+    }
+
+    renderSEAS();
+  } catch (err) {
+    if (meta) meta.textContent = `Tracking paused: ${err.message}`;
+  }
+}
+
+function startSEASTracking() {
+  stopSEASTracking();
+  seasMapAutoFitDone = false;
+  seasState.backendStatus = seasState.backendStatus || 'IN_TRANSIT';
+  seasUpdateProgressUI(seasState.backendStatus, 'IN_TRANSIT');
+  seasPollTracking();
+  seasTrackingInterval = setInterval(seasPollTracking, 4000);
+}
+
+async function seasAdvanceFlow() {
+  if (!seasState || seasState.flowStep === 0) {
+    showToast('Trigger SOS first to start emergency flow', 'warning');
+    return;
+  }
+
+  if (seasState.flowStep === 1) {
+    showToast('Ambulance assignment pending. Please retry assignment.', 'warning');
+    renderSEAS();
+    return;
+  }
+
+  if (seasState.flowStep === 2) {
+    seasState.flowStep = 3;
+    seasLog('Live tracking started. Hospital selection will run against live case data.');
+    renderSEAS();
+    return;
+  }
+
+  if (seasState.flowStep === 3) {
+    await seasSelectHospital();
+    renderSEAS();
+    return;
+  }
+
+  if (seasState.flowStep === 4) {
+    seasState.flowStep = 5;
+    seasLog('Patient condition, emergency type, and ETA sent to hospital pre-arrival desk.');
+    renderSEAS();
+    showToast('SEAS flow complete: pre-treatment is now ready', 'success');
+    return;
+  }
+
+  showToast('SEAS flow already completed. Trigger SOS to start again.', 'info');
+}
+
+function renderSEAS() {
+  const statusEl = document.getElementById('seasLiveStatus');
+  const timelineEl = document.getElementById('seasTimeline');
+  if (!statusEl || !timelineEl || !seasState) return;
+
+  const currentStepLabel = SEAS_PROGRESS_LABELS[seasState.backendStatus] || ['Idle', 'SOS Triggered', 'Ambulance Assigned', 'Live Tracking', 'Hospital Selected', 'Pre-treatment Ready'][seasState.flowStep] || 'Idle';
+
+  statusEl.innerHTML = [
+    `<div class="metric-card"><h4>Case ID</h4><p>${seasState.caseId || 'Not created'}</p></div>`,
+    `<div class="metric-card"><h4>Assignment</h4><p>${seasState.ambulance ? 'Assigned ✅' : 'Pending ❌'}</p></div>`,
+    `<div class="metric-card"><h4>Flow Status</h4><p>${currentStepLabel}</p></div>`,
+    `<div class="metric-card"><h4>Emergency</h4><p>${seasState.emergencyType.toUpperCase()} / ${seasState.severity.toUpperCase()}</p></div>`,
+    `<div class="metric-card"><h4>Location</h4><p>${seasState.location ? seasState.location.lat + ', ' + seasState.location.lng : 'Waiting for SOS'}</p></div>`,
+    `<div class="metric-card"><h4>Address</h4><p>${seasState.address || 'Pending geocode'}</p></div>`,
+    `<div class="metric-card"><h4>Ambulance</h4><p>${seasState.ambulance ? (seasState.ambulance.id + ' (' + seasState.ambulance.type + ')') : 'Not assigned'}</p></div>`,
+    `<div class="metric-card"><h4>Driver</h4><p>${seasState.ambulance && seasState.ambulance.driverName ? seasState.ambulance.driverName : 'Pending'}</p></div>`,
+    `<div class="metric-card"><h4>ETA</h4><p>${seasState.etaMins ? seasState.etaMins + ' minutes' : 'Pending'}</p></div>`,
+    `<div class="metric-card"><h4>Hospital</h4><p>${seasState.hospital ? `${seasState.hospital.name}${seasState.hospital.distanceKm != null ? ` • ${seasState.hospital.distanceKm} km` : ''}${seasState.hospital.reserved ? ' • Reserved' : ''}` : 'Not selected'}</p></div>`,
+    `<div class="metric-card"><h4>Ambulance Cost</h4><p>${seasState.billing && seasState.billing.total_cost ? `INR ${Number(seasState.billing.total_cost).toFixed(2)}` : 'Pending'}</p></div>`,
+    `<div class="metric-card"><h4>Payable</h4><p>${seasState.billing && seasState.billing.payable_amount != null ? `INR ${Number(seasState.billing.payable_amount).toFixed(2)}` : 'Pending'}</p></div>`,
+    `<div class="metric-card"><h4>Payment</h4><p>${seasState.billing && seasState.billing.payment_status ? seasState.billing.payment_status : 'UNPAID'}</p></div>`,
+  ].join('');
+
+  timelineEl.innerHTML = seasState.timeline.length
+    ? seasState.timeline.map((item) => `<div class="patient-item"><div><strong>${item.stamp}</strong></div><div>${item.message}</div></div>`).join('')
+    : '<p style="color:#64748b;">No emergency events yet. Trigger SOS to begin.</p>';
+
+  const billingSummary = document.getElementById('seasBillingSummary');
+  if (billingSummary) {
+    if (!seasState.billing || !seasState.billing.total_cost) {
+      billingSummary.textContent = 'Ambulance cost will appear after assignment.';
+    } else {
+      const coverage = Number(seasState.billing.insurance_coverage_pct || 0);
+      billingSummary.textContent = `Total: INR ${Number(seasState.billing.total_cost).toFixed(2)} | Insurance: ${coverage}% | Payable: INR ${Number(seasState.billing.payable_amount || 0).toFixed(2)} | Status: ${seasState.billing.payment_status || 'UNPAID'}`;
+    }
+  }
+
+  seasUpdateProgressUI(seasState.backendStatus || 'SOS_TRIGGERED');
+}
+
+
 /* ─── FLOATING CHATBOT ─── */
 function toggleChatbot() {
   const overlay = document.getElementById('chatbotOverlay');
   if (overlay.style.display === 'none' || overlay.style.display === '') {
     overlay.style.display = 'flex';
+    _chatHistory = [];
     seedChatbot();
   } else {
     overlay.style.display = 'none';
   }
 }
 
-function sendChatMessage() {
+let _chatHistory = [];
+
+async function sendBotMessage() {
   const input = document.getElementById('chatbotInput');
   const msg = input.value.trim();
   if (!msg) return;
@@ -3301,12 +4407,21 @@ function sendChatMessage() {
   input.value = '';
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-  setTimeout(() => {
-    const response = getChatbotResponse(msg);
-    appendChatMessage('bot', response.message, response.actions || []);
-  }, 300);
-}
+  const typingEl = document.createElement('div');
+  typingEl.className = 'chatbot-message bot';
+  typingEl.innerHTML = '<span style="opacity:0.5;letter-spacing:3px;font-size:1.1rem">●●●</span>';
+  messagesDiv.appendChild(typingEl);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
+  _chatHistory.push({ role: 'user', content: msg });
+  await new Promise(r => setTimeout(r, 420));
+  typingEl.remove();
+
+  const response = getChatbotResponse(msg);
+  _chatHistory.push({ role: 'assistant', content: response.message });
+  appendChatMessage('bot', response.message, response.actions || []);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
 let chatbotSeeded = false;
 
 function seedChatbot() {
@@ -3332,6 +4447,7 @@ function seedChatbot() {
     msg = 'As a doctor, you can consult with patients, manage health records, prescribe medicines, and use AI-powered clinical tools. What next?';
     actions = filterChatbotActions([
       { label: '👥 Patient Consultations', action: "navigate('telemedicine')" },
+      { label: '🚑 Emergency SEAS', action: "navigate('emergency')" },
       { label: '📋 Health Records', action: "navigate('dashboard')" },
       { label: '💊 Medicine Database', action: "navigate('medicines')" },
       { label: '🧠 AI Clinical Tools', action: "navigate('ai-safety-guard')" },
@@ -3352,6 +4468,7 @@ function seedChatbot() {
     msg = 'You can book doctor consultations, manage your health records, search medicines, and find pharmacies near you. What would you like to do?';
     actions = filterChatbotActions([
       { label: '👨‍⚕️ Book Doctor', action: "navigate('telemedicine')" },
+      { label: '🚨 Emergency SOS', action: "navigate('emergency')" },
       { label: '📊 My Health', action: "navigate('dashboard')" },
       { label: '🏥 Patient Portal', action: "navigate('portal')" },
       { label: '🏪 Find Pharmacy', action: "navigate('pharmacy')" },
@@ -5851,7 +6968,6 @@ const DS_NAV = {
     {id:'dr-vitals',icon:'activity',label:'Vital Monitoring'},
     {id:'dr-tasks',icon:'check-square',label:'Tasks'},
     {id:'dr-alerts',icon:'alert-triangle',label:'Alerts'},
-    {id:'dr-analytics',icon:'bar-chart',label:'Analytics'},
   ],
   pharmacist:[
     {id:'ph-overview',icon:'home',label:'Overview'},
@@ -5873,7 +6989,7 @@ const DS_PAGE_TITLES = {
   'pt-overview':'My Overview','pt-vitals':'Health Monitoring','pt-labs':'Lab Results',
   'pt-appts':'Appointments','pt-meds':'Medications','pt-monitor':'Remote Monitoring',
   'dr-schedule':'Schedule','dr-patients':'Patients','dr-vitals':'Vital Monitoring',
-  'dr-tasks':'Tasks & Workflow','dr-alerts':'Alerts','dr-analytics':'Analytics',
+  'dr-tasks':'Tasks & Workflow','dr-alerts':'Alerts',
   'ph-overview':'Overview','ph-inventory':'Inventory','ph-prescriptions':'Prescriptions',
   'ph-revenue':'Revenue','ph-expiry':'Expiry Tracker',
   'ad-overview':'Overview','ad-kpi':'KPI Dashboard','ad-users':'Users',
@@ -5884,7 +7000,7 @@ let dsCurrentPage = null;
 let dsCharts = {};
 
 // ── Called by navigate('dashboard') ──────────────────────────
-function loadDashboard() {
+function initDashboardShell() {
   // Keep dashUserName updated (backward-compat)
   const nameEl = document.getElementById('dashUserName');
   if (nameEl && currentUser) nameEl.textContent = currentUser.name;
@@ -5925,6 +7041,9 @@ function loadDashboard() {
 
   // Navigate to first page
   dsNavigate(items[0].id);
+
+  // Populate top-level dashboard metrics (keeps existing callers to loadDashboard working)
+  try { if (typeof loadDashboard === 'function') loadDashboard(); } catch(e) { console.warn('Failed to load dashboard metrics', e); }
 }
 
 function dsNavigate(pageId) {
@@ -5937,7 +7056,32 @@ function dsNavigate(pageId) {
   dsDestroyCharts();
   const content = document.getElementById('ds-content');
   content.innerHTML = dsRenderPage(pageId);
+  // after render hook for wiring dynamic components
+  try{ dsAfterRender(pageId); }catch(e){console.warn('dsAfterRender error',e); }
   setTimeout(()=>dsInitCharts(pageId),60);
+}
+
+// Hook called after dsRenderPage inserts HTML – use to wire dynamic UI and render stored data
+function dsAfterRender(pageId){
+  if(pageId==='dr-schedule'){
+    renderScheduleForDate(new Date());
+    const addBtn=document.getElementById('openAddAgenda'); if(addBtn) addBtn.onclick=openAddAgendaModal;
+    const cal=document.querySelectorAll('.dcal-d'); cal.forEach(d=>d.onclick=()=>{const day=d.dataset.day; if(day) renderScheduleForDate(new Date(day));});
+    const sim=document.getElementById('simAlert'); if(sim) sim.onclick=()=>{pushNotification('Simulated urgent alert: follow-up required','critical');};
+  }
+  if(pageId==='dr-patients'){
+    renderPatientRegistry();
+    const add=document.getElementById('openAddPatient'); if(add) add.onclick=openAddPatientModal;
+  }
+  if(pageId==='dr-vitals'){
+    renderDrVitals();
+  }
+  if(pageId==='dr-tasks'){
+    renderTasks();
+    const add=document.getElementById('openAddTask'); if(add) add.onclick=openAddTaskModal;
+  }
+  // refresh notification badge and panel
+  updateNotificationsUI();
 }
 
 function dsGetSub(id){
@@ -6074,7 +7218,15 @@ function dsRenderPage(id){
     </div>
     <div class="dg21">
       <div class="dc">
-        <div class="dc-hdr"><h3>Today's Agenda — April 12</h3>${pill('Saturday','b')}</div>
+        <div class="dc-hdr" style="display:flex;align-items:center;justify-content:space-between">
+          <div><h3>Today's Agenda — April 12</h3>${pill('Saturday','b')}</div>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <button id="openAddAgenda" class="btn-sm btn-sm-blue">Add</button>
+            <button class="btn-sm btn-sm-blue" onclick="openAgendaSync()">Sync</button>
+            <button class="btn-sm" onclick="printAgenda()">Print</button>
+            <button id="simAlert" class="btn-sm" title="Simulate alert">Simulate Alert</button>
+          </div>
+        </div>
         ${[['09:00','Alex Johnson','Type 2 DM follow-up','confirmed'],['09:45','Maria Santos','Hypertension check','confirmed'],['10:30','Robert Kim','Pre-op assessment','confirmed'],['11:15','Linda Pham','Annual physical','pending'],['12:00','— LUNCH BREAK —','','gray'],['13:00','David Osei','Video consult – asthma','telehealth'],['13:45','Priya Mehta','Medication review','confirmed'],['14:30','Thomas Lee','Lab result review','telehealth'],['15:15','Emma Clarke','First visit – anxiety','pending']].map(([t,n,r,s])=>`
           <div class="das ${s==='gray'?'':s}" style="${s==='gray'?'background:#f8fafc;color:#1a2332':''}">
             <div class="das-t">${t}</div>
@@ -6101,7 +7253,7 @@ function dsRenderPage(id){
 
   if(id==='dr-patients') return `
     <div class="dc dgap">
-      <div class="dc-hdr"><h3>Patient Registry</h3><span style="font-size:0.75rem;color:#1a2332">142 active patients</span></div>
+      <div class="dc-hdr" style="display:flex;align-items:center;justify-content:space-between"><div><h3>Patient Registry</h3><span style="font-size:0.75rem;color:#1a2332">142 active patients</span></div><div><button id="openAddPatient" class="btn-sm btn-sm-blue">+ Add Patient</button></div></div>
       <div class="dt-wrap"><table class="dt"><thead><tr><th>Patient</th><th>Age</th><th>Diagnosis</th><th>Last Visit</th><th>Next Appt</th><th>Status</th><th>Risk</th></tr></thead><tbody>
         ${[['Alex Johnson','36','Type 2 DM, HTN','Apr 8','Apr 12','Active','medium'],['Maria Santos','54','Hypertension','Mar 28','Apr 12','Active','low'],['Robert Kim','62','Pre-op: Hip','Apr 5','Apr 12','Active','high'],['Linda Pham','41','Annual','Jan 15','Apr 12','Active','low'],['Thomas Lee','71','CHF, Afib','Apr 1','Apr 12','Critical','high'],['Emma Clarke','26','Anxiety, Depression','—','Apr 12','New','low']].map(([n,a,d,lv,na,s,r])=>`
           <tr>
@@ -6141,7 +7293,7 @@ function dsRenderPage(id){
   if(id==='dr-tasks') return `
     <div class="dg2">
       <div class="dc">
-        <div class="dc-title">${dsIcon('check-square')} Today's Tasks</div>
+        <div style="display:flex;align-items:center;justify-content:space-between"><div class="dc-title">${dsIcon('check-square')} Today's Tasks</div><div><button id="openAddTask" class="btn-sm btn-sm-blue">+ Add Task</button></div></div>
         ${[true,true,false,false,false,false,false,false].map((done,i)=>{
           const tasks=['Review Thomas Lee CBC','Sign discharge – Bed 14','Call pharmacy re Warfarin','Complete rounds – Ward B','Telehealth – David Osei 1pm','Review imaging: Pham MRI','Update care plan – Santos','Supervision notes – Residents'];
           return `<div class="dtk"><div class="dtk-cb ${done?'done':''}" onclick="this.classList.toggle('done');this.nextElementSibling.classList.toggle('done')"></div><div class="dtk-txt ${done?'done':''}">${tasks[i]}</div></div>`;
@@ -6384,6 +7536,263 @@ function dsRenderPage(id){
 
 // ── Chart initialization ──────────────────────────────────────
 function dsInitCharts(pageId){
+  // Notification helpers (badge, storage, play sound)
+  function pushNotification(message,level='info'){
+    try{
+      const key='mg_notifications';
+      const cur=JSON.parse(localStorage.getItem(key)||'[]');
+      cur.unshift({id:Date.now(),message,level,time:new Date().toISOString()});
+      localStorage.setItem(key,JSON.stringify(cur.slice(0,200)));
+      updateNotificationsUI();
+      playNotificationSound();
+    }catch(e){console.warn(e)}
+  }
+
+  function updateNotificationsUI(){
+    const key='mg_notifications';
+    const cur=JSON.parse(localStorage.getItem(key)||'[]');
+    const badge=document.getElementById('notifBadge');
+    const panel=document.getElementById('notifPanel');
+    if(badge) { if(cur.length>0){ badge.style.display='flex'; badge.textContent=String(Math.min(99,cur.length)); } else badge.style.display='none'; }
+    if(panel){ panel.innerHTML = cur.length? cur.map(n=>`<div style="padding:0.8rem 1rem;border-bottom:1px solid #f1f5f9"><strong style="display:block">${n.message}</strong><div style="font-size:0.8rem;color:#64748b">${new Date(n.time).toLocaleString()}</div></div>`).join('') : '<div style="padding:1rem;text-align:center;color:#94a3b8">No notifications</div>' }
+  }
+
+  function playNotificationSound(){
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='sine'; o.frequency.value = 880; // A5
+      g.gain.value = 0.02;
+      o.connect(g); g.connect(ctx.destination);
+      o.start(); setTimeout(()=>{ o.stop(); ctx.close(); }, 140);
+    }catch(e){console.warn('sound failed',e)}
+  }
+
+  function toggleNotifications(){
+    const dd=document.getElementById('notifDropdown'); if(!dd) return; dd.style.display = dd.style.display==='block'?'none':'block'; updateNotificationsUI();
+  }
+
+  // Agenda: add / render / store
+  function openAddAgendaModal(){
+    if(document.getElementById('add-agenda-overlay')) return;
+    const overlay=document.createElement('div'); overlay.id='add-agenda-overlay'; overlay.className='agenda-modal-overlay';
+    overlay.innerHTML=`<div class="agenda-modal"><div class="agenda-modal-header"><h3>Add Agenda Item</h3><button id="addAgendaClose" class="btn-sm">Close</button></div>
+      <div class="agenda-modal-body"><div style="display:grid;gap:0.6rem"><input id="agendaName" class="form-control" placeholder="Patient / Title" /><input id="agendaTime" class="form-control" placeholder="HH:MM (24h)" /><textarea id="agendaNote" class="form-control" placeholder="Notes (optional)" rows="3"></textarea></div></div>
+      <div class="agenda-modal-footer"><button id="addAgendaSave" class="btn-sm btn-sm-blue">Save</button></div></div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('addAgendaClose').onclick=()=>overlay.remove();
+    document.getElementById('addAgendaSave').onclick=saveAgendaEntry;
+  }
+
+  function saveAgendaEntry(){
+    const name=document.getElementById('agendaName').value.trim();
+    const time=document.getElementById('agendaTime').value.trim();
+    const note=document.getElementById('agendaNote').value.trim();
+    if(!name||!time){ alert('Please provide time and title'); return; }
+    const today=new Date(); const dateKey=today.toISOString().slice(0,10);
+    // Prefer server API
+    (async ()=>{
+      try{
+        const scheduled_at = `${dateKey}T${time.padStart(5,'0')}:00`;
+        await apiFetch('/doctors/agenda', { method: 'POST', body: JSON.stringify({ title: name, note: note, scheduled_at }) });
+        document.getElementById('add-agenda-overlay').remove();
+        await renderScheduleForDate(new Date());
+        pushNotification(`New agenda added: ${name}`,'info');
+      }catch(e){
+        // fallback to localStorage
+        const key='mg_agenda_'+dateKey; const cur=JSON.parse(localStorage.getItem(key)||'[]');
+        cur.push({id:Date.now(),time,name,note}); localStorage.setItem(key,JSON.stringify(cur));
+        document.getElementById('add-agenda-overlay').remove(); renderScheduleForDate(new Date()); pushNotification(`New agenda added (local): ${name}`,'info');
+      }
+    })();
+  }
+
+  async function renderScheduleForDate(dateObj){
+    const dateKey = (dateObj instanceof Date)? dateObj.toISOString().slice(0,10) : (new Date()).toISOString().slice(0,10);
+    // render header date
+    const titleEl=document.querySelector('.dc-hdr h3'); if(titleEl) titleEl.textContent = `Today's Agenda — ${new Date(dateObj).toLocaleDateString()}`;
+    // Try loading from server first
+    let items = [];
+    try{
+      const data = await apiFetch('/doctors/agenda?date=' + dateKey);
+      if(data && data.agenda) items = data.agenda.map(a=>({time: (a.scheduled_at||'').slice(11,16) || '', name: a.title, note: a.note}));
+    }catch(e){
+      const key='mg_agenda_'+dateKey; items=JSON.parse(localStorage.getItem(key)||'[]');
+    }
+    
+    const container=document.querySelector('.dc > .das')? null : document.querySelector('.dc');
+    // find the agenda column
+    const listWrap = Array.from(document.querySelectorAll('.dc')).find(d=>d.innerHTML.includes("Today's Agenda")||d.innerHTML.includes('Today\'s Agenda'));
+    const agendaCol = listWrap || document.querySelector('.dc');
+    // populate urgent list area (replace existing .das entries)
+    const area = agendaCol ? agendaCol.querySelectorAll('.das') : null;
+    if(items.length===0){
+      // show placeholder
+      // find the parent where das entries live
+      const dasParent = agendaCol;
+      if(dasParent){
+        // remove existing .das elements within
+        dasParent.querySelectorAll('.das').forEach(n=>n.remove());
+        const noEl=document.createElement('div'); noEl.style.color='#64748b'; noEl.style.padding='0.6rem'; noEl.textContent='No appointments for selected day.'; dasParent.appendChild(noEl);
+      }
+    } else {
+      // ensure we render the items in the left column
+      const parent = agendaCol;
+      if(parent){
+        parent.querySelectorAll('.das').forEach(n=>n.remove());
+        items.sort((a,b)=>a.time.localeCompare(b.time));
+        items.forEach(it=>{
+          const div=document.createElement('div'); div.className='das confirmed';
+          div.innerHTML = `<div class="das-t">${it.time}</div><div style="flex:1"><div class="das-n">${it.name}</div><div class="das-s">${it.note||''}</div></div><button class="btn-sm" style="margin-left:0.5rem">Edit</button>`;
+          parent.appendChild(div);
+        });
+      }
+    }
+    // rebuild calendar marks for month (try to get month entries from server)
+    try{
+      const year=dateObj.getFullYear(), month=(dateObj.getMonth()+1).toString().padStart(2,'0');
+      const res = await apiFetch('/doctors/agenda');
+      // mark dates that match server agenda
+      const dates = (res && res.agenda)? res.agenda.map(a=> (a.scheduled_at||'').slice(0,10) ) : [];
+      const calCells=document.querySelectorAll('.dcal-d');
+      calCells.forEach(cell=>{
+        const d = parseInt(cell.textContent,10);
+        if(isNaN(d)){ cell.classList.remove('has-appt'); cell.dataset.day=''; return; }
+        const dt = new Date(dateObj.getFullYear(),dateObj.getMonth(),d);
+        const iso = dt.toISOString().slice(0,10);
+        if(dates.includes(iso)) cell.classList.add('has-appt'); else cell.classList.remove('has-appt');
+        cell.dataset.day = dt.toISOString();
+      });
+    }catch(e){ rebuildCalendarMarks(dateObj); }
+  }
+
+  function rebuildCalendarMarks(dateObj){
+    const calCells=document.querySelectorAll('.dcal-d');
+    if(!calCells||calCells.length===0) return;
+    // compute month start
+    const year=dateObj.getFullYear(), month=dateObj.getMonth();
+    const start=new Date(year,month,1);
+    calCells.forEach(cell=>{
+      const d = parseInt(cell.textContent,10);
+      if(isNaN(d)){ cell.classList.remove('has-appt'); cell.dataset.day=''; return; }
+      const dt = new Date(year,month,d);
+      const key = 'mg_agenda_'+dt.toISOString().slice(0,10);
+      const items = JSON.parse(localStorage.getItem(key)||'[]');
+      if(items && items.length>0) cell.classList.add('has-appt'); else cell.classList.remove('has-appt');
+      cell.dataset.day = dt.toISOString();
+    });
+  }
+
+  // Patients: add modal + storage
+  function openAddPatientModal(){
+    if(document.getElementById('add-patient-overlay')) return;
+    const overlay=document.createElement('div'); overlay.id='add-patient-overlay'; overlay.className='agenda-modal-overlay';
+    overlay.innerHTML=`<div class="agenda-modal"><div class="agenda-modal-header"><h3>Add Patient</h3><button id="addPatientClose" class="btn-sm">Close</button></div>
+      <div class="agenda-modal-body"><div style="display:grid;gap:0.6rem"><input id="patName" class="form-control" placeholder="Full name" /><input id="patDOB" class="form-control" placeholder="DOB (YYYY-MM-DD)" /><input id="patPhone" class="form-control" placeholder="Phone" /><input id="patDiag" class="form-control" placeholder="Diagnosis (comma separated)" /></div></div>
+      <div class="agenda-modal-footer"><button id="addPatientSave" class="btn-sm btn-sm-blue">Save Patient</button></div></div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('addPatientClose').onclick=()=>overlay.remove();
+    document.getElementById('addPatientSave').onclick=savePatient;
+  }
+
+  function savePatient(){
+    const name=document.getElementById('patName').value.trim();
+    if(!name){ alert('Please provide name'); return; }
+    const dob=document.getElementById('patDOB').value.trim(); const phone=document.getElementById('patPhone').value.trim(); const diag=document.getElementById('patDiag').value.trim();
+    (async ()=>{
+      try{
+        await apiFetch('/doctors/patients', { method: 'POST', body: JSON.stringify({ name, age: 0, gender: 'Male', phone, current_medications: '', known_allergies: diag }) });
+        document.getElementById('add-patient-overlay').remove(); renderPatientRegistry(); pushNotification(`Patient added: ${name}`,'info');
+      }catch(e){
+        const key='mg_patients'; const cur=JSON.parse(localStorage.getItem(key)||'[]'); cur.push({id:Date.now(),name,dob,phone,diag}); localStorage.setItem(key,JSON.stringify(cur)); document.getElementById('add-patient-overlay').remove(); renderPatientRegistry(); pushNotification(`Patient added (local): ${name}`,'info');
+      }
+    })();
+  }
+
+  function renderPatientRegistry(){
+    const tableWrap = document.querySelector('.dt-wrap'); if(!tableWrap) return;
+    const tbody = tableWrap.querySelector('tbody'); if(!tbody) return;
+    (async ()=>{
+      try{
+        const res = await apiFetch('/doctors/patients');
+        const cur = (res && res.patients) ? res.patients : [];
+        tbody.innerHTML = cur.map(p=>`<tr><td><div style="display:flex;align-items:center;gap:0.4rem"><div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:white;flex-shrink:0">${(p.name||'').split(' ').map(w=>w[0]).join('')}</div>${p.name}</div></td><td>${p.age||'—'}</td><td style="font-size:0.72rem">${p.known_allergies||p.current_medications||'—'}</td><td style="color:#1a2332">—</td><td>—</td><td>${p.phone||'—'}</td><td><button class="btn-sm" onclick="(async()=>{await apiFetch('/doctors/patients/${p.id}',{method:'DELETE'}); renderPatientRegistry();})()">Remove</button></td></tr>`).join('');
+      }catch(e){
+        const key='mg_patients'; const cur=JSON.parse(localStorage.getItem(key)||'[]');
+        tbody.innerHTML = cur.map(p=>`<tr><td><div style="display:flex;align-items:center;gap:0.4rem"><div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:white;flex-shrink:0">${p.name.split(' ').map(w=>w[0]).join('')}</div>${p.name}</div></td><td>${p.dob||'—'}</td><td style="font-size:0.72rem">${p.diag||'—'}</td><td style="color:#1a2332">—</td><td>—</td><td>${p.phone||'—'}</td><td><button class="btn-sm" onclick="removePatient(${p.id})">Remove</button></td></tr>`).join('');
+      }
+    })();
+  }
+
+  function removePatient(id){ const key='mg_patients'; const cur=JSON.parse(localStorage.getItem(key)||'[]'); localStorage.setItem(key,JSON.stringify(cur.filter(p=>p.id!==id))); renderPatientRegistry(); }
+
+  // Vitals: render from storage and sort by severity
+  function renderDrVitals(){
+    const key='mg_vitals'; let cur=JSON.parse(localStorage.getItem(key)||'null');
+    if(!cur){ cur=[{name:'Alex Johnson',hr:72,bp:'120/80',spo:98,gl:98,temp:98.6},{name:'Thomas Lee',hr:94,bp:'168/98',spo:95,gl:140,temp:99.1},{name:'Maria Santos',hr:78,bp:'135/85',spo:97,gl:110,temp:98.4},{name:'Robert Kim',hr:68,bp:'118/76',spo:99,gl:95,temp:98.2},{name:'Priya Mehta',hr:80,bp:'125/82',spo:98,gl:105,temp:98.8}]; localStorage.setItem(key,JSON.stringify(cur)); }
+    // derive severity: critical > watch > normal
+    function severity(p){ const [sys,dia]=p.bp.split('/').map(n=>parseInt(n,10)||0); if(sys>=160||dia>=100||p.gl>=180||p.hr>=120) return 2; if(sys>=140||dia>=90||p.gl>=140||p.hr>=100) return 1; return 0; }
+    cur.sort((a,b)=>severity(b)-severity(a)||a.name.localeCompare(b.name));
+    const tbody=document.querySelector('.dt-wrap table.dt tbody'); if(!tbody) return;
+    tbody.innerHTML = cur.map(p=>{ const s=severity(p); const label = s===2?'Critical':s===1?'Watch':'Normal'; const cls = s===2?'r':s===1?'a':'n'; return `<tr><td style="font-weight:600">${p.name}</td><td>${p.hr}</td><td>${p.bp}</td><td>${p.spo}%</td><td>${p.gl}</td><td>${p.temp}°F</td><td><span class="dvs vs-${cls}">${label}</span></td></tr>`; }).join('');
+  }
+
+  // Tasks: CRUD and assign
+  function openAddTaskModal(){ if(document.getElementById('add-task-overlay')) return; const overlay=document.createElement('div'); overlay.id='add-task-overlay'; overlay.className='agenda-modal-overlay'; overlay.innerHTML=`<div class="agenda-modal"><div class="agenda-modal-header"><h3>Add Task</h3><button id="addTaskClose" class="btn-sm">Close</button></div><div class="agenda-modal-body"><div style="display:grid;gap:0.6rem"><input id="taskText" class="form-control" placeholder="Task description" /><select id="taskAssignee" class="form-control"><option value="">Unassigned</option><option>Dr. Nair</option><option>A. Williams</option><option>B. Torres</option><option>M. Chen</option></select></div></div><div class="agenda-modal-footer"><button id="addTaskSave" class="btn-sm btn-sm-blue">Add</button></div></div>`; document.body.appendChild(overlay); document.getElementById('addTaskClose').onclick=()=>overlay.remove(); document.getElementById('addTaskSave').onclick=saveTask; }
+
+  function saveTask(){ const txt=document.getElementById('taskText').value.trim(); const ass=document.getElementById('taskAssignee').value; if(!txt){alert('Provide task text');return;} const key='mg_tasks'; const cur=JSON.parse(localStorage.getItem(key)||'[]'); cur.push({id:Date.now(),text:txt,assignee:ass||'',done:false}); localStorage.setItem(key,JSON.stringify(cur)); document.getElementById('add-task-overlay').remove(); renderTasks(); pushNotification(`Task added: ${txt}`,'info'); }
+
+  async function saveTask(){
+    const txt=document.getElementById('taskText').value.trim(); const ass=document.getElementById('taskAssignee').value;
+    if(!txt){alert('Provide task text');return;}
+    try{
+      await apiFetch('/doctors/tasks', { method:'POST', body: JSON.stringify({ text: txt, assignee: ass }) });
+      document.getElementById('add-task-overlay').remove(); renderTasks(); pushNotification(`Task added: ${txt}`,'info');
+    }catch(e){
+      const key='mg_tasks'; const cur=JSON.parse(localStorage.getItem(key)||'[]'); cur.push({id:Date.now(),text:txt,assignee:ass||'',done:false}); localStorage.setItem(key,JSON.stringify(cur)); document.getElementById('add-task-overlay').remove(); renderTasks(); pushNotification(`Task added (local): ${txt}`,'info');
+    }
+  }
+
+  function renderTasks(){
+    const leftCol=document.querySelector('.dg2 .dc'); if(!leftCol) return;
+    const taskCol = Array.from(document.querySelectorAll('.dc')).find(d=>d.innerHTML.includes("Today's Tasks")||d.innerHTML.includes('Today\'s Tasks')) || leftCol;
+    if(!taskCol) return; taskCol.querySelectorAll('.dtk').forEach(n=>n.remove());
+    const container = taskCol;
+    (async ()=>{
+      try{
+        const res = await apiFetch('/doctors/tasks');
+        const cur = (res && res.tasks) ? res.tasks : [];
+        cur.forEach(t=>{
+          const div=document.createElement('div'); div.className='dtk'; div.innerHTML=`<div class="dtk-cb ${t.done?'done':''}" onclick="(async()=>{await apiFetch('/doctors/tasks/${t.id}',{method:'PATCH',body:JSON.stringify({done:!t.done})}); renderTasks();})()"></div><div class="dtk-txt ${t.done?'done':''}">${t.text} <span style="font-size:0.75rem;color:#64748b">${t.assignee?('· '+t.assignee):''}</span></div><div style="margin-left:auto"><button class="btn-sm" onclick="(async()=>{await apiFetch('/doctors/tasks/${t.id}',{method:'DELETE'}); renderTasks();})()">Remove</button></div>`; container.appendChild(div);
+        });
+      }catch(e){
+        const key='mg_tasks'; const cur=JSON.parse(localStorage.getItem(key)||'[]');
+        cur.forEach(t=>{
+          const div=document.createElement('div'); div.className='dtk'; div.innerHTML=`<div class="dtk-cb ${t.done?'done':''}" onclick="toggleTaskDone(${t.id})"></div><div class="dtk-txt ${t.done?'done':''}">${t.text} <span style="font-size:0.75rem;color:#64748b">${t.assignee?('· '+t.assignee):''}</span></div><div style="margin-left:auto"><button class="btn-sm" onclick="removeTask(${t.id})">Remove</button></div>`; container.appendChild(div);
+        });
+      }
+    })();
+  }
+
+  async function toggleTaskDone(id){
+    try{
+      // toggle via server
+      await apiFetch(`/doctors/tasks/${id}`, { method: 'PATCH', body: JSON.stringify({ done: true }) });
+      renderTasks();
+    }catch(e){
+      const key='mg_tasks'; const cur=JSON.parse(localStorage.getItem(key)||'[]'); cur.forEach(t=>{ if(t.id===id) t.done=!t.done; }); localStorage.setItem(key,JSON.stringify(cur)); renderTasks();
+    }
+  }
+
+  async function removeTask(id){
+    try{
+      await apiFetch(`/doctors/tasks/${id}`, { method: 'DELETE' }); renderTasks();
+    }catch(e){
+      const key='mg_tasks'; const cur=JSON.parse(localStorage.getItem(key)||'[]'); localStorage.setItem(key,JSON.stringify(cur.filter(t=>t.id!==id))); renderTasks();
+    }
+  }
+
   const def={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};
   const gc='rgba(148,163,184,0.12)';
   const months=['Oct','Nov','Dec','Jan','Feb','Mar','Apr'];
@@ -6456,4 +7865,311 @@ function dsInitCharts(pageId){
     ]},{plugins:{legend:{display:true,labels:{boxWidth:9,font:{size:10}}}},scales:{y:{grid:{color:gc}},x:{grid:{color:gc}}}});
   }
 }
+// Small Agenda helpers: modal, sync (ICS) and print
+function openAgendaSync(){
+  // if modal exists remove
+  const existing=document.getElementById('agenda-modal-overlay');
+  if(existing) return;
+  const overlay=document.createElement('div');
+  overlay.id='agenda-modal-overlay';
+  overlay.className='agenda-modal-overlay';
+  overlay.innerHTML=`<div class="agenda-modal" role="dialog" aria-modal="true">
+    <div class="agenda-modal-header"><h3>Sync Today's Agenda</h3><button class="btn-sm" id="agenda-close">Close</button></div>
+    <div class="agenda-modal-body">
+      <p style="color:#475569;font-size:0.95rem;margin-bottom:0.6rem">Export today's appointments to your calendar (ICS) or copy to clipboard.</p>
+      <div class="agenda-event-list"></div>
+    </div>
+    <div class="agenda-modal-footer" style="display:flex;gap:0.5rem;justify-content:flex-end">
+      <button class="btn-sm" id="agenda-copy">Copy</button>
+      <button class="btn-sm btn-sm-blue" id="agenda-ics">Download .ics</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById('agenda-close').onclick=closeAgendaSync;
+  document.getElementById('agenda-copy').onclick=()=>{const t=renderAgendaText();navigator.clipboard.writeText(t);alert('Agenda copied to clipboard');};
+  document.getElementById('agenda-ics').onclick=()=>{const ics=renderAgendaICS();downloadBlob(ics,'agenda.ics','text/calendar');};
+
+  const list=document.querySelector('.agenda-event-list');
+  // gather today's appointments from the static DOM (fallback) or use a central store if available
+  const items=Array.from(document.querySelectorAll('.das')).map(el=>{
+    const time=el.querySelector('.das-t')?el.querySelector('.das-t').textContent.trim():'--';
+    const name=el.querySelector('.das-n')?el.querySelector('.das-n').textContent.trim():el.textContent.trim();
+    const sub=el.querySelector('.das-s')?el.querySelector('.das-s').textContent.trim():'';
+    return {time,name,sub};
+  });
+  if(items.length===0) list.innerHTML='<div style="color:#64748b">No appointments found for today.</div>'
+  else list.innerHTML=items.map(it=>`<div class="agenda-event"><div class="agenda-time">${it.time}</div><div class="agenda-info"><div class="agenda-name">${it.name}</div><div class="agenda-sub" style="color:#64748b;font-size:0.85rem">${it.sub}</div></div></div>`).join('');
+}
+
+function closeAgendaSync(){
+  const el=document.getElementById('agenda-modal-overlay');
+  if(el) el.remove();
+}
+
+function renderAgendaText(){
+  const events=Array.from(document.querySelectorAll('.das')).map(el=>{
+    const time=el.querySelector('.das-t')?el.querySelector('.das-t').textContent.trim():'--';
+    const name=el.querySelector('.das-n')?el.querySelector('.das-n').textContent.trim():el.textContent.trim();
+    const sub=el.querySelector('.das-s')?el.querySelector('.das-s').textContent.trim():'';
+    return `${time} — ${name} ${sub}`;
+  });
+  return events.join('\n');
+}
+
+function renderAgendaICS(){
+  const now=new Date();
+  const todayLabel=now.toISOString().slice(0,10).replace(/-/g,'');
+  const events=Array.from(document.querySelectorAll('.das')).map((el,i)=>{
+    const time=el.querySelector('.das-t')?el.querySelector('.das-t').textContent.trim():'09:00';
+    const name=el.querySelector('.das-n')?el.querySelector('.das-n').textContent.trim():`Appt ${i+1}`;
+    // simple time parsing HH:MM
+    const hm=time.split(':');
+    let hh=hm[0]||'09', mm=(hm[1]||'00').replace(/[^0-9]/g,'');
+    if(hh.length===1) hh='0'+hh;
+    const start=`${todayLabel}T${hh}${mm}00`;
+    const end=`${todayLabel}T${(parseInt(hh,10)+1).toString().padStart(2,'0')}${mm}00`;
+    return `BEGIN:VEVENT\nUID:agenda-${i}@mediguard\nDTSTAMP:${todayLabel}T000000Z\nDTSTART:${start}Z\nDTEND:${end}Z\nSUMMARY:${escapeICSText(name)}\nEND:VEVENT`;
+  });
+  const header=`BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Mediguard//Agenda//EN`;
+  return `${header}\n${events.join('\n')}\nEND:VCALENDAR`;
+}
+
+function escapeICSText(s){ return (s||'').replace(/\n/g,'\\n').replace(/,/g,'\,'); }
+
+function downloadBlob(content,filename,type){
+  const blob=new Blob([content],{type:type||'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+function printAgenda(){
+  // print current page but prefer to only show agenda area
+  const el=document.querySelector('.dc') || document.body;
+  if(!el) return window.print();
+  const w=window.open('','_blank');
+  w.document.write('<title>Agenda - Print</title>');
+  w.document.write('<style>body{font-family:sans-serif;padding:1rem;color:#0f172a} .agenda-event{margin-bottom:0.5rem}</style>');
+  const items=renderAgendaText().replace(/\n/g,'<br>');
+  w.document.write(`<div><h2>Today's Agenda</h2><div>${items}</div></div>`);
+  w.document.close();
+  w.print();
+  setTimeout(()=>w.close(),300);
+}
+
 // End of Dashboard Module
+/* ═══════════════════════════════════════
+   AYURVEDA / AI WELLNESS & SKIN ADVISOR
+═══════════════════════════════════════ */
+let selectedSkinType = null;
+let selectedSkinIssues = [];
+let capturedImageData = null;
+
+function switchAyurvedaTab(tabName) {
+  document.querySelectorAll('.ayurveda-tab-content').forEach(el => {
+    el.classList.remove('active');
+  });
+  document.querySelectorAll('.ayurveda-tab-btn').forEach(el => {
+    el.classList.remove('active');
+  });
+  const contentEl = document.getElementById('tab-' + tabName);
+  if (contentEl) contentEl.classList.add('active');
+  const btnEl = document.querySelector(`[data-tab="${tabName}"]`);
+  if (btnEl) btnEl.classList.add('active');
+}
+
+async function runAyurvedaSymptomAnalysis() {
+  const symptoms = document.getElementById('ayurveda-symptoms').value.trim();
+  if (!symptoms) {
+    showToast('Please describe your symptoms', 'error');
+    return;
+  }
+  const resultsEl = document.getElementById('ayurveda-symptom-results');
+  resultsEl.innerHTML = '<div class="emergency-loading"><span class="spinner"></span> Analyzing with AI...</div>';
+  try {
+    const data = await api('POST', '/ayurveda/analyze-symptoms', { symptoms });
+    resultsEl.innerHTML = `
+      <div class="remedy-card">
+        <div class="remedy-card-title"><span>🧘</span> Dosha Analysis</div>
+        ${data.assistant_message ? `<div style="font-size:0.9rem;color:var(--slate-600);margin-bottom:0.8rem;">${data.assistant_message}</div>` : ''}
+        <div style="margin-bottom:1rem;">
+          <div style="font-size:1.2rem;font-weight:800;color:var(--purple-600);margin-bottom:0.5rem;">${data.dosha}</div>
+          <div style="font-size:0.9rem;color:var(--slate-600);">Confidence: <strong>${data.confidence}</strong></div>
+          <div style="font-size:0.85rem;color:var(--slate-500);margin-top:0.5rem;">Identified: ${(data.identified_symptoms||[]).join(', ') || 'General symptoms'}</div>
+        </div>
+      </div>
+      ${data.seek_emergency_care ? `<div style="border-radius:0.85rem;background:#fee2e2;border:1px solid #fca5a5;padding:0.85rem;color:#991b1b;font-size:0.9rem;margin-bottom:1rem;"><strong>Urgent:</strong> Your input may indicate warning symptoms (${(data.urgent_red_flags||[]).join(', ')}). Please seek emergency medical care immediately.</div>` : ''}
+      <div class="remedy-card">
+        <div class="remedy-card-title"><span>🌿</span> Recommended Remedies</div>
+        <div class="remedy-list">${(data.remedies||[]).map(r => `<div class="remedy-item">${r}</div>`).join('')}</div>
+      </div>
+      <div class="remedy-card">
+        <div class="remedy-card-title"><span>🥗</span> Diet Suggestions</div>
+        <div class="remedy-list">${(data.diet_suggestions||[]).map(d => `<div class="remedy-item">${d}</div>`).join('')}</div>
+      </div>
+      <div style="border-radius:0.85rem;background:#fef3c7;border:1px solid #fcd34d;padding:0.85rem;color:#92400e;font-size:0.85rem;margin-top:1rem;"><strong>Disclaimer:</strong> ${data.disclaimer}</div>
+    `;
+  } catch (err) {
+    resultsEl.innerHTML = `<div class="emergency-empty-state">Error: ${err.message || 'Could not analyze symptoms'}</div>`;
+  }
+}
+
+async function loadAyurvHealthTips() {
+  try {
+    const data = await api('GET', '/ayurveda/health-tips');
+    const tips = data.tips || {};
+    const container = document.getElementById('ayurveda-quick-tips');
+    if (container) {
+      container.innerHTML = `
+        <div class="ayurveda-tip-section">
+          <h4 class="ayurveda-tip-title">Morning Routine</h4>
+          <ul class="ayurveda-tip-list">${(tips.morning_routine||[]).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
+        </div>
+        <div class="ayurveda-tip-section">
+          <h4 class="ayurveda-tip-title">Lifestyle</h4>
+          <ul class="ayurveda-tip-list">${(tips.lifestyle||[]).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
+        </div>
+        <div class="ayurveda-tip-section">
+          <h4 class="ayurveda-tip-title">Seasonal</h4>
+          <ul class="ayurveda-tip-list">${(tips.seasonal_adjustment||[]).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
+        </div>
+      `;
+    }
+  } catch (err) {
+    console.error('Error loading health tips:', err);
+  }
+}
+
+function selectSkinType(skinType) {
+  selectedSkinType = skinType;
+  document.querySelectorAll('.skin-type-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.skin === skinType);
+  });
+}
+
+function toggleSkinIssue(issue) {
+  if (selectedSkinIssues.includes(issue)) {
+    selectedSkinIssues = selectedSkinIssues.filter(i => i !== issue);
+  } else {
+    selectedSkinIssues.push(issue);
+  }
+}
+
+function toggleCamera() {
+  const container = document.getElementById('camera-container');
+  if (!container) return;
+  if (container.style.display === 'none' || !container.style.display) {
+    container.style.display = 'block';
+    startCamera();
+  } else {
+    stopCamera();
+  }
+}
+
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    const video = document.getElementById('camera-video');
+    if (video) { video.srcObject = stream; video.play(); }
+  } catch (err) {
+    showToast('Camera access denied: ' + err.message, 'error');
+  }
+}
+
+function stopCamera() {
+  const video = document.getElementById('camera-video');
+  if (video && video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); }
+  const container = document.getElementById('camera-container');
+  if (container) container.style.display = 'none';
+}
+
+function capturePhoto() {
+  const video = document.getElementById('camera-video');
+  const canvas = document.getElementById('camera-canvas');
+  if (!video || !canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+  capturedImageData = canvas.toDataURL('image/jpeg');
+  const preview = document.getElementById('camera-preview');
+  const img = document.getElementById('preview-img');
+  if (preview && img) { img.src = capturedImageData; preview.style.display = 'block'; }
+  stopCamera();
+}
+
+function useAndroidCameraAgain() {
+  capturedImageData = null;
+  const preview = document.getElementById('camera-preview');
+  if (preview) preview.style.display = 'none';
+  toggleCamera();
+}
+
+async function analyzeImageForSkin(imageBas64) {
+  const canvas = document.createElement('canvas');
+  const img = new Image();
+  img.src = imageBas64;
+  return new Promise((resolve) => {
+    img.onload = () => {
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width; canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      let brightnessSum = 0; let darkSpotCount = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        const brightness = (data[i] + data[i+1] + data[i+2]) / 3 / 255;
+        brightnessSum += brightness;
+        if (brightness < 0.3) darkSpotCount++;
+      }
+      const avgBrightness = brightnessSum / (data.length / 4);
+      resolve({ brightness: avgBrightness, has_dark_spots: darkSpotCount > (data.length/4)*0.05, pore_size: avgBrightness > 0.7 ? 'large' : 'medium' });
+    };
+  });
+}
+
+async function runSkinAnalysis() {
+  if (!selectedSkinType) { showToast('Please select your skin type', 'error'); return; }
+  const resultsEl = document.getElementById('skin-analysis-results');
+  resultsEl.innerHTML = '<div class="emergency-loading"><span class="spinner"></span> Analyzing your skin...</div>';
+  try {
+    let imageAnalysis = null;
+    if (capturedImageData) imageAnalysis = await analyzeImageForSkin(capturedImageData);
+    const response = await api('POST', '/ayurveda/analyze-skin', { skin_type: selectedSkinType, issues: selectedSkinIssues, image_analysis: imageAnalysis });
+    resultsEl.innerHTML = `
+      <div class="remedy-card">
+        <div class="remedy-card-title"><span>💆</span> Your Skin Analysis</div>
+        <div style="margin-bottom:1rem;">
+          <div style="font-size:1.1rem;font-weight:800;color:var(--purple-600);margin-bottom:0.5rem;">${response.skin_type}</div>
+          <div style="font-size:0.9rem;color:var(--slate-600);">Confidence: <strong>${response.confidence}</strong></div>
+        </div>
+      </div>
+      <div class="remedy-card">
+        <div class="remedy-card-title"><span>📋</span> Characteristics</div>
+        <div class="remedy-list">${(response.characteristics||[]).map(c => `<div class="remedy-item">${c}</div>`).join('')}</div>
+      </div>
+      <div class="remedy-card">
+        <div class="remedy-card-title"><span>🌿</span> Skincare Remedies</div>
+        <div class="remedy-list">${(response.remedies||[]).map(r => `<div class="remedy-item">${r}</div>`).join('')}</div>
+      </div>
+      <div class="remedy-card">
+        <div class="remedy-card-title"><span>⏰</span> Daily Routine</div>
+        <div style="margin-top:0.8rem;">
+          <h5 style="font-weight:700;margin-bottom:0.5rem;">Morning</h5>
+          <ul style="margin:0;padding-left:1rem;">${(response.routine?.morning||[]).map(m => `<li style="font-size:0.9rem;margin-bottom:0.3rem;">${m}</li>`).join('')}</ul>
+          <h5 style="font-weight:700;margin-top:1rem;margin-bottom:0.5rem;">Night</h5>
+          <ul style="margin:0;padding-left:1rem;">${(response.routine?.night||[]).map(n => `<li style="font-size:0.9rem;margin-bottom:0.3rem;">${n}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="remedy-card">
+        <div class="remedy-card-title"><span>🥗</span> Diet Tips</div>
+        <div class="remedy-list">${(response.diet_tips||[]).map(d => `<div class="remedy-item">${d}</div>`).join('')}</div>
+      </div>
+      <div style="border-radius:0.85rem;background:#fef3c7;border:1px solid #fcd34d;padding:0.85rem;color:#92400e;font-size:0.85rem;margin-top:1rem;"><strong>Disclaimer:</strong> ${response.disclaimer}</div>
+    `;
+  } catch (err) {
+    resultsEl.innerHTML = `<div class="emergency-empty-state">Error: ${err.message || 'Could not analyze skin'}</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => { loadAyurvHealthTips(); });

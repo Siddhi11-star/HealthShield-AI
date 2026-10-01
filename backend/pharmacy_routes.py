@@ -897,6 +897,83 @@ def register_pharmacy_routes(app):
         return compat_my_pharmacy_initialize_stock()
 
 
+    @app.route("/api/pharmacy/revenue/this-week", methods=["GET"])
+    def pharmacy_revenue_this_week():
+        """Return revenue grouped by day for the last 7 days for the pharmacist's pharmacy."""
+        user_id = get_token_user(request)
+        if not user_id:
+            return jsonify({"error": "Unauthorized"}), 401
+        db = get_db()
+        try:
+            c = db.cursor(dictionary=True)
+            c.execute("SELECT id FROM pharmacies WHERE owner_id=%s", (user_id,))
+            pharm = c.fetchone()
+            if not pharm:
+                return jsonify({"error": "No pharmacy found for user", "data": []}), 404
+            pharmacy_id = pharm["id"]
+            query = """
+                SELECT DATE(created_at) as day, SUM(amount) as total
+                FROM revenue_transactions
+                WHERE pharmacy_id = %s AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+                GROUP BY DATE(created_at)
+                ORDER BY DATE(created_at)
+            """
+            c.execute(query, (pharmacy_id,))
+            rows = c.fetchall() or []
+            return jsonify({"data": rows})
+        finally:
+            db.close()
+
+
+    @app.route("/api/pharmacy/critical-stock", methods=["GET"])
+    def pharmacy_critical_stock():
+        """Return inventory items where quantity is below threshold_limit (default 10)."""
+        user_id = get_token_user(request)
+        if not user_id:
+            return jsonify({"error": "Unauthorized"}), 401
+        db = get_db()
+        try:
+            c = db.cursor(dictionary=True)
+            c.execute("SELECT id FROM pharmacies WHERE owner_id=%s", (user_id,))
+            pharm = c.fetchone()
+            if not pharm:
+                return jsonify({"error": "No pharmacy found for user", "items": []}), 404
+            pharmacy_id = pharm["id"]
+            c.execute("SELECT * FROM pharmacy_inventory WHERE pharmacy_id=%s AND quantity < COALESCE(threshold_limit, 10) ORDER BY quantity ASC", (pharmacy_id,))
+            items = c.fetchall() or []
+            return jsonify({"items": items})
+        finally:
+            db.close()
+
+
+    @app.route("/api/pharmacy/expiry-tracker", methods=["GET"])
+    def pharmacy_expiry_tracker():
+        """Count and list items expiring within 30 days."""
+        user_id = get_token_user(request)
+        if not user_id:
+            return jsonify({"error": "Unauthorized"}), 401
+        db = get_db()
+        try:
+            c = db.cursor(dictionary=True)
+            c.execute("SELECT id FROM pharmacies WHERE owner_id=%s", (user_id,))
+            pharm = c.fetchone()
+            if not pharm:
+                return jsonify({"error": "No pharmacy found for user", "items": [], "count": 0}), 404
+            pharmacy_id = pharm["id"]
+            query = """
+                SELECT * FROM pharmacy_inventory
+                WHERE pharmacy_id=%s AND expiry_date IS NOT NULL
+                  AND expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+                ORDER BY expiry_date ASC
+            """
+            c.execute(query, (pharmacy_id,))
+            items = c.fetchall() or []
+            return jsonify({"items": items, "count": len(items)})
+        finally:
+            db.close()
+
+
+
     def live_inventory_add_medicine():
         user_id = get_token_user(request)
         if not user_id:

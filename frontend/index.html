@@ -132,6 +132,179 @@
       margin-left: auto; padding: 0;
     }
     .lm-close:hover { color: var(--slate-700); }
+
+    /* ── SEAS layout enhancements ── */
+    .seas-hero-badges {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .seas-badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 999px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .seas-subfeature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .seas-subfeature {
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
+      border: 1px solid #dbeafe;
+      border-radius: 0.9rem;
+      padding: 0.9rem;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 0.7rem;
+      align-items: start;
+    }
+    .seas-subfeature i {
+      color: #2563eb;
+      margin-top: 0.1rem;
+    }
+    .seas-subfeature h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.15rem;
+    }
+    .seas-subfeature p {
+      font-size: 0.8rem;
+      color: #334155;
+      line-height: 1.35;
+    }
+    /* ── SEAS Dark Mode Contrast Fixes ── */
+    body.dark-theme .seas-subfeature {
+      background: linear-gradient(135deg, #1e293b, #1e2a4a);
+      border-color: #334155;
+    }
+    body.dark-theme .seas-subfeature i  { color: #60a5fa; }
+    body.dark-theme .seas-subfeature h4 { color: #f1f5f9; }
+    body.dark-theme .seas-subfeature p  { color: #94a3b8; }
+    body.dark-theme .seas-flow-chip {
+      background: #1e293b;
+      border-color: #334155;
+      color: #cbd5e1;
+    }
+    body.dark-theme .seas-flow-chip.done {
+      background: #052e16;
+      border-color: #16a34a;
+      color: #86efac;
+    }
+    body.dark-theme .seas-flow-chip.active {
+      background: #1e3a5f;
+      border-color: #3b82f6;
+      color: #93c5fd;
+    }
+    .seas-flow-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 0.55rem;
+      margin-bottom: 1rem;
+    }
+    .seas-flow-chip {
+      border: 1px solid #e2e8f0;
+      border-radius: 0.8rem;
+      background: white;
+      padding: 0.6rem;
+      font-size: 0.78rem;
+      color: #334155;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .seas-flow-chip.done {
+      border-color: #16a34a;
+      background: #f0fdf4;
+      color: #166534;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.12);
+    }
+    .seas-flow-chip.active {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #1e3a8a;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16);
+    }
+    .seas-flow-chip.pending {
+      opacity: 0.88;
+    }
+    .seas-flow-chip.loading {
+      animation: seasPulse 1.1s ease-in-out infinite;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.62rem 0.75rem;
+      border: 1.5px solid #9fd7cd;
+      border-radius: 0.7rem;
+      background: linear-gradient(135deg, #f0fdfa, #ecfeff);
+      color: #0f172a;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .form-control:focus {
+      border-color: #0d9488;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.17);
+    }
+    select.form-control {
+      cursor: pointer;
+    }
+    .btn-red {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.9rem 1.2rem;
+      border: 1px solid #b91c1c;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(220, 38, 38, 0.28);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+    .btn-red:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(220, 38, 38, 0.34);
+      filter: saturate(1.05);
+    }
+    .btn-red:active {
+      transform: translateY(0);
+    }
+    body.dark-theme .form-control {
+      border-color: #1f5d58;
+      background: #0b1f23;
+      color: #e2e8f0;
+    }
+    body.dark-theme .form-control:focus {
+      border-color: #2dd4bf;
+      background: #0f2a2f;
+      box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.22);
+    }
+    @keyframes seasPulse {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+      100% { transform: translateY(0); }
+    }
+    @media (max-width: 860px) {
+      .seas-flow-strip {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
+      }
+    }
+  </style>
+
   </style>
 
   <!-- Google Translate widget loader -->
@@ -145,6 +318,7 @@
   </script>
   <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
   <link rel="stylesheet" href="dashboard-patch.css">
+  <link rel="stylesheet" href="fixes.css">
 </head>
 <body>
 
@@ -175,6 +349,7 @@
   <li class="nav-dropdown">
     <a class="nav-drop-btn">Company <i data-lucide="chevron-down" style="width:14px;height:14px;display:inline"></i></a>
     <div class="nav-drop-menu">
+      <a onclick="navigate('ayurveda')"><i data-lucide="sparkles" style="width:16px;height:16px"></i> Wellness</a>
       <a onclick="navigate('about')"><i data-lucide="users" style="width:16px;height:16px"></i> About Us</a>
       <a onclick="navigate('contact')"><i data-lucide="mail" style="width:16px;height:16px"></i> Contact</a>
     </div>
@@ -291,65 +466,79 @@
   <section class="features-section">
     <div class="container">
       <div class="text-center mb-16 fade-in-up">
-        <h2 class="section-title">Pillars of Smart Healthcare</h2>
-        <p class="section-desc">MediGuard AI brings together essential healthcare services into one integrated platform</p>
+        <h2 class="section-title" id="features-section-title">Pillars of Smart Healthcare</h2>
+        <p class="section-desc" id="features-section-desc">MediGuard AI brings together essential healthcare services into one integrated platform</p>
       </div>
 <div class="feature-cards">
+  <!-- SEAS: Smart Emergency Ambulance System -->
+  <div class="feature-card fade-in-up" onclick="navigate('emergency')" style="cursor:pointer">
+    <div class="feature-icon gradient-red"><i data-lucide="siren" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="emergency" data-title="SEAS — Smart Emergency Ambulance">1. SEAS — Smart Emergency Ambulance</h3>
+    <p>One-tap SOS → Auto ambulance dispatch → Live tracking → Smart hospital match</p>
+    <button class="feat-btn feat-btn-red" onclick="event.stopPropagation();navigate('emergency')">Launch SEAS →</button>
+  </div>
   <!-- 1. Teleconsultation -->
   <div class="feature-card fade-in-up" onclick="navigate('telemedicine')" style="cursor:pointer">
     <div class="feature-icon gradient-blue"><i data-lucide="video" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="telemedicine">1. Teleconsultation</h3>
+    <h3 data-feat="telemedicine" data-title="Teleconsultation">2. Teleconsultation</h3>
     <p>Book a Zoom meeting via appointment with doctors</p>
     <button class="feat-btn feat-btn-blue" onclick="event.stopPropagation();navigate('telemedicine')">Book Now →</button>
   </div>
   <!-- 2. Digital Health Records -->
   <div class="feature-card fade-in-up delay-1" onclick="navigate('dashboard')" style="cursor:pointer">
     <div class="feature-icon gradient-green"><i data-lucide="database" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="dashboard">2. Digital Health Records</h3>
+    <h3 data-feat="dashboard" data-title="Digital Health Records">3. Digital Health Records</h3>
     <p>Doctors can store and manage patient data securely</p>
     <button class="feat-btn feat-btn-green" onclick="event.stopPropagation();navigate('dashboard')">View Records →</button>
   </div>
   <!-- 3. AI-Powered Clinical Intelligence -->
   <div class="feature-card fade-in-up delay-2" onclick="navigate('ai-safety-guard')" style="cursor:pointer">
     <div class="feature-icon gradient-red"><i data-lucide="shield-check" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="ai-safety-guard">3. AI-Powered Clinical Intelligence</h3>
+    <h3 data-feat="ai-safety-guard" data-title="AI Clinical Intelligence">4. AI Clinical Intelligence</h3>
     <p>Advanced AI workflows for clinical decision support and personalized wellness planning.</p>
     <button class="feat-btn feat-btn-red" onclick="event.stopPropagation();navigate('ai-safety-guard')">Explore Clinical AI →</button>
   </div>
   <!-- 4. Live Inventory -->
   <div class="feature-card fade-in-up delay-3" onclick="navigate('inventory')" style="cursor:pointer">
     <div class="feature-icon gradient-purple"><i data-lucide="package" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="inventory">4. Live Inventory</h3>
+    <h3 data-feat="inventory" data-title="Live Inventory">5. Live Inventory</h3>
     <p>For pharmacies and patients – check real‑time medicine stock</p>
     <button class="feat-btn feat-btn-purple" onclick="event.stopPropagation();navigate('inventory')">Check Stock →</button>
   </div>
   <!-- 5. Analytics -->
   <div class="feature-card fade-in-up" onclick="navigate('analytics')" style="cursor:pointer">
     <div class="feature-icon gradient-blue"><i data-lucide="bar-chart-2" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="analytics">5. Analytics</h3>
+    <h3 data-feat="analytics" data-title="Analytics">6. Analytics</h3>
     <p>For doctors and pharmacies – track health trends and usage</p>
     <button class="feat-btn feat-btn-blue" onclick="event.stopPropagation();navigate('analytics')">View Analytics →</button>
   </div>
   <!-- 6. Pharmacy Finder -->
   <div class="feature-card fade-in-up delay-1" onclick="navigate('pharmacy')" style="cursor:pointer">
     <div class="feature-icon gradient-purple"><i data-lucide="map-pin" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="pharmacy">6. Pharmacy Finder</h3>
+    <h3 data-feat="pharmacy" data-title="Pharmacy Finder">7. Pharmacy Finder</h3>
     <p>For patients and admins – locate nearby pharmacies</p>
     <button class="feat-btn feat-btn-purple" onclick="event.stopPropagation();navigate('pharmacy')">Find Pharmacy →</button>
   </div>
   <!-- 7. Medicine DB -->
   <div class="feature-card fade-in-up delay-2" onclick="navigate('medicines')" style="cursor:pointer">
     <div class="feature-icon gradient-green"><i data-lucide="pill" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="medicines">7. Medicine DB</h3>
+    <h3 data-feat="medicines" data-title="Medicine DB">8. Medicine DB</h3>
     <p>Accessible for everyone – find medicine descriptions & side effects</p>
     <button class="feat-btn feat-btn-green" onclick="event.stopPropagation();navigate('medicines')">Browse Medicines →</button>
   </div>
   <!-- 8. Patient Portal -->
   <div class="feature-card fade-in-up delay-3" onclick="navigate('portal')" style="cursor:pointer">
     <div class="feature-icon gradient-red"><i data-lucide="user-circle" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="portal">8. Patient Portal</h3>
+    <h3 data-feat="portal" data-title="Patient Portal">9. Patient Portal</h3>
     <p>Store and manage your own health records</p>
     <button class="feat-btn feat-btn-red" onclick="event.stopPropagation();navigate('portal')">My Portal →</button>
+  </div>
+  <!-- 10. AI Ayurvedic Wellness & Skin Advisor -->
+  <div class="feature-card fade-in-up delay-4" onclick="navigate('ayurveda')" style="cursor:pointer">
+    <div class="feature-icon gradient-indigo"><i data-lucide="sparkles" style="width:32px;height:32px"></i></div>
+    <h3 data-feat="ayurveda" data-title="AI Wellness &amp; Skin Advisor">10. AI Wellness &amp; Skin Advisor</h3>
+    <p>Ayurvedic remedies and personalized skincare using AI analysis</p>
+    <button class="feat-btn feat-btn-indigo" onclick="event.stopPropagation();navigate('ayurveda')">Wellness Tools →</button>
   </div>
 </div>
     </div>
@@ -398,80 +587,180 @@
 <div id="page-features" class="page">
   <div class="page-hero">
     <div class="container text-center">
-      <h1 class="fade-in-up visible">Core Components</h1>
-      <p class="fade-in-up visible delay-1">Four powerful features working together to create a complete healthcare ecosystem</p>
+      <h1 class="fade-in-up visible">All Platform Features</h1>
+      <p class="fade-in-up visible delay-1">Nine powerful modules working together to create a complete, AI-powered healthcare ecosystem</p>
     </div>
   </div>
   <div class="container" style="padding-top:4rem;padding-bottom:4rem;">
-    <div class="feature-section fade-in-up">
+
+    <!-- Feature 1: SEAS Emergency -->
+    <div class="feature-section fade-in-up" data-feat="emergency">
       <div class="feature-layout">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1725459285042-1e42c8ece7e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Emergency Ambulance" loading="lazy" onerror="this.src='https://placehold.co/600x400/dc2626/white?text=SEAS+Emergency'" /><div class="feature-img-badge" style="color:var(--red-600)">The "Emergency" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num red">Feature 1</div>
+          <h2 class="feature-content-title">SEAS — Smart Emergency Ambulance System</h2>
+          <p class="feature-content-desc">One-tap SOS triggers a complete emergency response chain — from dispatch to pre-treatment hospital readiness</p>
+          <div class="point-cards">
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="siren" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>One-Tap SOS</h4><p>Single button triggers location capture, ambulance dispatch, and hospital notification simultaneously</p></div></div>
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="route" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>AI Route Optimization</h4><p>Real-time traffic-aware path planning with live ETA updates to the nearest capable hospital</p></div></div>
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="hospital" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Smart Hospital Match</h4><p>Selects best-fit hospital based on urgency type, bed capacity, and specialty availability</p></div></div>
+          </div>
+          <button class="feat-btn feat-btn-red" onclick="navigate('emergency')">Launch SEAS →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 2: Teleconsultation -->
+    <div class="feature-section fade-in-up" data-feat="telemedicine">
+      <div class="feature-layout reverse">
         <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758691461916-dc7894eb8f94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Tele-Consultation" loading="lazy" onerror="this.src='https://placehold.co/600x400/2563eb/white?text=Tele-Consultation'" /><div class="feature-img-badge" style="color:var(--blue-600)">The "Doctor" Part</div></div></div>
         <div class="content-col">
-          <div class="feature-num blue">Feature 1</div>
+          <div class="feature-num blue">Feature 2</div>
           <h2 class="feature-content-title">Tele-Consultation Window</h2>
-          <p class="feature-content-desc">Where healthcare starts — connecting patients with doctors remotely</p>
+          <p class="feature-content-desc">Where healthcare starts — connecting village patients with city doctors via Zoom-powered video consultations</p>
           <div class="point-cards">
-            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="languages" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Multilingual Interface</h4><p>Patients see buttons in their own language (Hindi, Marathi, etc.)</p></div></div>
-            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="video" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Video/Audio Call</h4><p>Village patients can talk to city doctors in real-time</p></div></div>
-            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="file-text" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Digital Prescription</h4><p>Doctor clicks "Send" and prescription instantly appears on pharmacist's screen</p></div></div>
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="languages" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Multilingual Interface</h4><p>Patients communicate in Hindi, Marathi, or English — fully localized experience for rural communities</p></div></div>
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="video" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Zoom Video/Audio Calls</h4><p>High-quality video consultations via Zoom with automatic meeting creation and join links</p></div></div>
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="file-text" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Digital Prescription</h4><p>Doctor prescribes digitally — prescription appears instantly on the pharmacist's screen</p></div></div>
           </div>
+          <button class="feat-btn feat-btn-blue" onclick="navigate('telemedicine')">Book Consultation →</button>
         </div>
       </div>
     </div>
 
-    <div class="feature-section fade-in-up">
-      <div class="feature-layout reverse">
+    <!-- Feature 3: Digital Health Records -->
+    <div class="feature-section fade-in-up" data-feat="dashboard">
+      <div class="feature-layout">
         <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758691462620-9018c602ed3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Patient Records" loading="lazy" onerror="this.src='https://placehold.co/600x400/16a34a/white?text=Health+Records'" /><div class="feature-img-badge" style="color:var(--green-600)">The "Memory" Part</div></div></div>
         <div class="content-col">
-          <div class="feature-num green">Feature 2</div>
-          <h2 class="feature-content-title">Patient's Digital History</h2>
-          <p class="feature-content-desc">Your project acts as a digital diary for the patient</p>
+          <div class="feature-num green">Feature 3</div>
+          <h2 class="feature-content-title">Digital Health Records</h2>
+          <p class="feature-content-desc">A complete digital diary for every patient — securely stored and instantly accessible by authorized healthcare providers</p>
           <div class="point-cards">
-            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="database" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Health Profile</h4><p>Records patient's age, past illnesses, and current medications</p></div></div>
-            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="wifi-off" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Offline Access</h4><p>Pharmacist can still open patient files when there's no internet</p></div></div>
-            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="wifi" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Cloud Sync</h4><p>All records automatically sync when connection is restored</p></div></div>
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="database" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Complete Health Profile</h4><p>Records age, blood group, past illnesses, allergies, and current medications in one place</p></div></div>
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="wifi-off" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Offline Access</h4><p>Pharmacists and doctors can open patient files even without internet connectivity</p></div></div>
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="cloud" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Auto Cloud Sync</h4><p>All records sync automatically when connection is restored — zero data loss</p></div></div>
           </div>
+          <button class="feat-btn feat-btn-green" onclick="navigate('dashboard')">View Dashboard →</button>
         </div>
       </div>
     </div>
 
-    <div class="feature-section fade-in-up">
-      <div class="feature-layout">
-        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758202292826-c40e172eed1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="AI Safety" loading="lazy" onerror="this.src='https://placehold.co/600x400/dc2626/white?text=AI+Safety+Guard'" /><div class="feature-img-badge" style="color:var(--red-600)">The "Smart" Part</div></div></div>
-        <div class="content-col">
-          <div class="feature-num red">Feature 3</div>
-          <h2 class="feature-content-title">AI Safety Guard</h2>
-          <p class="feature-content-desc">The Brain of the project — prevents accidents before they happen</p>
-          <div class="point-cards">
-            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="shield" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Drug-Drug Checker</h4><p>Automatically checks if new medicine reacts badly with old medicines</p></div></div>
-            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="alert-triangle" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Red Alert System</h4><p>Flashes red warning for dangerous drug combinations</p></div></div>
-            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="file-text" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Safety Reports</h4><p>Generates detailed interaction reports for doctors and pharmacists</p></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="feature-section fade-in-up">
+    <!-- Feature 4: AI Clinical Intelligence -->
+    <div class="feature-section fade-in-up" data-feat="ai-safety-guard">
       <div class="feature-layout reverse">
-        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758573467057-955f803660a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Pharmacy" loading="lazy" onerror="this.src='https://placehold.co/600x400/9333ea/white?text=Live+Inventory'" /><div class="feature-img-badge" style="color:var(--purple-600)">The "Availability" Part</div></div></div>
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758202292826-c40e172eed1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="AI Safety" loading="lazy" onerror="this.src='https://placehold.co/600x400/dc2626/white?text=AI+Clinical+Intelligence'" /><div class="feature-img-badge" style="color:var(--red-600)">The "Brain" Part</div></div></div>
         <div class="content-col">
-          <div class="feature-num purple">Feature 4</div>
-          <h2 class="feature-content-title">Live Inventory Map</h2>
-          <p class="feature-content-desc">Solves the 'Out of Stock' problem instantly</p>
+          <div class="feature-num red">Feature 4</div>
+          <h2 class="feature-content-title">AI-Powered Clinical Intelligence</h2>
+          <p class="feature-content-desc">The smartest part of MediGuard AI — prevents life-threatening errors, provides diagnostic support, and generates wellness plans</p>
           <div class="point-cards">
-            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="package" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Local Stock Tracker</h4><p>Shows exactly how many units are left on the shelf</p></div></div>
-            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="map-pin" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Nearby Store Finder</h4><p>Displays which nearby pharmacies have the medicine in stock</p></div></div>
-            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="trending-down" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Shortage Predictor</h4><p>Alerts pharmacists to order more before running out</p></div></div>
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="shield" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Drug-Drug Safety Checker</h4><p>Instantly checks if a new prescription conflicts with the patient's existing medications — with severity ratings</p></div></div>
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="activity" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Smart Diagnostic Assistant</h4><p>Analyzes symptoms, lab results, and history to suggest differential diagnoses and clinical pathways</p></div></div>
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="heart" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Personalized Wellness AI</h4><p>Generates tailored health plans based on genetic markers, lifestyle habits, and real-time biometric data</p></div></div>
           </div>
+          <button class="feat-btn feat-btn-red" onclick="navigate('ai-safety-guard')">Explore Clinical AI →</button>
         </div>
       </div>
     </div>
+
+    <!-- Feature 5: Live Inventory -->
+    <div class="feature-section fade-in-up" data-feat="inventory">
+      <div class="feature-layout">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1758573467057-955f803660a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Live Inventory" loading="lazy" onerror="this.src='https://placehold.co/600x400/9333ea/white?text=Live+Inventory'" /><div class="feature-img-badge" style="color:var(--purple-600)">The "Availability" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num purple">Feature 5</div>
+          <h2 class="feature-content-title">Live Inventory Tracker</h2>
+          <p class="feature-content-desc">Real-time medicine stock levels across all registered pharmacies — no more wasted trips to out-of-stock shops</p>
+          <div class="point-cards">
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="package" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Real-Time Stock Levels</h4><p>Shows exact units remaining on every pharmacy shelf — updated instantly when stock changes</p></div></div>
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="map-pin" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Cross-Pharmacy Search</h4><p>Search any medicine and instantly see all pharmacies with stock, sorted by distance</p></div></div>
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="trending-down" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Low-Stock Alerts</h4><p>Pharmacists get proactive alerts before medicines run out — preventing shortages before they happen</p></div></div>
+          </div>
+          <button class="feat-btn feat-btn-purple" onclick="navigate('inventory')">Check Live Stock →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 6: Analytics -->
+    <div class="feature-section fade-in-up" data-feat="analytics">
+      <div class="feature-layout reverse">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Analytics Dashboard" loading="lazy" onerror="this.src='https://placehold.co/600x400/ea580c/white?text=Analytics'" /><div class="feature-img-badge" style="color:#ea580c">The "Insights" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num" style="background:rgba(234,88,12,0.1);color:#ea580c">Feature 6</div>
+          <h2 class="feature-content-title">Health Analytics Dashboard</h2>
+          <p class="feature-content-desc">Role-specific dashboards giving doctors, pharmacists, patients, and admins the data they need to make better decisions</p>
+          <div class="point-cards">
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="bar-chart-2" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Doctor Analytics</h4><p>Track patient outcomes, consultation fees, revisit rates, and drug safety alert history</p></div></div>
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="trending-up" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Pharmacist Revenue Insights</h4><p>Sales trends, top-selling medicines, revenue vs profit breakdowns, and stock overview charts</p></div></div>
+            <div class="point-card red"><div class="point-icon gradient-red"><i data-lucide="activity" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Patient Health Progress</h4><p>Track blood pressure, sugar, weight, and SpO2 trends over time with safety status for all prescriptions</p></div></div>
+          </div>
+          <button class="feat-btn feat-btn-blue" onclick="navigate('analytics')">View Analytics →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 7: Pharmacy Finder -->
+    <div class="feature-section fade-in-up" data-feat="pharmacy">
+      <div class="feature-layout">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Pharmacy Finder" loading="lazy" onerror="this.src='https://placehold.co/600x400/7c3aed/white?text=Pharmacy+Finder'" /><div class="feature-img-badge" style="color:#7c3aed">The "Location" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num purple">Feature 7</div>
+          <h2 class="feature-content-title">Pharmacy Finder</h2>
+          <p class="feature-content-desc">Find pharmacies by location or by the specific medicine you need — with live map integration and directions</p>
+          <div class="point-cards">
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="search" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Search by Place</h4><p>Enter any city, area, or landmark to find all nearby pharmacies on an interactive OpenStreetMap</p></div></div>
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="pill" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Search by Medicine</h4><p>Type any medicine name and instantly see which pharmacies have it in stock, with quantity and price</p></div></div>
+            <div class="point-card purple"><div class="point-icon gradient-purple"><i data-lucide="navigation" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>24/7 & Delivery Filters</h4><p>Filter for pharmacies open 24 hours or offering home delivery — with one-tap directions</p></div></div>
+          </div>
+          <button class="feat-btn feat-btn-purple" onclick="navigate('pharmacy')">Find Pharmacy →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 8: Medicine Database -->
+    <div class="feature-section fade-in-up" data-feat="medicines">
+      <div class="feature-layout reverse">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Medicine Database" loading="lazy" onerror="this.src='https://placehold.co/600x400/16a34a/white?text=Medicine+DB'" /><div class="feature-img-badge" style="color:var(--green-600)">The "Knowledge" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num green">Feature 8</div>
+          <h2 class="feature-content-title">Medicine Database</h2>
+          <p class="feature-content-desc">A searchable database of 500+ medicines covering dosage, side effects, interactions, and category information</p>
+          <div class="point-cards">
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="search" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Smart Search</h4><p>Search by medicine name, generic name, or category with instant autocomplete suggestions</p></div></div>
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="info" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Complete Drug Info</h4><p>Dosage guidelines, mechanism of action, side effects, contraindications, and manufacturer details</p></div></div>
+            <div class="point-card green"><div class="point-icon gradient-green"><i data-lucide="filter" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>15+ Categories</h4><p>Browse by category: Analgesic, Antibiotic, Antidiabetic, Cardiovascular, Neurological, and more</p></div></div>
+          </div>
+          <button class="feat-btn feat-btn-green" onclick="navigate('medicines')">Browse Medicines →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature 9: Patient Portal -->
+    <div class="feature-section fade-in-up" data-feat="portal">
+      <div class="feature-layout">
+        <div class="img-col"><div class="feature-img-wrap"><img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Patient Portal" loading="lazy" onerror="this.src='https://placehold.co/600x400/0891b2/white?text=Patient+Portal'" /><div class="feature-img-badge" style="color:#0891b2">The "Patient" Part</div></div></div>
+        <div class="content-col">
+          <div class="feature-num blue">Feature 9</div>
+          <h2 class="feature-content-title">Patient Self-Service Portal</h2>
+          <p class="feature-content-desc">Empower patients to manage their own health records, track progress, and access personalized health tips — all from one portal</p>
+          <div class="point-cards">
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="user-plus" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Self Registration</h4><p>Patients register themselves with blood group, medications, allergies, and contact details</p></div></div>
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="activity" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>BMI Calculator & Health Tips</h4><p>Built-in BMI calculator plus a rotating library of personalized daily health tips</p></div></div>
+            <div class="point-card blue"><div class="point-icon gradient-blue"><i data-lucide="search" style="width:24px;height:24px;stroke-width:2"></i></div><div><h4>Record Lookup</h4><p>Instantly find and view complete health records using patient ID or name — no account needed</p></div></div>
+          </div>
+          <button class="feat-btn feat-btn-blue" onclick="navigate('portal')">My Health Portal →</button>
+        </div>
+      </div>
+    </div>
+
   </div>
   <div class="dark-cta">
     <div class="container-md text-center fade-in-up">
-      <h2>See These Features in Action</h2>
-      <p>Discover how these components work together in a real healthcare scenario</p>
-      <button class="btn-blue" onclick="navigate('howitworks')">View User Journey <i data-lucide="arrow-right" style="width:20px;height:20px"></i></button>
+      <h2>See All 9 Features in Action</h2>
+      <p>Discover how all these components work together in a complete patient journey — from emergency to safe medication delivery</p>
+      <button class="btn-blue" onclick="navigate('howitworks')">View Complete Journey <i data-lucide="arrow-right" style="width:20px;height:20px"></i></button>
     </div>
   </div>
 </div>
@@ -483,51 +772,142 @@
   <div class="page-hero">
     <div class="container text-center">
       <h1 class="fade-in-up visible">How It Works</h1>
-      <p class="fade-in-up visible delay-1">Follow a typical patient journey through the MediGuard AI system</p>
+      <p class="fade-in-up visible delay-1">From emergencies to daily wellness — a complete walkthrough of all 9 MediGuard AI modules</p>
     </div>
   </div>
-  <section style="padding:5rem 0;">
+
+  <!-- ── SCENARIO 1: Emergency Response ── -->
+  <section data-feat="emergency" style="padding:5rem 0;background:linear-gradient(180deg,#fff5f5 0%,#fff 100%);">
     <div class="container-lg">
       <div class="text-center mb-16 fade-in-up">
-        <h2 class="section-title">The Patient Journey</h2>
-        <p class="section-desc">Six steps from consultation to safe medication delivery</p>
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:#fef2f2;color:#dc2626;padding:0.4rem 1rem;border-radius:99px;font-size:0.8rem;font-weight:700;margin-bottom:1rem;">🚨 SCENARIO 1: Emergency Response</div>
+        <h2 class="section-title">SEAS — Smart Ambulance in Action</h2>
+        <p class="section-desc">How one tap saves a life</p>
       </div>
       <div class="timeline-wrap">
         <div class="timeline-line"></div>
         <div class="timeline-steps">
-          <div class="timeline-step fade-in-up"><div class="step-icon-wrap"><div class="step-icon gradient-blue"><i data-lucide="user" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num blue">1</div></div><div class="step-card"><h3>Patient Visits Health Center</h3><p class="step-main">A patient goes to a village health center. The doctor joins via video call from the city.</p><div class="step-detail blue">💡 The multilingual interface allows the patient to communicate comfortably in their preferred language.</div></div></div>
+          <div class="timeline-step fade-in-up"><div class="step-icon-wrap"><div class="step-icon gradient-red"><i data-lucide="siren" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num red">1</div></div><div class="step-card"><h3>Patient Triggers SOS</h3><p class="step-main">Patient or bystander presses the SEAS button. The system instantly captures GPS location and emergency type.</p><div class="step-detail red">💡 Works even in poor network — location is cached offline and sent when signal recovers.</div></div></div>
           <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
-          <div class="timeline-step fade-in-up delay-1"><div class="step-icon-wrap"><div class="step-icon gradient-green"><i data-lucide="file-text" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num green">2</div></div><div class="step-card"><h3>Doctor Prescribes Medicine</h3><p class="step-main">The doctor examines the patient remotely and prescribes "Medicine X."</p><div class="step-detail green">💡 The prescription is instantly digitized and sent to the system.</div></div></div>
+          <div class="timeline-step fade-in-up delay-1"><div class="step-icon-wrap"><div class="step-icon gradient-red"><i data-lucide="ambulance" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num red">2</div></div><div class="step-card"><h3>Auto Ambulance Dispatch</h3><p class="step-main">The nearest capability-matched ambulance is automatically assigned and dispatched with AI-optimized routing.</p><div class="step-detail red">💡 Live ETA updates as the ambulance moves through traffic.</div></div></div>
           <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
-          <div class="timeline-step fade-in-up delay-2"><div class="step-icon-wrap"><div class="step-icon gradient-red"><i data-lucide="alert-circle" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num red">3</div></div><div class="step-card"><h3>AI Safety Check</h3><p class="step-main">The system checks: "Wait, Patient is already taking Medicine Y. Mixing them causes internal bleeding!"</p><div class="step-detail red">💡 The AI Safety Guard performs real-time drug-drug interaction analysis.</div><div class="alert-box"><i data-lucide="alert-circle" style="width:20px;height:20px;flex-shrink:0;margin-top:2px;color:var(--red-600)"></i><div><strong>Safety Alert Active</strong><span>This is where MediGuard AI prevents a potentially life-threatening medication error.</span></div></div></div></div>
-          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
-          <div class="timeline-step fade-in-up delay-3"><div class="step-icon-wrap"><div class="step-icon gradient-green"><i data-lucide="check-circle" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num green">4</div></div><div class="step-card"><h3>Doctor Adjusts Prescription</h3><p class="step-main">The doctor sees the warning and changes the medicine to a safer "Medicine Z."</p><div class="step-detail green">💡 The system provides alternative medication suggestions that are safe for the patient.</div></div></div>
-          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
-          <div class="timeline-step fade-in-up"><div class="step-icon-wrap"><div class="step-icon gradient-purple"><i data-lucide="map-pin" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num purple">5</div></div><div class="step-card"><h3>Inventory Check</h3><p class="step-main">The pharmacist checks stock. If out of stock, the system says: "The pharmacy 5km away has it."</p><div class="step-detail purple">💡 Live inventory tracking across nearby pharmacies ensures medicine availability.</div></div></div>
-          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
-          <div class="timeline-step fade-in-up delay-1"><div class="step-icon-wrap"><div class="step-icon gradient-blue"><i data-lucide="heart" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num blue">6</div></div><div class="step-card"><h3>Patient Gets Safe Medicine</h3><p class="step-main">The patient receives the right medicine, and it's 100% safe.</p><div class="step-detail blue">💡 Complete healthcare journey from consultation to safe medication delivery.</div></div></div>
+          <div class="timeline-step fade-in-up delay-2"><div class="step-icon-wrap"><div class="step-icon gradient-red"><i data-lucide="hospital" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num red">3</div></div><div class="step-card"><h3>Smart Hospital Selection</h3><p class="step-main">System selects the best hospital by matching emergency type, distance, available beds, and specialist availability.</p><div class="step-detail red">💡 Patient health data and emergency details are sent in advance so the team is ready on arrival.</div></div></div>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- ── SCENARIO 2: Standard Consultation ── -->
+  <section data-feat="telemedicine" style="padding:5rem 0;">
+    <div class="container-lg">
+      <div class="text-center mb-16 fade-in-up">
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:#eff6ff;color:#2563eb;padding:0.4rem 1rem;border-radius:99px;font-size:0.8rem;font-weight:700;margin-bottom:1rem;">🏥 SCENARIO 2: Safe Prescription Journey</div>
+        <h2 class="section-title">The Patient Journey</h2>
+        <p class="section-desc">Eight steps from remote consultation to safe medication delivery</p>
+      </div>
+      <div class="timeline-wrap">
+        <div class="timeline-line"></div>
+        <div class="timeline-steps">
+          <div class="timeline-step fade-in-up" data-feat="portal"><div class="step-icon-wrap"><div class="step-icon gradient-blue"><i data-lucide="user" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num blue">1</div></div><div class="step-card"><h3>Patient Registers via Portal</h3><p class="step-main">Patient registers on the self-service portal with blood group, current medications, allergies, and contact details.</p><div class="step-detail blue">💡 Records are available offline at any pharmacy or health center — no internet required at time of visit.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-1" data-feat="telemedicine"><div class="step-icon-wrap"><div class="step-icon gradient-blue"><i data-lucide="video" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num blue">2</div></div><div class="step-card"><h3>Telemedicine Consultation</h3><p class="step-main">Patient visits the village health center. The doctor joins via Zoom video call from the city — in the patient's preferred language.</p><div class="step-detail blue">💡 Full multilingual support: Hindi, Marathi, and English interfaces for rural patients.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-2" data-feat="dashboard"><div class="step-icon-wrap"><div class="step-icon gradient-green"><i data-lucide="file-text" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num green">3</div></div><div class="step-card"><h3>Digital Prescription Issued</h3><p class="step-main">Doctor prescribes "Medicine X" digitally — prescription is instantly digitized and stored in the patient's health record.</p><div class="step-detail green">💡 No paper prescriptions that can be lost or misread. Everything is tracked and timestamped.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-3" data-feat="ai-safety-guard"><div class="step-icon-wrap"><div class="step-icon gradient-red"><i data-lucide="alert-circle" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num red">4</div></div><div class="step-card"><h3>AI Safety Check Triggered</h3><p class="step-main">⚠️ The AI Safety Guard detects: "Patient already takes Medicine Y. Mixing them causes internal bleeding!"</p><div class="step-detail red">💡 The AI Diagnostic Assistant checks against the patient's complete medication history in real time.</div><div class="alert-box"><i data-lucide="alert-circle" style="width:20px;height:20px;flex-shrink:0;margin-top:2px;color:var(--red-600)"></i><div><strong>Safety Alert Active</strong><span>This is where MediGuard AI prevents a potentially life-threatening medication error.</span></div></div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up" data-feat="dashboard"><div class="step-icon-wrap"><div class="step-icon gradient-green"><i data-lucide="check-circle" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num green">5</div></div><div class="step-card"><h3>Doctor Updates Prescription</h3><p class="step-main">Doctor reviews the AI alert and switches to safer "Medicine Z" with an alternative that won't interact dangerously.</p><div class="step-detail green">💡 AI Wellness planner suggests a full safe regimen based on patient's genetics and lifestyle.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-1" data-feat="inventory"><div class="step-icon-wrap"><div class="step-icon gradient-purple"><i data-lucide="package" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num purple">6</div></div><div class="step-card"><h3>Live Inventory Check</h3><p class="step-main">Pharmacist checks the live inventory — "Medicine Z" is out of stock. System instantly shows: "Pharmacy 5km away has 40 units."</p><div class="step-detail purple">💡 Cross-pharmacy stock visibility prevents wasted patient trips and treatment delays.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-2" data-feat="pharmacy"><div class="step-icon-wrap"><div class="step-icon gradient-purple"><i data-lucide="map-pin" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num purple">7</div></div><div class="step-card"><h3>Pharmacy Finder Guides Patient</h3><p class="step-main">Patient opens the Pharmacy Finder map — the nearest pharmacy with stock is highlighted with distance, phone, and one-tap directions.</p><div class="step-detail purple">💡 24-hour and home-delivery filters help patients in urgent or mobility-limited situations.</div></div></div>
+          <div class="step-arrow"><i data-lucide="arrow-right" style="width:24px;height:24px"></i></div>
+          <div class="timeline-step fade-in-up delay-3"><div class="step-icon-wrap"><div class="step-icon gradient-blue"><i data-lucide="heart" style="width:28px;height:28px;stroke-width:2"></i></div><div class="step-num blue">8</div></div><div class="step-card"><h3>Patient Gets Safe Medicine ✅</h3><p class="step-main">Patient receives the correct, safe medicine. Their digital health record is updated. Doctor and pharmacist can track outcomes via analytics.</p><div class="step-detail blue">💡 Complete, AI-verified healthcare journey — from remote consultation to safely dispensed medication.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURE DEEP DIVES ── -->
+  <section style="padding:3rem 0;background:#f8fafc;">
+    <div class="container">
+      <div class="text-center mb-16 fade-in-up">
+        <h2 class="section-title">How Each Feature Works</h2>
+        <p class="section-desc">A quick look at all 9 platform modules and who uses them</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
+
+        <div class="panel-card fade-in-up" data-feat="emergency" style="border-top:3px solid #dc2626;">
+          <div class="panel-card-header"><i data-lucide="siren" style="width:20px;height:20px;color:#dc2626"></i><h3>SEAS Emergency</h3><span class="dp dp-r" style="margin-left:auto;font-size:0.65rem;">Patient</span></div>
+          <div class="panel-card-body"><p>One-tap SOS → GPS capture → Ambulance dispatch → Hospital prep. Real-time tracking on map with billing and insurance integration.</p></div>
+        </div>
+
+        <div class="panel-card fade-in-up delay-1" data-feat="telemedicine" style="border-top:3px solid #2563eb;">
+          <div class="panel-card-header"><i data-lucide="video" style="width:20px;height:20px;color:#2563eb"></i><h3>Teleconsultation</h3><span class="dp dp-b" style="margin-left:auto;font-size:0.65rem;">Patient · Doctor</span></div>
+          <div class="panel-card-body"><p>Browse verified doctors by specialty → book a Zoom slot → get digital prescriptions. Doctors manage their schedule, status, and fees.</p></div>
+        </div>
+
+        <div class="panel-card fade-in-up delay-2" data-feat="dashboard" style="border-top:3px solid #16a34a;">
+          <div class="panel-card-header"><i data-lucide="database" style="width:20px;height:20px;color:#16a34a"></i><h3>Digital Health Records</h3><span class="dp dp-g" style="margin-left:auto;font-size:0.65rem;">Doctor · Pharmacist</span></div>
+          <div class="panel-card-body"><p>Secure patient profiles with full medical history. Doctors store prescriptions, notes, and lab reports. Works offline — syncs when online.</p></div>
+        </div>
+
+        <div class="panel-card fade-in-up" data-feat="ai-safety-guard" style="border-top:3px solid #dc2626;">
+          <div class="panel-card-header"><i data-lucide="shield-check" style="width:20px;height:20px;color:#dc2626"></i><h3>AI Clinical Intelligence</h3><span class="dp dp-r" style="margin-left:auto;font-size:0.65rem;">Doctor · Patient</span></div>
+          <div class="panel-card-body"><p>Drug interaction checker, smart diagnostic assistant, and personalized wellness AI. Catches dangerous prescription errors before they reach the patient.</p></div>
+        </div>
+
+        <div class="panel-card fade-in-up delay-1" data-feat="inventory" style="border-top:3px solid #9333ea;">
+          <div class="panel-card-header"><i data-lucide="package" style="width:20px;height:20px;color:#9333ea"></i><h3>Live Inventory</h3><span class="dp dp-p" style="margin-left:auto;font-size:0.65rem;">Pharmacist · Patient</span></div>
+          <div class="panel-card-body"><p>Pharmacists manage their own stock with add/update controls. Patients and doctors can search any medicine and see real-time availability across all pharmacies.</p></div>
+        </div>
+
+        <div class="panel-card fade-in-up delay-2" data-feat="analytics" style="border-top:3px solid #ea580c;">
+          <div class="panel-card-header"><i data-lucide="bar-chart-2" style="width:20px;height:20px;color:#ea580c"></i><h3>Analytics</h3><span class="dp dp-a" style="margin-left:auto;font-size:0.65rem;">All Roles</span></div>
+          <div class="panel-card-body"><p>Role-specific dashboards: doctors see patient outcomes & fees, pharmacists see sales & revenue, patients see health trends, admins see system-wide KPIs.</p></div>
+        </div>
+
+        <div class="panel-card fade-in-up" data-feat="pharmacy" style="border-top:3px solid #7c3aed;">
+          <div class="panel-card-header"><i data-lucide="map-pin" style="width:20px;height:20px;color:#7c3aed"></i><h3>Pharmacy Finder</h3><span class="dp dp-p" style="margin-left:auto;font-size:0.65rem;">Patient · Admin</span></div>
+          <div class="panel-card-body"><p>Search by location or by medicine name. Interactive map shows nearby pharmacies with 24-hour, delivery, and stock filters. One-tap directions.</p></div>
+        </div>
+
+        <div class="panel-card fade-in-up delay-1" data-feat="medicines" style="border-top:3px solid #16a34a;">
+          <div class="panel-card-header"><i data-lucide="pill" style="width:20px;height:20px;color:#16a34a"></i><h3>Medicine Database</h3><span class="dp dp-g" style="margin-left:auto;font-size:0.65rem;">Everyone</span></div>
+          <div class="panel-card-body"><p>500+ medicines with full drug info: dosage, side effects, interactions, manufacturer. Searchable by name, generic name, or 15+ categories.</p></div>
+        </div>
+
+        <div class="panel-card fade-in-up delay-2" data-feat="portal" style="border-top:3px solid #0891b2;">
+          <div class="panel-card-header"><i data-lucide="user-circle" style="width:20px;height:20px;color:#0891b2"></i><h3>Patient Portal</h3><span class="dp dp-c" style="margin-left:auto;font-size:0.65rem;">Patient</span></div>
+          <div class="panel-card-body"><p>Self-registration, record lookup, BMI calculator, and daily health tips. Patients manage their own health without needing a doctor login.</p></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Why It Matters -->
   <section class="why-section">
     <div class="container">
       <div class="text-center mb-16 fade-in-up"><h2 class="section-title" style="color:white;">Why This Matters</h2><p style="font-size:1.1rem;color:#94a3b8;">Making healthcare safer and more accessible for everyone</p></div>
       <div class="benefits-3">
-        <div class="benefit-card fade-in-up"><div class="benefit-card-icon"><i data-lucide="heart" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Saves Lives</h3><p>Prevents wrong medicines from being given through AI-powered safety checks</p></div>
-        <div class="benefit-card fade-in-up delay-1"><div class="benefit-card-icon"><i data-lucide="check-circle" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Saves Time</h3><p>Patients don't need to wander from shop to shop looking for medicines</p></div>
-        <div class="benefit-card fade-in-up delay-2"><div class="benefit-card-icon"><i data-lucide="map-pin" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Works Everywhere</h3><p>Designed for places where internet is slow or unreliable with offline capabilities</p></div>
+        <div class="benefit-card fade-in-up"><div class="benefit-card-icon"><i data-lucide="heart" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Saves Lives</h3><p>AI drug safety checks prevent dangerous prescriptions. SEAS emergency system ensures rapid ambulance response for critical cases.</p></div>
+        <div class="benefit-card fade-in-up delay-1"><div class="benefit-card-icon"><i data-lucide="check-circle" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Saves Time</h3><p>No more wandering from pharmacy to pharmacy. Live inventory and pharmacy finder get patients the right medicine on the first try.</p></div>
+        <div class="benefit-card fade-in-up delay-2"><div class="benefit-card-icon"><i data-lucide="globe" style="width:32px;height:32px;stroke-width:2;color:white"></i></div><h3>Works Everywhere</h3><p>Offline-capable records, multilingual interfaces, and telemedicine built specifically for areas with slow or unreliable connectivity.</p></div>
       </div>
     </div>
   </section>
+
+  <!-- Impact Stats -->
   <section style="padding:5rem 0;">
     <div class="container">
       <div class="impact-wrap fade-in-up">
         <div class="text-center" style="margin-bottom:2rem;"><h2 style="font-size:2.25rem;font-weight:800;margin-bottom:0.75rem;">The Impact</h2><p style="color:#bfdbfe;font-size:1.1rem;">Real results that matter for rural healthcare</p></div>
-        <div class="impact-grid">
-          <div class="impact-card fade-in-up"><div class="impact-stat">100%</div><div class="impact-label">Safety Verification</div><div class="impact-desc">Every prescription checked</div></div>
-          <div class="impact-card fade-in-up delay-1"><div class="impact-stat">24/7</div><div class="impact-label">Access to Care</div><div class="impact-desc">Always available</div></div>
-          <div class="impact-card fade-in-up delay-2"><div class="impact-stat">Zero</div><div class="impact-label">Geographic Barriers</div><div class="impact-desc">Connect from anywhere</div></div>
+        <div class="impact-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));">
+          <div class="impact-card fade-in-up"><div class="impact-stat">9</div><div class="impact-label">Integrated Modules</div><div class="impact-desc">End-to-end coverage</div></div>
+          <div class="impact-card fade-in-up delay-1"><div class="impact-stat">100%</div><div class="impact-label">Safety Verified</div><div class="impact-desc">Every prescription checked</div></div>
+          <div class="impact-card fade-in-up delay-2"><div class="impact-stat">24/7</div><div class="impact-label">Access to Care</div><div class="impact-desc">SEAS always on</div></div>
+          <div class="impact-card fade-in-up delay-3"><div class="impact-stat">Zero</div><div class="impact-label">Geographic Barriers</div><div class="impact-desc">Connect from anywhere</div></div>
         </div>
       </div>
     </div>
@@ -794,17 +1174,32 @@
   </div>
   <div class="container" style="padding:3rem 1.5rem;">
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:2rem;" id="medCategoryFilters">
-      <button class="filter-btn active" onclick="filterMedCategory('all',this)">All</button>
-      <button class="filter-btn" onclick="filterMedCategory('Analgesic',this)">Analgesic</button>
-      <button class="filter-btn" onclick="filterMedCategory('Antibiotic',this)">Antibiotic</button>
-      <button class="filter-btn" onclick="filterMedCategory('Antidiabetic',this)">Antidiabetic</button>
-      <button class="filter-btn" onclick="filterMedCategory('Antihypertensive',this)">Antihypertensive</button>
-      <button class="filter-btn" onclick="filterMedCategory('Anticoagulant',this)">Anticoagulant</button>
-      <button class="filter-btn" onclick="filterMedCategory('Vitamin',this)">Vitamin</button>
+      <button class="filter-btn active" onclick="filterMedCategory('all',this)">💊 All</button>
+      <button class="filter-btn" onclick="filterMedCategory('Analgesic',this)">🩹 Analgesic</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antibiotic',this)">🦠 Antibiotic</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antidiabetic',this)">🩸 Antidiabetic</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antihypertensive',this)">❤️ Antihypertensive</button>
+      <button class="filter-btn" onclick="filterMedCategory('Anticoagulant',this)">🔬 Anticoagulant</button>
+      <button class="filter-btn" onclick="filterMedCategory('Vitamin',this)">⚡ Vitamin</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antifungal',this)">🍄 Antifungal</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antiallergic',this)">🌿 Antiallergic</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antacid',this)">🫀 Antacid</button>
+      <button class="filter-btn" onclick="filterMedCategory('Respiratory',this)">🫁 Respiratory</button>
+      <button class="filter-btn" onclick="filterMedCategory('Neurological',this)">🧠 Neurological</button>
+      <button class="filter-btn" onclick="filterMedCategory('Antiviral',this)">🧬 Antiviral</button>
+      <button class="filter-btn" onclick="filterMedCategory('Hormonal',this)">⚗️ Hormonal</button>
+      <button class="filter-btn" onclick="filterMedCategory('Ophthalmic',this)">👁️ Ophthalmic</button>
     </div>
     <div id="medicinesGrid" class="medicines-grid">
       <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--slate-400)">Loading medicines...</div>
     </div>
+  </div>
+</div>
+
+<!-- ═══ Medicine Details Modal ═══ -->
+<div id="medDetailsModal" onclick="if(event.target===this)closeMedicineModal()" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;">
+  <div style="background:white;border-radius:1.5rem;max-width:640px;width:100%;margin:auto;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.35);animation:modalSlideIn 0.25s ease-out;">
+    <div id="medModalContent"></div>
   </div>
 </div>
 
@@ -1036,39 +1431,6 @@
 
 </div>
 
-<div id="page-pharmacy" class="page">
-  <div class="page-hero" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">
-    <div class="container text-center">
-      <div class="page-hero-badge"><i data-lucide="map-pin" style="width:16px;height:16px"></i> Pharmacy Finder</div>
-      <h1 class="fade-in-up visible">Find Nearby Pharmacies</h1>
-      <p class="fade-in-up visible delay-1">Check live medicine availability across all registered pharmacies</p>
-      <div class="hero-search-bar">
-        <i data-lucide="search" style="width:20px;height:20px;color:var(--slate-400)"></i>
-        <input type="text" id="pharmaSearchInput" placeholder="Search by medicine or pharmacy name..." oninput="searchPharmacy(this.value)" />
-        <button onclick="searchPharmacy(document.getElementById('pharmaSearchInput').value)">Search</button>
-      </div>
-    </div>
-  </div>
-  <div class="container" style="padding:3rem 1.5rem;">
-    <div class="pharmacy-map-placeholder">
-      <div class="map-pin-group">
-        <div class="map-pin" style="left:20%;top:30%"><div class="pin-dot blue"></div><div class="pin-label">Nashik Central</div></div>
-        <div class="map-pin" style="left:45%;top:50%"><div class="pin-dot green"></div><div class="pin-label">Village Health Store</div></div>
-        <div class="map-pin" style="left:70%;top:35%"><div class="pin-dot purple"></div><div class="pin-label">Rural Medical Centre</div></div>
-        <div class="map-pin" style="left:60%;top:70%"><div class="pin-dot red"></div><div class="pin-label">City Pharmacy</div></div>
-      </div>
-      <div class="map-legend">
-        <span><span class="legend-dot" style="background:var(--green-500)"></span> In Stock</span>
-        <span><span class="legend-dot" style="background:#eab308"></span> Low Stock</span>
-        <span><span class="legend-dot" style="background:var(--red-500)"></span> Out of Stock</span>
-      </div>
-    </div>
-    <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:1.25rem;">All Pharmacies & Stock</h3>
-    <div id="pharmacyGrid" class="pharmacy-cards-grid">
-      <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--slate-400)">Loading pharmacies...</div>
-    </div>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════════════════
      PAGE: ANALYTICS
@@ -1514,6 +1876,112 @@
 </div>
 
 <!-- ══════════════════════════════════════════════
+     PAGE: AI WELLNESS & SKIN ADVISOR (AYURVEDA)
+══════════════════════════════════════════════ -->
+<div id="page-ayurveda" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+    <div class="container text-center">
+      <div class="page-hero-badge"><i data-lucide="sparkles" style="width:16px;height:16px"></i> AI Wellness & Skin Advisor</div>
+      <h1 class="fade-in-up visible">Ancient Wisdom Meets Modern AI</h1>
+      <p class="fade-in-up visible delay-1">Personalized Ayurvedic remedies and AI-powered skincare analysis</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding:3rem 1.5rem;">
+    <!-- Tab Navigation -->
+    <div class="ayurveda-tabs">
+      <button class="ayurveda-tab-btn active" data-tab="health" onclick="switchAyurvedaTab('health')">
+        <i data-lucide="leaf" style="width:18px;height:18px"></i><span>Health (Remedy Advisor)</span>
+      </button>
+      <button class="ayurveda-tab-btn" data-tab="skin" onclick="switchAyurvedaTab('skin')">
+        <i data-lucide="sparkles" style="width:18px;height:18px"></i><span>Skin Care Advisor</span>
+      </button>
+    </div>
+
+    <!-- Tab 1: Health / Ayurvedic Remedy Advisor -->
+    <div class="ayurveda-tab-content active" id="tab-health">
+      <div class="panel-card">
+        <div class="panel-card-header"><i data-lucide="leaf" style="width:20px;height:20px"></i><h3>Ayurvedic Remedy Advisor</h3><p style="margin-top:0.4rem;color:var(--slate-500);font-size:0.9rem;">Describe your symptoms to get dosha analysis and home remedies</p></div>
+        <div class="panel-card-body">
+          <div class="form-group">
+            <label>Describe Your Symptoms</label>
+            <textarea id="ayurveda-symptoms" class="form-textarea" rows="4" placeholder="Example: I feel cold, have joint pain, weakness, and trouble with constipation" style="width:100%;padding:0.8rem;border:1px solid var(--slate-200);border-radius:0.6rem;font-family:inherit;"></textarea>
+          </div>
+          <button class="btn-blue w-full" onclick="runAyurvedaSymptomAnalysis()"><i data-lucide="zap" style="width:16px;height:16px"></i> Analyze with AI</button>
+          <div id="ayurveda-symptom-results" style="margin-top:1.5rem;"></div>
+        </div>
+      </div>
+      <div class="panel-card ayurveda-tips-card" style="margin-top:1.5rem;background:linear-gradient(135deg,#f3f0ff,#ede9fe);border:1px solid var(--purple-200);">
+        <div class="panel-card-header"><i data-lucide="lightbulb" style="width:20px;height:20px;color:var(--purple-600)"></i><h3 class="ayurveda-tips-heading" style="color:var(--purple-900);">Quick Wellness Tips</h3></div>
+        <div class="panel-card-body">
+          <div id="ayurveda-quick-tips"></div>
+          <button class="btn-sm ayurveda-tips-refresh" style="margin-top:1rem;background:var(--purple-600);color:white;border:none;border-radius:0.5rem;padding:0.5rem 1rem;cursor:pointer;" onclick="loadAyurvHealthTips()">Load More Tips</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Skin Care Advisor -->
+    <div class="ayurveda-tab-content" id="tab-skin">
+      <div class="panel-card">
+        <div class="panel-card-header"><i data-lucide="sparkles" style="width:20px;height:20px"></i><h3>Step 1: Select Your Skin Type</h3></div>
+        <div class="panel-card-body">
+          <div class="skin-type-grid">
+            <button class="skin-type-btn" data-skin="oily" onclick="selectSkinType('oily')">
+              <div class="skin-type-icon">💧</div><strong>Oily</strong><p>Shiny, enlarged pores</p>
+            </button>
+            <button class="skin-type-btn" data-skin="dry" onclick="selectSkinType('dry')">
+              <div class="skin-type-icon">🏜️</div><strong>Dry</strong><p>Tight, flaky feeling</p>
+            </button>
+            <button class="skin-type-btn" data-skin="combination" onclick="selectSkinType('combination')">
+              <div class="skin-type-icon">⚖️</div><strong>Combination</strong><p>Mixed T-zone</p>
+            </button>
+            <button class="skin-type-btn" data-skin="sensitive" onclick="selectSkinType('sensitive')">
+              <div class="skin-type-icon">🌺</div><strong>Sensitive</strong><p>Easily reactive</p>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="panel-card" style="margin-top:1.5rem;">
+        <div class="panel-card-header"><i data-lucide="check-circle-2" style="width:20px;height:20px"></i><h3>Step 2: Choose Issues (Optional)</h3></div>
+        <div class="panel-card-body">
+          <div class="skin-issues-grid">
+            <label class="checkbox-label"><input type="checkbox" value="acne" onchange="toggleSkinIssue('acne')"/><span>Acne &amp; Breakouts</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="pigmentation" onchange="toggleSkinIssue('pigmentation')"/><span>Pigmentation</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="dark circles" onchange="toggleSkinIssue('dark circles')"/><span>Dark Circles</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="dull skin" onchange="toggleSkinIssue('dull skin')"/><span>Dull Skin</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="wrinkles" onchange="toggleSkinIssue('wrinkles')"/><span>Fine Lines</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="redness" onchange="toggleSkinIssue('redness')"/><span>Redness</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="panel-card" style="margin-top:1.5rem;">
+        <div class="panel-card-header"><i data-lucide="camera" style="width:20px;height:20px"></i><h3>Step 3: Optional - Camera Scan (for better accuracy)</h3></div>
+        <div class="panel-card-body">
+          <p style="color:var(--slate-600);margin-bottom:1rem;font-size:0.95rem;">Take a photo under natural light for AI to analyze brightness and imperfections</p>
+          <div id="camera-container" style="display:none;margin:1rem 0;">
+            <video id="camera-video" style="width:100%;max-width:400px;border-radius:0.6rem;margin-bottom:1rem;background:#000;"></video>
+            <div style="display:flex;gap:0.5rem;">
+              <button class="btn-blue" onclick="capturePhoto()"><i data-lucide="camera" style="width:16px;height:16px"></i> Capture</button>
+              <button class="btn-outline" onclick="stopCamera()">Cancel</button>
+            </div>
+          </div>
+          <canvas id="camera-canvas" style="display:none;"></canvas>
+          <div id="camera-preview" style="display:none;margin:1rem 0;">
+            <img id="preview-img" style="max-width:100%;max-height:300px;border-radius:0.6rem;margin-bottom:1rem;" />
+            <button class="btn-green" onclick="useAndroidCameraAgain()">Use a Different Photo</button>
+          </div>
+          <button class="btn-outline w-full" onclick="toggleCamera()"><i data-lucide="camera" style="width:16px;height:16px"></i> Open Camera</button>
+        </div>
+      </div>
+      <div class="panel-card" style="margin-top:1.5rem;">
+        <button class="btn-blue w-full" style="font-size:1rem;padding:1rem;" onclick="runSkinAnalysis()"><i data-lucide="zap" style="width:18px;height:18px"></i> Analyze My Skin</button>
+        <div id="skin-analysis-results" style="margin-top:1.5rem;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
      PAGE: ABOUT US
 ══════════════════════════════════════════════ -->
 <div id="page-about" class="page">
@@ -1546,7 +2014,7 @@
   </section>
   <section style="background:var(--slate-50);padding:5rem 0;">
     <div class="container">
-      <div class="text-center mb-16 fade-in-up"><h2 class="section-title">What Drives Us</h2></div>
+      <div class="text-center mb-16 fade-in-up"><h2 class="section-title about-mvv-title">What Drives Us</h2></div>
       <div class="mvv-grid">
         <div class="mvv-card fade-in-up"><div class="mvv-icon gradient-blue"><i data-lucide="target" style="width:28px;height:28px;color:white"></i></div><h3>Mission</h3><p>To prevent medication errors and connect rural patients with quality healthcare through AI-powered tools that work even offline.</p></div>
         <div class="mvv-card fade-in-up delay-1"><div class="mvv-icon gradient-green"><i data-lucide="eye" style="width:28px;height:28px;color:white"></i></div><h3>Vision</h3><p>A world where every patient — regardless of where they live — has access to safe, accurate, and affordable healthcare.</p></div>
@@ -1558,10 +2026,8 @@
     <div class="container">
       <div class="text-center mb-16 fade-in-up"><h2 class="section-title">Meet Our Team</h2><p class="section-desc">Passionate people dedicated to transforming rural healthcare</p></div>
       <div class="team-grid">
-        <div class="team-card fade-in-up"><div class="team-avatar" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">RS</div><h4>Rahul Sharma</h4><p class="team-role">Founder & Lead Developer</p><p class="team-bio">Full-stack developer with a passion for healthcare tech. Built MediGuard AI to solve real problems in rural India.</p><div class="team-tags"><span>React</span><span>Node.js</span><span>AI/ML</span></div></div>
-        <div class="team-card fade-in-up delay-1"><div class="team-avatar" style="background:linear-gradient(135deg,#22c55e,#16a34a)">PK</div><h4>Priya Kulkarni</h4><p class="team-role">Medical Advisor</p><p class="team-bio">MBBS with 10 years of rural healthcare experience. Provides medical guidance and validates drug interaction data.</p><div class="team-tags"><span>MBBS</span><span>Telemedicine</span><span>Clinical</span></div></div>
-        <div class="team-card fade-in-up delay-2"><div class="team-avatar" style="background:linear-gradient(135deg,#a855f7,#9333ea)">AM</div><h4>Anil Mehta</h4><p class="team-role">Backend & Database Engineer</p><p class="team-bio">Specialist in healthcare data systems and SQLite optimization for offline-capable applications.</p><div class="team-tags"><span>SQLite</span><span>Express</span><span>APIs</span></div></div>
-        <div class="team-card fade-in-up delay-3"><div class="team-avatar" style="background:linear-gradient(135deg,#f97316,#ea580c)">SJ</div><h4>Sneha Joshi</h4><p class="team-role">UI/UX Designer</p><p class="team-bio">Designs interfaces that are accessible, multilingual, and easy-to-use even for first-time smartphone users.</p><div class="team-tags"><span>Figma</span><span>CSS</span><span>A11y</span></div></div>
+        <div class="team-card fade-in-up"><div class="team-avatar" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">HS</div><h4>Anonymous</h4><p class="team-role">Co-Developer</p><p class="team-bio">Worked on the MediGuard AI project end-to-end, contributing to core features and overall product delivery.</p><div class="team-tags"><span>Full-Stack</span><span>Platform</span><span>Delivery</span></div></div>
+        <div class="team-card fade-in-up delay-1"><div class="team-avatar" style="background:linear-gradient(135deg,#7c3aed,#9333ea)">SB</div><h4>Siddhi Borawake</h4><p class="team-role">Co-Developer</p><p class="team-bio">Worked on the MediGuard AI project across frontend and backend experiences to help build a complete healthcare platform.</p><div class="team-tags"><span>Frontend</span><span>Backend</span><span>UX</span></div></div>
       </div>
     </div>
   </section>
@@ -1569,10 +2035,10 @@
     <div class="container">
       <div class="text-center mb-16 fade-in-up"><h2 class="section-title" style="color:white;">Our Journey</h2></div>
       <div class="journey-timeline">
-        <div class="journey-item fade-in-up"><div class="journey-year">2022</div><div class="journey-dot"></div><div class="journey-content"><h4>Idea Born</h4><p>After witnessing a medication error in a rural clinic, the idea for MediGuard AI was conceived.</p></div></div>
-        <div class="journey-item fade-in-up delay-1"><div class="journey-year">2023</div><div class="journey-dot"></div><div class="journey-content"><h4>First Prototype</h4><p>Built first working version of the drug interaction checker and patient database.</p></div></div>
-        <div class="journey-item fade-in-up delay-2"><div class="journey-year">2024</div><div class="journey-dot"></div><div class="journey-content"><h4>Telemedicine Added</h4><p>Integrated video consultation booking and pharmacy inventory tracking.</p></div></div>
-        <div class="journey-item fade-in-up delay-3"><div class="journey-year">2025</div><div class="journey-dot"></div><div class="journey-content"><h4>Full Platform Launch</h4><p>Launched complete MediGuard AI platform with analytics, patient portal, and admin panel.</p></div></div>
+        <div class="journey-item fade-in-up"><div class="journey-year">Week 1</div><div class="journey-dot"></div><div class="journey-content"><h4>Project Kickoff</h4><p>Anonymous and Siddhi Borawake started MediGuard AI with planning, architecture, and initial setup.</p></div></div>
+        <div class="journey-item fade-in-up delay-1"><div class="journey-year">Week 2-3</div><div class="journey-dot"></div><div class="journey-content"><h4>Core Modules Built</h4><p>Implemented authentication, patient flow, medicine safety checks, and essential backend APIs.</p></div></div>
+        <div class="journey-item fade-in-up delay-2"><div class="journey-year">Week 4-5</div><div class="journey-dot"></div><div class="journey-content"><h4>UI + Integrations</h4><p>Completed key frontend pages, dashboard experience, telemedicine flow, and pharmacy/inventory features.</p></div></div>
+        <div class="journey-item fade-in-up delay-3"><div class="journey-year">Week 6</div><div class="journey-dot"></div><div class="journey-content"><h4>Testing and Launch-Ready</h4><p>Final testing, bug fixes, and polishing were done to make the full platform production-ready in 1.5 months.</p></div></div>
       </div>
     </div>
   </section>
@@ -2053,9 +2519,14 @@ body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) sat
   <!-- Main -->
   <main class="ds-main">
     <div class="ds-topbar">
-      <div>
-        <h1 id="ds-page-title">Dashboard</h1>
-        <p id="ds-page-sub">Loading…</p>
+      <div class="ds-topbar-inner">
+        <button id="ds-sidebar-toggle" onclick="toggleDashSidebar()" title="Toggle Sidebar">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <h1 id="ds-page-title">Dashboard</h1>
+          <p id="ds-page-sub">Loading…</p>
+        </div>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem">
         <div id="ds-topbar-avatar" class="ds-avatar" style="width:32px;height:32px;font-size:0.68rem">U</div>
@@ -2166,6 +2637,158 @@ body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) sat
             <div class="db-stat-row"><span>Port</span><strong>5001</strong></div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     PAGE: EMERGENCY (SEAS)
+══════════════════════════════════════════════ -->
+<div id="page-emergency" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">
+    <div class="container text-center">
+      <h1 class="fade-in-up visible">Smart Emergency Ambulance System</h1>
+      <p class="fade-in-up visible delay-1">SOS -> Auto Ambulance -> Live Tracking -> Smart Hospital -> Pre-treatment Ready</p>
+      <div class="seas-hero-badges fade-in-up visible delay-2">
+        <span class="seas-badge">Real-Time Dispatch</span>
+        <span class="seas-badge">AI Route Optimization</span>
+        <span class="seas-badge">Pre-Arrival Handoff</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+    <div class="panel-card fade-in-up" style="margin-bottom:1rem;">
+      <div class="panel-card-header"><i data-lucide="sparkles" style="width:20px;height:20px;color:var(--red-600)"></i><h3>SEAS Subfeatures</h3></div>
+      <div class="panel-card-body">
+        <div class="seas-subfeature-grid">
+          <div class="seas-subfeature"><i data-lucide="siren" style="width:20px;height:20px"></i><div><h4>Emergency Trigger</h4><p>One-tap SOS with location and emergency profile capture.</p></div></div>
+          <div class="seas-subfeature"><i data-lucide="ambulance" style="width:20px;height:20px"></i><div><h4>Auto Assignment</h4><p>Nearest capability-matched ambulance gets assigned automatically.</p></div></div>
+          <div class="seas-subfeature"><i data-lucide="route" style="width:20px;height:20px"></i><div><h4>Route Intelligence</h4><p>ETA is updated using traffic-aware path optimization.</p></div></div>
+          <div class="seas-subfeature"><i data-lucide="hospital" style="width:20px;height:20px"></i><div><h4>Smart Hospital Match</h4><p>System selects the best-fit hospital by urgency and capacity.</p></div></div>
+          <div class="seas-subfeature"><i data-lucide="send" style="width:20px;height:20px"></i><div><h4>Pre-Arrival Data Share</h4><p>Patient condition and ETA sent in advance for preparation.</p></div></div>
+        </div>
+        <div class="seas-flow-strip">
+          <div class="seas-flow-chip" id="seasStepSOS">1. SOS</div>
+          <div class="seas-flow-chip" id="seasStepAssign">2. Assignment</div>
+          <div class="seas-flow-chip" id="seasStepTransit">3. Live ETA</div>
+          <div class="seas-flow-chip" id="seasStepHospital">4. Hospital Select</div>
+          <div class="seas-flow-chip" id="seasStepComplete">5. Pre-Treatment Ready</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card fade-in-up" style="margin-bottom:1rem;">
+      <div class="panel-card-header"><i data-lucide="alert-octagon" style="width:20px;height:20px;color:var(--red-600)"></i><h3>Emergency Command Center</h3></div>
+      <div class="panel-card-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.75rem;">
+          <div>
+            <label for="seasEmergencyType" style="display:block;margin-bottom:0.3rem;font-weight:600;">Emergency Type</label>
+            <select id="seasEmergencyType" class="form-control">
+              <option value="general">General Emergency</option>
+              <option value="accident">Accident</option>
+              <option value="cardiac">Cardiac</option>
+              <option value="trauma">Trauma</option>
+              <option value="respiratory">Respiratory</option>
+            </select>
+          </div>
+          <div>
+            <label for="seasSeverity" style="display:block;margin-bottom:0.3rem;font-weight:600;">Severity</label>
+            <select id="seasSeverity" class="form-control">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="seasManualLocationWrap" style="display:none;margin-top:0.85rem;padding:0.85rem;border-radius:0.75rem;border:1px solid var(--amber-200);background:linear-gradient(135deg,#fffbeb,#fef3c7);">
+          <p style="font-size:0.84rem;color:#92400e;margin-bottom:0.65rem;"><strong>Location access unavailable.</strong> Please enter location manually.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.6rem;">
+            <div>
+              <label for="seasManualLat" style="display:block;margin-bottom:0.25rem;font-weight:600;">Latitude</label>
+              <input id="seasManualLat" class="form-control" type="number" step="0.00001" placeholder="18.52043" />
+            </div>
+            <div>
+              <label for="seasManualLng" style="display:block;margin-bottom:0.25rem;font-weight:600;">Longitude</label>
+              <input id="seasManualLng" class="form-control" type="number" step="0.00001" placeholder="73.85674" />
+            </div>
+          </div>
+          <div style="margin-top:0.6rem;">
+            <label for="seasManualAddress" style="display:block;margin-bottom:0.25rem;font-weight:600;">Address (optional)</label>
+            <input id="seasManualAddress" class="form-control" type="text" placeholder="Enter nearest landmark or full address" />
+          </div>
+        </div>
+
+        <div id="seasTriggerStatus" style="display:none;margin-top:0.75rem;padding:0.7rem;border-radius:0.65rem;background:var(--slate-50);border:1px solid var(--slate-200);font-size:0.85rem;color:var(--slate-700);"></div>
+
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
+          <button class="btn-red" id="seasTriggerBtn" type="button" onclick="seasTriggerSOS()"><i data-lucide="siren" style="width:16px;height:16px"></i> Trigger SOS</button>
+          <button class="btn-blue" id="seasRetryBtn" type="button" onclick="seasTriggerSOS()" style="display:none;"><i data-lucide="refresh-cw" style="width:16px;height:16px"></i> Retry</button>
+          <button class="btn-blue" type="button" onclick="seasAdvanceFlow()"><i data-lucide="chevrons-right" style="width:16px;height:16px"></i> Advance Simulation Step</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card fade-in-up delay-1" style="margin-bottom:1rem;">
+      <div class="panel-card-header"><i data-lucide="activity" style="width:20px;height:20px;color:var(--blue-600)"></i><h3>Live Status</h3></div>
+      <div class="panel-card-body"><div id="seasLiveStatus" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.75rem;"></div></div>
+    </div>
+
+    <div class="panel-card fade-in-up delay-1" style="margin-bottom:1rem;">
+      <div class="panel-card-header"><i data-lucide="wallet" style="width:20px;height:20px;color:var(--emerald-600)"></i><h3>Billing & Insurance</h3></div>
+      <div class="panel-card-body">
+        <div id="seasBillingSummary" style="font-size:0.86rem;color:var(--slate-700);margin-bottom:0.7rem;">Ambulance cost will appear after assignment.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.65rem;">
+          <div>
+            <label for="seasInsuranceProvider" style="display:block;margin-bottom:0.25rem;font-weight:600;">Insurance Provider</label>
+            <input id="seasInsuranceProvider" class="form-control" type="text" placeholder="e.g., MediShield" />
+          </div>
+          <div>
+            <label for="seasInsurancePlan" style="display:block;margin-bottom:0.25rem;font-weight:600;">Insurance Plan</label>
+            <select id="seasInsurancePlan" class="form-control">
+              <option value="silver">Silver</option>
+              <option value="gold">Gold</option>
+              <option value="bronze">Bronze</option>
+              <option value="basic">Basic</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.75rem;">
+          <button class="btn-blue" id="seasApplyInsuranceBtn" type="button" onclick="seasApplyInsurance()"><i data-lucide="shield-check" style="width:16px;height:16px"></i> Apply Insurance</button>
+          <button class="btn-blue" id="seasMarkPaidBtn" type="button" onclick="seasMarkPaymentPaid(true)"><i data-lucide="credit-card" style="width:16px;height:16px"></i> Mark Paid</button>
+          <button class="btn-blue" id="seasMarkUnpaidBtn" type="button" onclick="seasMarkPaymentPaid(false)"><i data-lucide="receipt" style="width:16px;height:16px"></i> Mark Unpaid</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card fade-in-up delay-2" style="margin-bottom:1rem;">
+      <div class="panel-card-header"><i data-lucide="map" style="width:20px;height:20px;color:var(--purple-600)"></i><h3>Live Ambulance Tracking</h3></div>
+      <div class="panel-card-body">
+        <div id="seasTrackingMap" style="height:320px;border-radius:0.9rem;border:1px solid var(--slate-200);background:#f8fafc;"></div>
+        <div id="seasTrackingMeta" style="margin-top:0.7rem;font-size:0.85rem;color:var(--slate-600);">Tracking starts once ambulance is assigned.</div>
+      </div>
+    </div>
+
+    <div class="panel-card fade-in-up delay-3">
+      <div class="panel-card-header"><i data-lucide="clock-3" style="width:20px;height:20px;color:var(--green-600)"></i><h3>Response Timeline</h3></div>
+      <div class="panel-card-body"><div id="seasTimeline" style="display:flex;flex-direction:column;gap:0.5rem;"></div></div>
+    </div>
+
+    <div class="panel-card fade-in-up delay-3" style="margin-top:1rem;">
+      <div class="panel-card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <i data-lucide="hospital" style="width:20px;height:20px;color:var(--red-600)"></i>
+          <h3>Hospital Alerts Feed</h3>
+        </div>
+        <button class="btn-blue" type="button" onclick="seasLoadHospitalAlerts()" style="padding:0.45rem 0.75rem;font-size:0.78rem;">
+          <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> Refresh
+        </button>
+      </div>
+      <div class="panel-card-body">
+        <div id="seasHospitalAlerts" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
       </div>
     </div>
   </div>
@@ -2418,6 +3041,80 @@ body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) sat
 </div>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="script.js"></script>
 <script src="features.js"></script>
+<script src="emergency_quick_access.js"></script>
+<script>
+/* ── Mobile dashboard sidebar toggle ── */
+function toggleDashSidebar() {
+  const sidebar = document.getElementById('ds-sidebar');
+  const overlay = document.getElementById('ds-sidebar-overlay');
+  if (!sidebar) return;
+  sidebar.classList.toggle('open');
+  if (overlay) overlay.classList.toggle('open');
+}
+
+// Insert overlay element after dash-shell
+(function() {
+  const shell = document.getElementById('dash-shell');
+  if (shell) {
+    const overlay = document.createElement('div');
+    overlay.id = 'ds-sidebar-overlay';
+    overlay.onclick = toggleDashSidebar;
+    shell.parentNode.insertBefore(overlay, shell.nextSibling);
+  }
+})();
+
+/* ── Dashboard data fetching with graceful fallback ── */
+const BACKEND_URL = (function() {
+  // Try to detect if backend is running on same host or localhost
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') return 'http://127.0.0.1:5001';
+  // For deployed environments, try same origin on port 5001
+  return window.location.protocol + '//' + host + ':5001';
+})();
+
+// Override the API constant in features.js if backend URL differs
+if (typeof API !== 'undefined') {
+  // API is already set in features.js — keep it as-is for local dev
+}
+
+/* ── Fetch stats for home page hero with fallback ── */
+async function loadHomeStats() {
+  try {
+    const r = await fetch(BACKEND_URL + '/api/analytics/summary', { signal: AbortSignal.timeout(4000) });
+    if (!r.ok) throw new Error('no data');
+    const d = await r.json();
+    animateCounter('statPatients', d.total_patients || d.patients || 0);
+    animateCounter('statConsultations', d.total_consultations || d.consultations || 0);
+    animateCounter('statAlerts', d.total_alerts || d.alerts || 0);
+  } catch {
+    // Graceful fallback with demo numbers
+    animateCounter('statPatients', 1247);
+    animateCounter('statConsultations', 3892);
+    animateCounter('statAlerts', 284);
+  }
+}
+
+function animateCounter(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let current = 0;
+  const step = Math.ceil(target / 60);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = current.toLocaleString('en-IN');
+    if (current >= target) clearInterval(timer);
+  }, 20);
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(loadHomeStats, 500);
+});
+</script>
+
+
+<!-- ══════════════════════════════════════════════
+
 <!-- Floating Chatbot Button -->
 <div id="chatbotFab" class="chatbot-fab" onclick="toggleChatbot()">
   <i data-lucide="message-circle" style="width:28px;height:28px;"></i>
@@ -2433,8 +3130,8 @@ body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) sat
     <div class="chatbot-message bot">Hello! How can I help you today?</div>
   </div>
   <div class="chatbot-input-area">
-    <input type="text" id="chatbotInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendChatMessage()" />
-    <button onclick="sendChatMessage()">Send</button>
+    <input type="text" id="chatbotInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendBotMessage()" />
+    <button onclick="sendBotMessage()">Send</button>
   </div>
 </div>
 

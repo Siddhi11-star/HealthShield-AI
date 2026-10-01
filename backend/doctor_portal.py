@@ -60,6 +60,27 @@ def register_doctor_portal(app):
         if not c.fetchone():
             c.execute("ALTER TABLE appointments ADD COLUMN fee_status VARCHAR(30) DEFAULT 'pending'")
             db.commit()
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS doctor_agenda (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                doctor_user_id INT NOT NULL,
+                title VARCHAR(255) NOT NULL,
+                note TEXT,
+                scheduled_at DATETIME,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS doctor_tasks (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                doctor_user_id INT NOT NULL,
+                text VARCHAR(255) NOT NULL,
+                assignee VARCHAR(100),
+                done TINYINT(1) DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        db.commit()
         db.close()
     except Exception as e:
         print(f"[doctor_portal] migration: {e}")
@@ -457,3 +478,262 @@ def register_doctor_portal(app):
             return jsonify({"message": "All notifications marked as read"})
         finally:
             db.close()
+
+    # ─────────────────────────────────────────────────────────────
+    # DOCTOR AGENDA, TASKS, PATIENTS & TIMELINE
+    # ─────────────────────────────────────────────────────────────
+
+    @app.route("/api/doctors/agenda/today", methods=["GET"])
+    @require_roles("doctor")
+    def doctor_today_agenda():
+        db = get_db()
+        try:
+            c = db.cursor(dictionary=True)
+            c.execute("""
+                SELECT * FROM doctor_agenda 
+                WHERE doctor_user_id=%s AND (scheduled_at IS NULL OR DATE(scheduled_at)=CURDATE())
+                ORDER BY scheduled_at ASC
+            """, (request.current_user["id"],))
+            items = c.fetchall() or []
+            return jsonify({"agenda": items})
+        finally:
+            db.close()
+
+    @app.route("/api/doctors/agenda", methods=["GET", "POST"])
+    @require_roles("doctor")
+    def doctor_agenda():
+        if request.method == "GET":
+            db = get_db()
+            try:
+                c = db.cursor(dictionary=True)
+                c.execute("SELECT * FROM doctor_agenda WHERE doctor_user_id=%s ORDER BY scheduled_at ASC", (request.current_user["id"],))
+                items = c.fetchall() or []
+                return jsonify({"agenda": items})
+            finally:
+                db.close()
+        else:
+            body = request.json or {}
+            title = body.get("title")
+            note = body.get("note")
+            scheduled = body.get("scheduled_at")
+            if not title:
+                return jsonify({"error": "title required"}), 400
+            db = get_db()
+            try:
+                c = db.cursor()
+                c.execute(
+                    "INSERT INTO doctor_agenda (doctor_user_id, title, note, scheduled_at) VALUES (%s,%s,%s,%s)",
+                    (request.current_user["id"], title, note, scheduled)
+                )
+                db.commit()
+                aid = c.lastrowid
+                return jsonify({"id": aid, "title": title, "note": note, "scheduled_at": scheduled}), 201
+            finally:
+                db.close()
+
+    @app.route("/api/doctors/agenda/<int:aid>", methods=["DELETE"])
+    @require_roles("doctor")
+    def doctor_delete_agenda(aid):
+        db = get_db()
+        try:
+            c = db.cursor()
+            c.execute("DELETE FROM doctor_agenda WHERE id=%s AND doctor_user_id=%s", (aid, request.current_user["id"]))
+            db.commit()
+            return jsonify({"deleted": True})
+        finally:
+            db.close()
+
+    @app.route("/api/doctors/urgent-alerts", methods=["GET"])
+    @require_roles("doctor")
+    def doctor_urgent_alerts():
+        db = get_db()
+        try:
+            c = db.cursor(dictionary=True)
+            query = """
+                SELECT hm.*
+                FROM health_metrics hm
+                JOIN (
+                    SELECT patient_user_id, MAX(recorded_at) as latest_at
+                    FROM health_metrics
+                    GROUP BY patient_user_id
+                ) latest ON latest.patient_user_id = hm.patient_user_id AND latest.latest_at = hm.recorded_at
+                WHERE (hm.bp_systolic > 140 OR hm.bp_diastolic > 90 OR hm.heart_rate > 120 OR hm.spo2 < 90)
+                ORDER BY hm.recorded_at DESC
+                LIMIT 100
+            """
+            c.execute(query)
+            alerts = c.fetchall() or []
+            return jsonify({"alerts": alerts})
+        finally:
+            db.close()
+
+    @app.route("/api/patients/me/metrics/latest", methods=["GET"])
+    @require_roles("doctor", "patient")
+    def patient_latest_metrics():
+        db = get_db()
+        try:
+            c = db.cursor(dictionary=True)
+            c.execute("SELECT * FROM health_metrics WHERE patient_user_id=%s ORDER BY recorded_at DESC LIMIT 1", (request.current_user["id"],))
+            row = c.fetchone()
+            return jsonify({"latest": row})
+        finally:
+            db.close()
+
+    @app.route("/api/doctors/patients", methods=["GET", "POST"])
+    @require_roles("doctor")
+    def doctor_patients():
+        if request.method == "GET":
+            db = get_db()
+            try:
+                c = db.cursor(dictionary=True)
+                c.execute("SELECT id,name,age,gender,phone,known_allergies,current_medications,created_at FROM patients ORDER BY created_at DESC LIMIT 500")
+                rows = c.fetchall() or []
+                return jsonify({"patients": rows})
+            finally:
+                db.close()
+        else:
+            body = request.json or {}
+            name = (body.get("name") or "").strip()
+            age = body.get("age")
+            gender = body.get("gender") or "Male"
+            phone = body.get("phone") or ""
+            meds = body.get("current_medications") or ""
+            allergies = body.get("known_allergies") or ""
+            if not name:
+                return jsonify({"error": "name required"}), 400
+            db = get_db()
+            try:
+                c = db.cursor()
+                c.execute(
+                    "INSERT INTO patients (name,age,gender,phone,current_medications,known_allergies) VALUES (%s,%s,%s,%s,%s,%s)",
+                    (name, age, gender, phone, meds, allergies)
+                )
+                db.commit()
+                pid = c.lastrowid
+                return jsonify({"id": pid, "name": name}), 201
+            finally:
+                db.close()
+
+    @app.route("/api/doctors/patients/<int:pid>", methods=["DELETE"])
+    @require_roles("doctor")
+    def doctor_delete_patient(pid):
+        db = get_db()
+        try:
+            c = db.cursor()
+            c.execute("DELETE FROM patients WHERE id=%s", (pid,))
+            db.commit()
+            return jsonify({"deleted": True})
+        finally:
+            db.close()
+
+    @app.route("/api/doctors/tasks", methods=["GET", "POST"])
+    @require_roles("doctor")
+    def doctor_tasks():
+        if request.method == "GET":
+            db = get_db()
+            try:
+                c = db.cursor(dictionary=True)
+                c.execute("SELECT * FROM doctor_tasks WHERE doctor_user_id=%s ORDER BY created_at DESC", (request.current_user["id"],))
+                rows = c.fetchall() or []
+                return jsonify({"tasks": rows})
+            finally:
+                db.close()
+        else:
+            body = request.json or {}
+            text = (body.get("text") or "").strip()
+            assignee = (body.get("assignee") or "").strip()
+            if not text:
+                return jsonify({"error": "text required"}), 400
+            db = get_db()
+            try:
+                c = db.cursor()
+                c.execute(
+                    "INSERT INTO doctor_tasks (doctor_user_id,text,assignee,done) VALUES (%s,%s,%s,0)",
+                    (request.current_user["id"], text, assignee)
+                )
+                db.commit()
+                return jsonify({"id": c.lastrowid, "text": text, "assignee": assignee}), 201
+            finally:
+                db.close()
+
+    @app.route("/api/doctors/tasks/<int:tid>", methods=["PUT", "DELETE"])
+    @require_roles("doctor")
+    def doctor_task_detail(tid):
+        if request.method == "DELETE":
+            db = get_db()
+            try:
+                c = db.cursor()
+                c.execute("DELETE FROM doctor_tasks WHERE id=%s", (tid,))
+                db.commit()
+                return jsonify({"deleted": True})
+            finally:
+                db.close()
+        else:
+            body = request.json or {}
+            assignee = body.get("assignee")
+            done = body.get("done")
+            sets, vals = [], []
+            if assignee is not None:
+                sets.append("assignee=%s")
+                vals.append(assignee)
+            if done is not None:
+                sets.append("done=%s")
+                vals.append(1 if done else 0)
+            if not sets:
+                return jsonify({"error": "no fields"}), 400
+            vals.append(tid)
+            db = get_db()
+            try:
+                c = db.cursor()
+                c.execute(f"UPDATE doctor_tasks SET {','.join(sets)} WHERE id=%s", tuple(vals))
+                db.commit()
+                return jsonify({"updated": True})
+            finally:
+                db.close()
+
+    @app.route("/api/notifications", methods=["GET"])
+    def list_notifications():
+        uid = request.args.get("user_id")
+        if not uid:
+            try:
+                uid = request.current_user["id"]
+            except Exception:
+                return jsonify({"notifications": []})
+        db = get_db()
+        try:
+            c = db.cursor(dictionary=True)
+            c.execute("SELECT * FROM notifications WHERE user_id=%s ORDER BY created_at DESC LIMIT 200", (uid,))
+            rows = c.fetchall() or []
+            return jsonify({"notifications": rows})
+        finally:
+            db.close()
+
+    @app.route("/api/notifications/<int:nid>/read", methods=["POST", "PATCH"])
+    def mark_notification_read_doctor(nid):
+        db = get_db()
+        try:
+            c = db.cursor()
+            c.execute("UPDATE notifications SET is_read=1 WHERE id=%s", (nid,))
+            db.commit()
+            return jsonify({"marked": True})
+        finally:
+            db.close()
+
+    @app.route("/api/patients/me/timeline", methods=["GET"])
+    def patient_care_timeline():
+        db = get_db()
+        try:
+            c = db.cursor(dictionary=True)
+            uid = request.current_user["id"]
+            c.execute("SELECT id, file_name, file_type, uploaded_at as ts, 'report' as type FROM medical_reports WHERE patient_id=%s", (uid,))
+            reports = c.fetchall() or []
+            c.execute("SELECT id, medicine_name, created_at as ts, 'prescription' as type FROM prescriptions WHERE patient_id=%s", (uid,))
+            prescriptions = c.fetchall() or []
+            timeline = (reports or []) + (prescriptions or [])
+            for item in timeline:
+                item["ts"] = _serialize(item.get("ts"))
+            timeline.sort(key=lambda x: x.get("ts") or "")
+            return jsonify({"timeline": timeline})
+        finally:
+            db.close()
+

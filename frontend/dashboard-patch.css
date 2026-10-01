@@ -137,3 +137,25 @@ body.dark-theme .dp-a { background: rgba(217,119,6,0.18) !important; color: #fcd
 body.dark-theme .dp-p { background: rgba(147,51,234,0.18) !important; color: #d8b4fe !important; }
 body.dark-theme .dp-c { background: rgba(8,145,178,0.18) !important; color: #67e8f9 !important; }
 body.dark-theme .dp-s { background: #1e293b !important; color: #94a3b8 !important; }
+
+/* ── LIGHT MODE: make sidebar light with dark text so everything is readable ── */
+body:not(.dark-theme) .ds-sidebar {
+  background: #f8fafc !important; /* very light gray */
+  color: #0f172a !important;
+  border-right: 1px solid rgba(15,23,42,0.06) !important;
+}
+body:not(.dark-theme) .ds-sidebar .ds-logo-text,
+body:not(.dark-theme) .ds-sidebar .ds-user-name,
+body:not(.dark-theme) .ds-sidebar .ds-role-badge,
+body:not(.dark-theme) .ds-sidebar .ds-sec-label,
+body:not(.dark-theme) .ds-sidebar .ds-user-role,
+body:not(.dark-theme) .ds-sidebar .ds-nav-item {
+  color: #0f172a !important; /* dark text for readability */
+}
+body:not(.dark-theme) .ds-nav-item:hover { background: rgba(15,23,42,0.02) !important; color: #0f172a !important; }
+body:not(.dark-theme) .ds-nav-item.active { background: rgba(37,99,235,0.08) !important; color: #0f172a !important; border-left-color: #2563eb !important; }
+
+/* Keep logo/icon and avatar visible but with dark-mode-friendly coloring */
+body:not(.dark-theme) .ds-sidebar .ds-logo-icon svg { stroke: currentColor !important; fill: none !important; }
+body:not(.dark-theme) .ds-sidebar .ds-avatar { color: #ffffff !important; background: #0f172a !important; }
+body:not(.dark-theme) .ds-sidebar .ds-logo { background: transparent !important; }

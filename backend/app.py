@@ -1,29 +1,66 @@
+from ayurveda import register_ayurveda_routes
+from emergency_quick_access import register_emergency_quick_access_routes
 from auth_utils import get_current_user, get_token_user, require_roles
 from flask import Flask, request, jsonify, make_response, send_file
 from flask_cors import CORS
 from config import get_db
-import hashlib, random, string, datetime, json
+import hashlib, random, string, datetime, json, uuid
 import csv
+import math
+import logging
+import os
 from io import StringIO
 
 # Import the external feature modules
 from teleconsult_v2 import _create_zoom_meeting, register_teleconsult_routes
-from pharmacy_routes import register_pharmacy_routes
-from ai_safety_guard import register_ai_safety_guard_routes
 from ai_clinical_intelligence import register_ai_clinical_routes
 from auth_routes import register_auth_routes
 from doctor_portal import register_doctor_portal
+from pharmacy_routes import register_pharmacy_routes
+from ai_safety_guard import register_ai_safety_guard_routes
 
 app = Flask(__name__)
 CORS(app)
+# Application start time (used for mocked uptime)
+APP_START = datetime.datetime.utcnow()
 
 # Register the external feature routes (teleconsultation and pharmacy)
 register_teleconsult_routes(app)
+register_ayurveda_routes(app)
+register_emergency_quick_access_routes(app)
 register_pharmacy_routes(app)
 register_ai_safety_guard_routes(app)
 register_ai_clinical_routes(app)
 register_auth_routes(app)
 register_doctor_portal(app)
+
+
+
+# ─────────────────────────────────────────────────────────────
+# ADMIN: summary endpoints
+# ─────────────────────────────────────────────────────────────
+@app.route("/api/admin/summary", methods=["GET"])
+@require_roles("admin")
+def admin_summary():
+    db = get_db()
+    try:
+        c = db.cursor(dictionary=True)
+        c.execute("SELECT COUNT(*) as total_users FROM users")
+        total = c.fetchone().get("total_users", 0)
+
+        c.execute("SELECT role, COUNT(*) as cnt FROM users GROUP BY role")
+        by_role = c.fetchall()
+
+        # Mock system uptime using APP_START
+        uptime_seconds = int((datetime.datetime.utcnow() - APP_START).total_seconds())
+
+        return jsonify({
+            "total_users": total,
+            "users_by_role": by_role,
+            "system_uptime_seconds": uptime_seconds
+        })
+    finally:
+        db.close()
 
 # ════════════════════════════════════════
 # HELPERS
@@ -32,15 +69,8 @@ register_doctor_portal(app)
 def hash_password(p):
     return hashlib.sha256(p.encode()).hexdigest()
 
-def get_token_user(req):
-    """Extract user_id from Bearer token. Returns None if invalid."""
-    token = req.headers.get("Authorization", "").replace("Bearer ", "").strip()
-    if token.startswith("mg_token_"):
-        try:
-            return int(token.replace("mg_token_", ""))
-        except Exception as e:
-            print(e)
-    return None
+# get_token_user is imported from auth_utils at the top of this file.
+# A duplicate local definition was removed to avoid shadowing the import.
 
 
 def parse_appointment_datetime(preferred_date, time_slot):
@@ -89,6 +119,7 @@ def ensure_tables(db):
     c = db.cursor()
 
     # --- Existing tables (unchanged) ---
+    # system settings
     c.execute("""
         CREATE TABLE IF NOT EXISTS system_settings (
             id         INT AUTO_INCREMENT PRIMARY KEY,
@@ -97,6 +128,8 @@ def ensure_tables(db):
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )
     """)
+
+    # audit log
     c.execute("""
         CREATE TABLE IF NOT EXISTS audit_log (
             id         INT AUTO_INCREMENT PRIMARY KEY,
@@ -108,6 +141,8 @@ def ensure_tables(db):
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # safety alerts
     c.execute("""
         CREATE TABLE IF NOT EXISTS safety_alerts_log (
             id              INT AUTO_INCREMENT PRIMARY KEY,
@@ -121,6 +156,8 @@ def ensure_tables(db):
             created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # contact messages
     c.execute("""
         CREATE TABLE IF NOT EXISTS contact_messages (
             id         INT AUTO_INCREMENT PRIMARY KEY,
@@ -131,6 +168,8 @@ def ensure_tables(db):
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    # users
     c.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id         INT AUTO_INCREMENT PRIMARY KEY,
@@ -142,6 +181,8 @@ def ensure_tables(db):
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # NOTE: audit_log, safety_alerts_log, contact_messages, and users were
+    # duplicated here — removed the second copies to avoid redundant DDL.
     c.execute("""
         CREATE TABLE IF NOT EXISTS appointments (
             id               INT AUTO_INCREMENT PRIMARY KEY,
@@ -164,6 +205,8 @@ def ensure_tables(db):
             zoom_password    VARCHAR(50) DEFAULT NULL,
             link_status      VARCHAR(30) DEFAULT 'not_required',
             zoom_error       TEXT,
+            fee_charged      DECIMAL(10,2) DEFAULT NULL,
+            fee_status       VARCHAR(30) DEFAULT 'pending',
             created_at       DATETIME DEFAULT CURRENT_TIMESTAMP,
             INDEX idx_appt_patient_user (patient_user_id),
             INDEX idx_appt_doctor_user  (doctor_user_id),
@@ -220,20 +263,22 @@ def ensure_tables(db):
 
     c.execute("""
         CREATE TABLE IF NOT EXISTS doctors (
-            id           INT AUTO_INCREMENT PRIMARY KEY,
-            name         VARCHAR(200) NOT NULL,
-            specialty    VARCHAR(100),
-            qualification VARCHAR(200),
+            id             INT AUTO_INCREMENT PRIMARY KEY,
+            user_id        INT DEFAULT NULL UNIQUE,
+            name           VARCHAR(200) NOT NULL,
+            specialty      VARCHAR(100),
+            qualification  VARCHAR(200),
             experience_yrs INT DEFAULT 0,
-            phone        VARCHAR(30),
-            email        VARCHAR(200),
+            phone          VARCHAR(30),
+            email          VARCHAR(200),
             avatar_initials VARCHAR(5),
-            avatar_color VARCHAR(50) DEFAULT '#3b82f6',
-            status       VARCHAR(20) DEFAULT 'available',
-            rating       DECIMAL(3,2) DEFAULT 4.50,
-            consult_fee  DECIMAL(10,2) DEFAULT 300.00,
-            zoom_user_id VARCHAR(200) DEFAULT NULL,
-            created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+            avatar_color   VARCHAR(50) DEFAULT '#3b82f6',
+            status         VARCHAR(20) DEFAULT 'available',
+            rating         DECIMAL(3,2) DEFAULT 4.50,
+            consult_fee    DECIMAL(10,2) DEFAULT 300.00,
+            bio            TEXT DEFAULT NULL,
+            zoom_user_id   VARCHAR(200) DEFAULT NULL,
+            created_at     DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
@@ -314,6 +359,47 @@ def ensure_tables(db):
         )
     """)
 
+    # --- NEW: Health metrics table for vitals tracking ---
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS health_metrics (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            patient_user_id INT NOT NULL,
+            heart_rate INT DEFAULT NULL,
+            bp_systolic INT DEFAULT NULL,
+            bp_diastolic INT DEFAULT NULL,
+            glucose FLOAT DEFAULT NULL,
+            spo2 INT DEFAULT NULL,
+            notes TEXT,
+            recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_hm_patient (patient_user_id),
+            INDEX idx_hm_time (recorded_at)
+        )
+    """)
+
+    # --- NEW: Revenue / transactions table for pharmacist revenue charts ---
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS revenue_transactions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            pharmacy_id INT DEFAULT NULL,
+            transaction_id VARCHAR(100) DEFAULT NULL,
+            amount DECIMAL(12,2) NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_rev_pharm (pharmacy_id),
+            INDEX idx_rev_time (created_at)
+        )
+    """)
+
+    # Add optional threshold and expiry columns used by pharmacist dashboards
+    try:
+        c.execute("SHOW COLUMNS FROM pharmacy_inventory LIKE 'threshold_limit'")
+        if not c.fetchone():
+            c.execute("ALTER TABLE pharmacy_inventory ADD COLUMN threshold_limit INT DEFAULT 10")
+        c.execute("SHOW COLUMNS FROM pharmacy_inventory LIKE 'expiry_date'")
+        if not c.fetchone():
+            c.execute("ALTER TABLE pharmacy_inventory ADD COLUMN expiry_date DATE DEFAULT NULL")
+    except Exception as e:
+        print("Migration error (pharmacy_inventory.threshold/expiry):", e)
+
     for table_name, column_sql in [
         ("users", "ALTER TABLE users ADD COLUMN specialty VARCHAR(100) DEFAULT NULL"),
         ("appointments", "ALTER TABLE appointments ADD COLUMN patient_user_id INT DEFAULT NULL"),
@@ -364,6 +450,107 @@ def ensure_tables(db):
         )
     """)
 
+    # --- SEAS: Emergency cases table ---
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS emergency_cases (
+            id             INT AUTO_INCREMENT PRIMARY KEY,
+            case_id        VARCHAR(50) NOT NULL UNIQUE,
+            user_id        VARCHAR(100) NOT NULL,
+            latitude       DECIMAL(10,7) NOT NULL,
+            longitude      DECIMAL(10,7) NOT NULL,
+            address        TEXT,
+            emergency_type VARCHAR(50) NOT NULL,
+            severity       VARCHAR(20) NOT NULL,
+            status         VARCHAR(30) NOT NULL DEFAULT 'SOS_TRIGGERED',
+            ambulance_id   VARCHAR(50) DEFAULT NULL,
+            assigned_at    DATETIME DEFAULT NULL,
+            eta_minutes    INT DEFAULT NULL,
+            hospital_id    VARCHAR(50) DEFAULT NULL,
+            hospital_name  VARCHAR(255) DEFAULT NULL,
+            hospital_distance_km DECIMAL(10,2) DEFAULT NULL,
+            hospital_alerted_at  DATETIME DEFAULT NULL,
+            hospital_reserved_at DATETIME DEFAULT NULL,
+            transit_started_at   DATETIME DEFAULT NULL,
+            hospital_selected_at DATETIME DEFAULT NULL,
+            completed_at         DATETIME DEFAULT NULL,
+            status_updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            ambulance_base_cost  DECIMAL(10,2) DEFAULT NULL,
+            ambulance_distance_km DECIMAL(10,2) DEFAULT NULL,
+            ambulance_total_cost  DECIMAL(10,2) DEFAULT NULL,
+            insurance_provider   VARCHAR(120) DEFAULT NULL,
+            insurance_plan       VARCHAR(60) DEFAULT NULL,
+            insurance_coverage_pct INT DEFAULT 0,
+            insurance_cover_amount DECIMAL(10,2) DEFAULT 0,
+            payable_amount       DECIMAL(10,2) DEFAULT NULL,
+            payment_status       VARCHAR(20) DEFAULT 'UNPAID',
+            paid_at              DATETIME DEFAULT NULL,
+            created_at           DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_emergency_case_id (case_id),
+            INDEX idx_emergency_user_id (user_id),
+            INDEX idx_emergency_created (created_at)
+        )
+    """)
+
+    # --- SEAS: Ambulances table ---
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS ambulances (
+            id            INT AUTO_INCREMENT PRIMARY KEY,
+            ambulance_id  VARCHAR(50) NOT NULL UNIQUE,
+            driver_name   VARCHAR(200) NOT NULL,
+            latitude      DECIMAL(10,7) NOT NULL,
+            longitude     DECIMAL(10,7) NOT NULL,
+            status        VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+            type          VARCHAR(20) NOT NULL DEFAULT 'BASIC',
+            destination_hospital_id   VARCHAR(50) DEFAULT NULL,
+            destination_hospital_name VARCHAR(255) DEFAULT NULL,
+            destination_latitude      DECIMAL(10,7) DEFAULT NULL,
+            destination_longitude     DECIMAL(10,7) DEFAULT NULL,
+            route_status              VARCHAR(30) NOT NULL DEFAULT 'IDLE',
+            updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_ambulance_status (status),
+            INDEX idx_ambulance_type (type),
+            INDEX idx_ambulance_route (route_status)
+        )
+    """)
+
+    # --- SEAS: Hospitals table ---
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS hospitals (
+            id                    INT AUTO_INCREMENT PRIMARY KEY,
+            hospital_id           VARCHAR(50) NOT NULL UNIQUE,
+            name                  VARCHAR(255) NOT NULL,
+            latitude              DECIMAL(10,7) NOT NULL,
+            longitude             DECIMAL(10,7) NOT NULL,
+            specializations       TEXT,
+            icu_beds_total        INT NOT NULL DEFAULT 0,
+            icu_beds_available    INT NOT NULL DEFAULT 0,
+            beds_total            INT NOT NULL DEFAULT 0,
+            beds_available        INT NOT NULL DEFAULT 0,
+            status                VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+            alerted_at            DATETIME DEFAULT NULL,
+            reserved_at           DATETIME DEFAULT NULL,
+            updated_at            DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_hospital_status (status),
+            INDEX idx_hospital_icu (icu_beds_available),
+            INDEX idx_hospital_beds (beds_available)
+        )
+    """)
+
+    # --- SEAS: Hospital notifications table ---
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS hospital_notifications (
+            id          INT AUTO_INCREMENT PRIMARY KEY,
+            case_id     VARCHAR(50) NOT NULL,
+            hospital_id VARCHAR(50) NOT NULL,
+            payload     JSON,
+            status      VARCHAR(20) NOT NULL DEFAULT 'SENT',
+            sent_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_hn_case (case_id),
+            INDEX idx_hn_hospital (hospital_id),
+            INDEX idx_hn_sent (sent_at)
+        )
+    """)
+
     db.commit()
 
     # --- Seed default doctors if table is empty ---
@@ -405,6 +592,45 @@ def ensure_tables(db):
                  open_hours, is_24hr, has_delivery, rating)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, p)
+        db.commit()
+
+    # --- SEAS: Seed ambulances if empty ---
+    c.execute("SELECT COUNT(*) as cnt FROM ambulances")
+    if c.fetchone()[0] == 0:
+        ambulances_data = [
+            ("AMB-101", "Ramesh Pawar",   18.5231200, 73.8552400, "AVAILABLE", "BASIC",   None, None, None, None, "IDLE"),
+            ("AMB-202", "Neha Kulkarni",  18.5308600, 73.8412400, "AVAILABLE", "OXYGEN",  None, None, None, None, "IDLE"),
+            ("AMB-303", "Arjun Singh",    18.5175000, 73.8687000, "AVAILABLE", "ICU",     None, None, None, None, "IDLE"),
+            ("AMB-404", "Farhan Shaikh",  18.5450000, 73.9032000, "BUSY",      "ICU",     None, None, None, None, "IDLE"),
+            ("AMB-505", "Sonal Patil",    18.5642000, 73.8197000, "AVAILABLE", "OXYGEN",  None, None, None, None, "IDLE"),
+        ]
+        for amb in ambulances_data:
+            c.execute("""
+                INSERT INTO ambulances
+                (ambulance_id, driver_name, latitude, longitude, status, type,
+                 destination_hospital_id, destination_hospital_name, destination_latitude,
+                 destination_longitude, route_status)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, amb)
+        db.commit()
+
+    # --- SEAS: Seed hospitals if empty ---
+    c.execute("SELECT COUNT(*) as cnt FROM hospitals")
+    if c.fetchone()[0] == 0:
+        hospitals_data = [
+            ("HSP-101", "CityCare Trauma & Cardiac Center",      18.5196000, 73.8579000, "cardiac,trauma,emergency,icu,multi-speciality",         14, 5, 80, 42, "AVAILABLE"),
+            ("HSP-202", "Metro Multispeciality Hospital",         18.5359000, 73.8452000, "respiratory,cardiac,neurology,emergency,multi-speciality",10, 4, 70, 36, "AVAILABLE"),
+            ("HSP-303", "Pune Critical Care Institute",           18.5099000, 73.8721000, "trauma,orthopedic,icu,emergency",                        18, 7, 60, 24, "AVAILABLE"),
+            ("HSP-404", "LifeSpring General Hospital",            18.5468000, 73.9041000, "general,emergency,respiratory,multi-speciality",          8, 2, 54, 18, "AVAILABLE"),
+            ("HSP-505", "Heritage Heart & Emergency Hospital",    18.5625000, 73.8184000, "cardiac,emergency,icu,multi-speciality",                  16, 6, 62, 20, "AVAILABLE"),
+        ]
+        for hosp in hospitals_data:
+            c.execute("""
+                INSERT INTO hospitals
+                (hospital_id, name, latitude, longitude, specializations, icu_beds_total,
+                 icu_beds_available, beds_total, beds_available, status)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, hosp)
         db.commit()
 
 # ════════════════════════════════════════
@@ -673,16 +899,22 @@ def stats():
 
         # Also count low-stock for separate field
         uid = get_token_user(request)
-        if uid:
-            cursor.execute(
-                "SELECT COUNT(*) FROM medicines WHERE owner_id=%s AND quantity <= min_stock_level",
-                (uid,)
-            )
-        else:
-            cursor.execute(
-                "SELECT COUNT(*) FROM medicines WHERE quantity <= min_stock_level"
-            )
-        low_stock = cursor.fetchone()[0]
+        # owner_id column may not exist in some setups; attempt owner-specific count first,
+        # fall back to global count on error.
+        try:
+            if uid:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM medicines WHERE owner_id=%s AND quantity <= min_stock_level",
+                    (uid,)
+                )
+            else:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM medicines WHERE quantity <= min_stock_level"
+                )
+            low_stock = cursor.fetchone()[0]
+        except Exception:
+            cursor.execute("SELECT COUNT(*) FROM medicines WHERE quantity <= min_stock_level")
+            low_stock = cursor.fetchone()[0]
 
         cursor.execute("SELECT COUNT(*) FROM drug_interactions")
         interactions = cursor.fetchone()[0]
@@ -1980,20 +2212,40 @@ def search_medicines():
     try:
         db = get_db()
         cursor = db.cursor(dictionary=True)
+
+        # Deduplication subquery: keep only the lowest-id row per unique name
+        dedup_sub = "SELECT MIN(id) AS min_id FROM medicines GROUP BY LOWER(TRIM(name))"
+
         where_clauses, params = [], []
         if q:
-            where_clauses.append("(name LIKE %s OR description LIKE %s OR manufacturer LIKE %s)")
+            where_clauses.append("(m.name LIKE %s OR m.description LIKE %s OR m.manufacturer LIKE %s)")
             params += [f"%{q}%", f"%{q}%", f"%{q}%"]
         if category:
-            where_clauses.append("category=%s")
+            where_clauses.append("m.category=%s")
             params.append(category)
-        where = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
-        cursor.execute(f"SELECT COUNT(*) as total FROM medicines {where}", params)
+        where = ("WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
+
+        count_sql = f"""
+            SELECT COUNT(*) AS total
+            FROM medicines m
+            INNER JOIN ({dedup_sub}) dedup ON m.id = dedup.min_id
+            {where}
+        """
+        cursor.execute(count_sql, params)
         total = cursor.fetchone()["total"]
-        cursor.execute(
-            f"SELECT * FROM medicines {where} ORDER BY name LIMIT %s OFFSET %s",
-            params + [per_page, offset]
-        )
+
+        data_sql = f"""
+            SELECT m.*
+            FROM medicines m
+            INNER JOIN ({dedup_sub}) dedup ON m.id = dedup.min_id
+            {where}
+            ORDER BY
+                CASE WHEN m.category IS NULL OR m.category = '' OR m.category = 'General' THEN 1 ELSE 0 END,
+                m.category,
+                m.name
+            LIMIT %s OFFSET %s
+        """
+        cursor.execute(data_sql, params + [per_page, offset])
         medicines = cursor.fetchall()
         return jsonify({
             "medicines": medicines, "total": total, "page": page,
@@ -3006,6 +3258,1026 @@ def health_check():
             "force_save_rx", "delete_interactions", "portal_lookup"
         ]
     })
+
+
+# EMERGENCY (SEAS)
+# ════════════════════════════════════════
+
+@app.route("/api/emergency/trigger", methods=["POST"])
+def trigger_emergency_case():
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid JSON payload"}), 400
+
+    required = ["latitude", "longitude", "emergency_type", "severity"]
+    missing = [field for field in required if data.get(field) in (None, "")]
+    if missing:
+        return jsonify({"error": "Missing required fields", "missing_fields": missing}), 400
+
+    try:
+        latitude = float(data.get("latitude"))
+        longitude = float(data.get("longitude"))
+    except (TypeError, ValueError):
+        return jsonify({"error": "latitude and longitude must be valid numbers"}), 400
+
+    if latitude < -90 or latitude > 90 or longitude < -180 or longitude > 180:
+        return jsonify({"error": "Invalid coordinate range"}), 400
+
+    emergency_type = str(data.get("emergency_type")).strip().lower()
+    severity = str(data.get("severity")).strip().lower()
+    address = str(data.get("address") or "").strip()
+
+    if not emergency_type:
+        return jsonify({"error": "emergency_type is required"}), 400
+    if severity not in ("low", "medium", "critical"):
+        return jsonify({"error": "severity must be one of: low, medium, critical"}), 400
+
+    user_id = str(data.get("user_id") or "").strip()
+    if not user_id:
+        token_user_id = get_token_user(request)
+        user_id = str(token_user_id) if token_user_id else f"guest_{uuid.uuid4().hex[:10]}"
+
+    case_id = f"SEAS-{datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6].upper()}"
+
+    db = None
+    try:
+        db = get_db()
+        ensure_tables(db)
+        cursor = db.cursor()
+        cursor.execute(
+            """
+            INSERT INTO emergency_cases
+            (case_id, user_id, latitude, longitude, address, emergency_type, severity, status)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+            """,
+            (
+                case_id,
+                user_id,
+                latitude,
+                longitude,
+                address or "Address unavailable",
+                emergency_type,
+                severity,
+                "SOS_TRIGGERED",
+            ),
+        )
+        db.commit()
+        return jsonify({"case_id": case_id, "status": "created"}), 201
+    finally:
+        if db:
+            db.close()
+
+
+def _haversine_km(lat1, lon1, lat2, lon2):
+    r = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return r * c
+
+
+def _compute_ambulance_cost(ambulance_type, distance_km):
+    base_map = {
+        "BASIC": 1500.0,
+        "OXYGEN": 2500.0,
+        "ICU": 4000.0,
+    }
+    base_cost = base_map.get(str(ambulance_type or "").upper(), 2000.0)
+    variable_cost = max(0.0, float(distance_km or 0.0)) * 120.0
+    total_cost = round(base_cost + variable_cost, 2)
+    return round(base_cost, 2), round(variable_cost, 2), total_cost
+
+
+def _insurance_coverage_pct(provider, plan, severity):
+    provider_clean = str(provider or "").strip().lower()
+    if not provider_clean or provider_clean in {"none", "no", "na", "n/a"}:
+        return 0
+
+    plan_clean = str(plan or "silver").strip().lower()
+    plan_pct = {
+        "gold": 80,
+        "silver": 60,
+        "bronze": 40,
+        "basic": 30,
+    }.get(plan_clean, 50)
+
+    if str(severity or "").strip().lower() == "critical":
+        plan_pct += 10
+
+    return max(0, min(90, int(plan_pct)))
+
+
+def _normalize_specialization_tags(raw_value):
+    tags = set()
+    for tag in str(raw_value or "").replace("|", ",").split(","):
+        cleaned = tag.strip().lower()
+        if cleaned:
+            tags.add(cleaned)
+    return tags
+
+
+def _emergency_specialty_for_type(emergency_type):
+    mapping = {
+        "cardiac": "cardiac",
+        "heart": "cardiac",
+        "trauma": "trauma",
+        "accident": "trauma",
+        "fracture": "trauma",
+        "respiratory": "respiratory",
+        "breathing": "respiratory",
+        "stroke": "neurology",
+        "neurology": "neurology",
+        "burn": "trauma",
+        "general": "general",
+    }
+    return mapping.get(str(emergency_type or "").strip().lower(), "general")
+
+
+def _hospital_matches_emergency(tags, required_specialty):
+    if required_specialty in tags:
+        return True
+    if "multi-speciality" in tags or "multispeciality" in tags or "emergency" in tags:
+        return True
+    if required_specialty == "general" and ("general" in tags or "multi-speciality" in tags or "multispeciality" in tags):
+        return True
+    return False
+
+
+def _reserve_hospital_capacity(cursor, hospital_row, severity):
+    if severity == "critical":
+        cursor.execute(
+            """
+            UPDATE hospitals
+            SET icu_beds_available = GREATEST(icu_beds_available - 1, 0),
+                status = 'RESERVED',
+                reserved_at = NOW()
+            WHERE hospital_id = %s
+            """,
+            (hospital_row["hospital_id"],),
+        )
+        return
+
+    cursor.execute(
+        """
+        UPDATE hospitals
+        SET beds_available = GREATEST(beds_available - 1, 0),
+            status = 'RESERVED',
+            reserved_at = NOW()
+        WHERE hospital_id = %s
+        """,
+        (hospital_row["hospital_id"],),
+    )
+
+
+@app.route("/api/hospital/select", methods=["POST"])
+def select_hospital_for_case():
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid JSON payload"}), 400
+
+    required = ["case_id", "latitude", "longitude", "emergency_type", "severity"]
+    missing = [field for field in required if data.get(field) in (None, "")]
+    if missing:
+        return jsonify({"error": "Missing required fields", "missing_fields": missing}), 400
+
+    case_id = str(data.get("case_id")).strip()
+    emergency_type = str(data.get("emergency_type")).strip().lower()
+    severity = str(data.get("severity")).strip().lower()
+
+    if severity not in {"low", "medium", "critical"}:
+        return jsonify({"error": "severity must be one of: low, medium, critical"}), 400
+
+    try:
+        user_lat = float(data.get("latitude"))
+        user_lng = float(data.get("longitude"))
+    except (TypeError, ValueError):
+        return jsonify({"error": "latitude and longitude must be valid numbers"}), 400
+
+    if user_lat < -90 or user_lat > 90 or user_lng < -180 or user_lng > 180:
+        return jsonify({"error": "Invalid coordinate range"}), 400
+
+    required_specialty = _emergency_specialty_for_type(emergency_type)
+
+    db = None
+    try:
+        db = get_db()
+        ensure_tables(db)
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM emergency_cases WHERE case_id=%s LIMIT 1", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            return jsonify({"error": "Emergency case not found"}), 404
+
+        if case_row.get("hospital_id"):
+            cursor.execute(
+                "SELECT * FROM hospitals WHERE hospital_id=%s LIMIT 1",
+                (case_row["hospital_id"],),
+            )
+            existing_hospital = cursor.fetchone()
+            if existing_hospital:
+                distance_km = _haversine_km(
+                    user_lat,
+                    user_lng,
+                    float(existing_hospital["latitude"]),
+                    float(existing_hospital["longitude"]),
+                )
+                return jsonify({
+                    "hospital_id": existing_hospital["hospital_id"],
+                    "hospital_name": existing_hospital["name"],
+                    "distance": round(distance_km, 2),
+                    "icu_beds_available": existing_hospital["icu_beds_available"],
+                    "beds_available": existing_hospital["beds_available"],
+                    "status": "reserved",
+                }), 200
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM hospitals
+            WHERE status = 'AVAILABLE'
+            """
+        )
+        hospitals = cursor.fetchall()
+        if not hospitals:
+            return jsonify({
+                "error": "No hospital available",
+                "status": "unavailable",
+                "message": "No hospitals are currently available for emergency routing",
+            }), 409
+
+        candidates = []
+        for hospital_row in hospitals:
+            tags = _normalize_specialization_tags(hospital_row.get("specializations"))
+            if not _hospital_matches_emergency(tags, required_specialty):
+                continue
+
+            icu_available = int(hospital_row.get("icu_beds_available") or 0)
+            general_available = int(hospital_row.get("beds_available") or 0)
+            if severity == "critical" and icu_available <= 0:
+                continue
+            if severity in {"low", "medium"} and general_available <= 0 and icu_available <= 0:
+                continue
+
+            distance_km = _haversine_km(user_lat, user_lng, float(hospital_row["latitude"]), float(hospital_row["longitude"]))
+            specialization_score = 0
+            if required_specialty in tags:
+                specialization_score = 60
+            elif "multi-speciality" in tags or "multispeciality" in tags:
+                specialization_score = 42
+            elif "emergency" in tags:
+                specialization_score = 28
+            else:
+                specialization_score = 15
+
+            if severity == "critical":
+                bed_score = min(30, icu_available * 4 + 10)
+            else:
+                bed_score = min(24, general_available * 2 + icu_available)
+
+            distance_score = max(0, 30 - min(30, int(round(distance_km * 4))))
+            capacity_score = min(10, (icu_available + general_available) // 8)
+
+            candidates.append({
+                "row": hospital_row,
+                "tags": tags,
+                "distance_km": distance_km,
+                "score": specialization_score + bed_score + distance_score + capacity_score,
+            })
+
+        if not candidates:
+            return jsonify({
+                "error": "No suitable hospital found",
+                "status": "unavailable",
+                "message": f"No hospital matched {required_specialty} specialization and {severity} capacity",
+            }), 409
+
+        candidates.sort(key=lambda item: (-item["score"], item["distance_km"], item["row"]["name"]))
+        selected = candidates[0]
+        hospital_row = selected["row"]
+        selected_tags = selected["tags"]
+        distance_km = selected["distance_km"]
+
+        avg_speed_kmph = 45.0
+        eta_minutes = max(1, int(round((distance_km / avg_speed_kmph) * 60)))
+
+        writer = db.cursor()
+        _reserve_hospital_capacity(writer, hospital_row, severity)
+        writer.execute(
+            """
+            UPDATE emergency_cases
+            SET hospital_id=%s,
+                hospital_name=%s,
+                hospital_distance_km=%s,
+                hospital_reserved_at=NOW(),
+                hospital_selected_at=NOW(),
+                status='HOSPITAL_SELECTED'
+            WHERE case_id=%s
+            """,
+            (hospital_row["hospital_id"], hospital_row["name"], round(distance_km, 2), case_id),
+        )
+
+        ambulance_id = case_row.get("ambulance_id")
+        if ambulance_id:
+            writer.execute(
+                """
+                UPDATE ambulances
+                SET destination_hospital_id=%s,
+                    destination_hospital_name=%s,
+                    destination_latitude=%s,
+                    destination_longitude=%s,
+                    route_status='TO_HOSPITAL'
+                WHERE ambulance_id=%s
+                """,
+                (
+                    hospital_row["hospital_id"],
+                    hospital_row["name"],
+                    hospital_row["latitude"],
+                    hospital_row["longitude"],
+                    ambulance_id,
+                ),
+            )
+
+        db.commit()
+
+        return jsonify({
+            "hospital_id": hospital_row["hospital_id"],
+            "hospital_name": hospital_row["name"],
+            "distance": round(distance_km, 2),
+            "eta_minutes": eta_minutes,
+            "icu_beds_available": int(hospital_row.get("icu_beds_available") or 0),
+            "beds_available": int(hospital_row.get("beds_available") or 0),
+            "specializations": sorted(selected_tags),
+            "status": "selected",
+        }), 200
+    finally:
+        if db:
+            db.close()
+
+
+def _resolve_emergency_patient_details(cursor, case_row):
+    user_id = str(case_row.get("user_id") or "").strip()
+    patient_payload = {
+        "user_id": user_id,
+        "name": "Unknown Patient",
+        "email": None,
+        "phone": None,
+        "role": "guest",
+    }
+
+    if user_id.isdigit():
+        cursor.execute(
+            "SELECT id, name, email, role FROM users WHERE id=%s LIMIT 1",
+            (int(user_id),),
+        )
+        user_row = cursor.fetchone()
+        if user_row:
+            patient_payload.update({
+                "user_id": str(user_row.get("id")),
+                "name": user_row.get("name") or patient_payload["name"],
+                "email": user_row.get("email"),
+                "role": user_row.get("role") or "patient",
+            })
+
+    return patient_payload
+
+
+def _notify_doctors_for_hospital_alert(db, case_row, hospital_row, payload):
+    doctor_cursor = db.cursor(dictionary=True)
+    doctor_cursor.execute("SELECT id FROM users WHERE role='doctor'")
+    doctors = doctor_cursor.fetchall()
+    if not doctors:
+        return 0
+
+    title = f"Emergency pre-alert: {hospital_row['name']}"
+    message = (
+        f"Case {case_row['case_id']} ({case_row['severity']}) is heading to "
+        f"{hospital_row['name']} in ~{case_row.get('eta_minutes') or payload.get('eta_minutes') or 'N/A'} min."
+    )
+
+    writer = db.cursor()
+    for doctor in doctors:
+        writer.execute(
+            """
+            INSERT INTO notifications (user_id, type, title, message, data)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                doctor["id"],
+                "emergency_alert",
+                title,
+                message,
+                json.dumps(payload),
+            ),
+        )
+    return len(doctors)
+
+
+@app.route("/api/hospital/notify", methods=["POST"])
+def notify_hospital_pre_treatment():
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid JSON payload"}), 400
+
+    case_id = str(data.get("case_id") or "").strip()
+    if not case_id:
+        return jsonify({"error": "Missing required field", "missing_fields": ["case_id"]}), 400
+
+    db = None
+    try:
+        db = get_db()
+        ensure_tables(db)
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM emergency_cases WHERE case_id=%s LIMIT 1", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            return jsonify({"error": "Emergency case not found"}), 404
+
+        hospital_id = case_row.get("hospital_id")
+        if not hospital_id:
+            return jsonify({"error": "No hospital assigned for this case"}), 409
+
+        cursor.execute("SELECT * FROM hospitals WHERE hospital_id=%s LIMIT 1", (hospital_id,))
+        hospital_row = cursor.fetchone()
+        if not hospital_row:
+            return jsonify({"error": "Assigned hospital not found"}), 404
+
+        patient_payload = _resolve_emergency_patient_details(cursor, case_row)
+        eta_minutes = case_row.get("eta_minutes")
+        if eta_minutes is None:
+            eta_minutes = max(
+                1,
+                int(round(_haversine_km(
+                    float(case_row["latitude"]),
+                    float(case_row["longitude"]),
+                    float(hospital_row["latitude"]),
+                    float(hospital_row["longitude"]),
+                ) / 45.0 * 60)),
+            )
+
+        packet = {
+            "case_id": case_row["case_id"],
+            "patient": patient_payload,
+            "emergency_type": case_row.get("emergency_type"),
+            "severity": case_row.get("severity"),
+            "eta_minutes": int(eta_minutes),
+            "incident_location": {
+                "latitude": float(case_row["latitude"]),
+                "longitude": float(case_row["longitude"]),
+                "address": case_row.get("address") or "Address unavailable",
+            },
+            "hospital": {
+                "hospital_id": hospital_row["hospital_id"],
+                "hospital_name": hospital_row["name"],
+            },
+            "notified_at": datetime.datetime.utcnow().isoformat() + "Z",
+        }
+
+        writer = db.cursor()
+        writer.execute(
+            """
+            INSERT INTO hospital_notifications (case_id, hospital_id, payload, status)
+            VALUES (%s,%s,%s,%s)
+            """,
+            (case_id, hospital_id, json.dumps(packet), "SENT"),
+        )
+
+        writer.execute(
+            """
+            UPDATE emergency_cases
+            SET status='COMPLETED',
+                hospital_alerted_at=NOW(),
+                completed_at=NOW()
+            WHERE case_id=%s
+            """,
+            (case_id,),
+        )
+
+        if case_row.get("ambulance_id"):
+            writer.execute(
+                """
+                UPDATE ambulances
+                SET status='AVAILABLE'
+                WHERE ambulance_id=%s
+                """,
+                (case_row.get("ambulance_id"),),
+            )
+
+        writer.execute(
+            """
+            UPDATE hospitals
+            SET status='ALERTED',
+                alerted_at=NOW()
+            WHERE hospital_id=%s
+            """,
+            (hospital_id,),
+        )
+
+        doctor_count = _notify_doctors_for_hospital_alert(db, case_row, hospital_row, packet)
+        db.commit()
+
+        return jsonify({
+            "status": "sent",
+            "case_id": case_id,
+            "hospital_id": hospital_id,
+            "hospital_name": hospital_row["name"],
+            "doctors_notified": doctor_count,
+        }), 200
+    finally:
+        if db:
+            db.close()
+
+
+@app.route("/api/emergency/case/<case_id>", methods=["GET"])
+def get_emergency_case_status(case_id):
+    db = None
+    try:
+        db = get_db()
+        ensure_tables(db)
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM emergency_cases WHERE case_id=%s LIMIT 1", (case_id,))
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": "Emergency case not found"}), 404
+
+        timeline = [
+            {"status": "SOS_TRIGGERED", "at": serialize_datetime(row.get("created_at"))},
+            {"status": "AMBULANCE_ASSIGNED", "at": serialize_datetime(row.get("assigned_at"))},
+            {"status": "IN_TRANSIT", "at": serialize_datetime(row.get("transit_started_at"))},
+            {"status": "HOSPITAL_SELECTED", "at": serialize_datetime(row.get("hospital_selected_at"))},
+            {"status": "COMPLETED", "at": serialize_datetime(row.get("completed_at"))},
+        ]
+
+        return jsonify({
+            "case_id": row.get("case_id"),
+            "status": row.get("status"),
+            "user_id": row.get("user_id"),
+            "emergency_type": row.get("emergency_type"),
+            "severity": row.get("severity"),
+            "eta_minutes": row.get("eta_minutes"),
+            "ambulance_id": row.get("ambulance_id"),
+            "hospital_id": row.get("hospital_id"),
+            "hospital_name": row.get("hospital_name"),
+            "location": {
+                "latitude": float(row.get("latitude")),
+                "longitude": float(row.get("longitude")),
+                "address": row.get("address"),
+            },
+            "billing": {
+                "currency": "INR",
+                "base_cost": float(row.get("ambulance_base_cost") or 0),
+                "distance_km": float(row.get("ambulance_distance_km") or 0),
+                "total_cost": float(row.get("ambulance_total_cost") or 0),
+                "insurance_provider": row.get("insurance_provider"),
+                "insurance_plan": row.get("insurance_plan"),
+                "insurance_coverage_pct": int(row.get("insurance_coverage_pct") or 0),
+                "insurance_cover_amount": float(row.get("insurance_cover_amount") or 0),
+                "payable_amount": float(row.get("payable_amount") or 0),
+                "payment_status": row.get("payment_status") or "UNPAID",
+                "paid_at": serialize_datetime(row.get("paid_at")),
+            },
+            "timestamps": {
+                "created_at": serialize_datetime(row.get("created_at")),
+                "assigned_at": serialize_datetime(row.get("assigned_at")),
+                "transit_started_at": serialize_datetime(row.get("transit_started_at")),
+                "hospital_selected_at": serialize_datetime(row.get("hospital_selected_at")),
+                "completed_at": serialize_datetime(row.get("completed_at")),
+                "status_updated_at": serialize_datetime(row.get("status_updated_at")),
+            },
+            "timeline": timeline,
+        }), 200
+    finally:
+        if db:
+            db.close()
+
+
+@app.route("/api/emergency/payment", methods=["POST"])
+def update_emergency_payment():
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid JSON payload"}), 400
+
+    case_id = str(data.get("case_id") or "").strip()
+    if not case_id:
+        return jsonify({"error": "Missing required field", "missing_fields": ["case_id"]}), 400
+
+    insurance_provider = str(data.get("insurance_provider") or "").strip()
+    insurance_plan = str(data.get("insurance_plan") or "silver").strip().lower()
+    mark_paid = bool(data.get("mark_paid", False))
+
+    db = None
+    try:
+        db = get_db()
+        ensure_tables(db)
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM emergency_cases WHERE case_id=%s LIMIT 1", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            return jsonify({"error": "Emergency case not found"}), 404
+
+        total_cost = float(case_row.get("ambulance_total_cost") or 0)
+        if total_cost <= 0:
+            return jsonify({"error": "Ambulance cost not available yet. Assign ambulance first."}), 409
+
+        coverage_pct = _insurance_coverage_pct(insurance_provider, insurance_plan, case_row.get("severity"))
+        insurance_cover_amount = round(total_cost * (coverage_pct / 100.0), 2)
+        payable_amount = round(max(0.0, total_cost - insurance_cover_amount), 2)
+
+        payment_status = "PAID" if mark_paid else "UNPAID"
+        writer = db.cursor()
+        writer.execute(
+            """
+            UPDATE emergency_cases
+            SET insurance_provider=%s,
+                insurance_plan=%s,
+                insurance_coverage_pct=%s,
+                insurance_cover_amount=%s,
+                payable_amount=%s,
+                payment_status=%s,
+                paid_at=%s
+            WHERE case_id=%s
+            """,
+            (
+                insurance_provider or None,
+                insurance_plan,
+                coverage_pct,
+                insurance_cover_amount,
+                payable_amount,
+                payment_status,
+                datetime.datetime.utcnow() if mark_paid else None,
+                case_id,
+            ),
+        )
+        db.commit()
+
+        return jsonify({
+            "case_id": case_id,
+            "status": "updated",
+            "billing": {
+                "currency": "INR",
+                "total_cost": total_cost,
+                "insurance_provider": insurance_provider or None,
+                "insurance_plan": insurance_plan,
+                "insurance_coverage_pct": coverage_pct,
+                "insurance_cover_amount": insurance_cover_amount,
+                "payable_amount": payable_amount,
+                "payment_status": payment_status,
+            },
+        }), 200
+    finally:
+        if db:
+            db.close()
+
+
+@app.route("/api/hospital/alerts", methods=["GET"])
+def list_hospital_alerts():
+    hospital_id = str(request.args.get("hospital_id") or "").strip()
+    case_id = str(request.args.get("case_id") or "").strip()
+    try:
+        limit = int(request.args.get("limit") or 20)
+    except Exception:
+        limit = 20
+    limit = max(1, min(limit, 100))
+
+    db = None
+    try:
+        db = get_db()
+        ensure_tables(db)
+        cursor = db.cursor(dictionary=True)
+
+        sql = """
+            SELECT hn.id, hn.case_id, hn.hospital_id, hn.payload, hn.status, hn.sent_at,
+                   h.name AS hospital_name
+            FROM hospital_notifications hn
+            LEFT JOIN hospitals h ON h.hospital_id = hn.hospital_id
+            WHERE 1=1
+        """
+        params = []
+
+        if hospital_id:
+            sql += " AND hn.hospital_id = %s"
+            params.append(hospital_id)
+
+        if case_id:
+            sql += " AND hn.case_id = %s"
+            params.append(case_id)
+
+        sql += " ORDER BY hn.sent_at DESC, hn.id DESC LIMIT %s"
+        params.append(limit)
+
+        cursor.execute(sql, tuple(params))
+        rows = cursor.fetchall() or []
+
+        alerts = []
+        for row in rows:
+            payload = row.get("payload")
+            if isinstance(payload, str):
+                try:
+                    payload = json.loads(payload)
+                except Exception:
+                    payload = {"raw": payload}
+            elif payload is None:
+                payload = {}
+
+            sent_at = row.get("sent_at")
+            alerts.append({
+                "id": row.get("id"),
+                "case_id": row.get("case_id"),
+                "hospital_id": row.get("hospital_id"),
+                "hospital_name": row.get("hospital_name"),
+                "status": row.get("status") or "SENT",
+                "sent_at": serialize_datetime(sent_at),
+                "payload": payload,
+            })
+
+        return jsonify({
+            "alerts": alerts,
+            "count": len(alerts),
+        }), 200
+    finally:
+        if db:
+            db.close()
+
+
+@app.route("/api/ambulance/assign", methods=["POST"])
+def assign_ambulance():
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid JSON payload"}), 400
+
+    required = ["case_id", "latitude", "longitude", "severity"]
+    missing = [field for field in required if data.get(field) in (None, "")]
+    if missing:
+        return jsonify({"error": "Missing required fields", "missing_fields": missing}), 400
+
+    case_id = str(data.get("case_id")).strip()
+    severity = str(data.get("severity")).strip().lower()
+    severity_to_type = {
+        "critical": "ICU",
+        "medium": "OXYGEN",
+        "low": "BASIC",
+    }
+    target_type = severity_to_type.get(severity)
+    if not target_type:
+        return jsonify({"error": "severity must be one of: low, medium, critical"}), 400
+
+    try:
+        user_lat = float(data.get("latitude"))
+        user_lng = float(data.get("longitude"))
+    except (TypeError, ValueError):
+        return jsonify({"error": "latitude and longitude must be valid numbers"}), 400
+
+    if user_lat < -90 or user_lat > 90 or user_lng < -180 or user_lng > 180:
+        return jsonify({"error": "Invalid coordinate range"}), 400
+
+    db = None
+    try:
+        db = get_db()
+        ensure_tables(db)
+        cursor = db.cursor(dictionary=True)
+
+        # Auto-complete stale emergency cases stuck in transit for > 6 hours
+        cleanup = db.cursor()
+        cleanup.execute(
+            """
+            UPDATE emergency_cases
+            SET status='COMPLETED', completed_at=NOW()
+            WHERE status IN ('AMBULANCE_ASSIGNED', 'IN_TRANSIT', 'HOSPITAL_SELECTED')
+              AND TIMESTAMPDIFF(HOUR, created_at, NOW()) > 6
+            """
+        )
+        db.commit()
+
+        # Auto-recover stale BUSY ambulances: those not linked to RECENT active emergency cases.
+        # If an ambulance is BUSY but has no active cases from the last 4 hours, mark it AVAILABLE.
+        recovery = db.cursor()
+        recovery.execute(
+            """
+            UPDATE ambulances a
+            SET a.status='AVAILABLE'
+            WHERE a.status='BUSY'
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM emergency_cases ec
+                  WHERE ec.ambulance_id = a.ambulance_id
+                    AND ec.status IN ('AMBULANCE_ASSIGNED', 'IN_TRANSIT', 'HOSPITAL_SELECTED')
+                    AND TIMESTAMPDIFF(HOUR, ec.created_at, NOW()) < 4
+              )
+            """
+        )
+        db.commit()
+
+        cursor.execute("SELECT * FROM emergency_cases WHERE case_id=%s LIMIT 1", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            return jsonify({"error": "Emergency case not found"}), 404
+
+        if case_row.get("ambulance_id"):
+            return jsonify({
+                "ambulance_id": case_row["ambulance_id"],
+                "driver_name": "Already assigned",
+                "eta": f"{case_row.get('eta_minutes') or 0} min",
+                "status": "assigned",
+            }), 200
+
+        cursor.execute(
+            """
+            SELECT ambulance_id, driver_name, latitude, longitude, status, type
+            FROM ambulances
+            WHERE status='AVAILABLE' AND type=%s
+            """,
+            (target_type,),
+        )
+        available = cursor.fetchall()
+
+        fallback_type_used = False
+        if not available:
+            # Graceful fallback: if no exact capability is available, pick nearest available unit.
+            cursor.execute(
+                """
+                SELECT ambulance_id, driver_name, latitude, longitude, status, type
+                FROM ambulances
+                WHERE status='AVAILABLE'
+                """
+            )
+            available = cursor.fetchall()
+            fallback_type_used = bool(available)
+
+        if not available:
+            return jsonify({
+                "error": "No ambulance available nearby",
+                "status": "unavailable",
+                "message": f"No ambulance available nearby for required type: {target_type}",
+            }), 409
+
+        for amb in available:
+            amb["distance_km"] = _haversine_km(user_lat, user_lng, float(amb["latitude"]), float(amb["longitude"]))
+
+        available.sort(key=lambda x: x["distance_km"])
+        selected = available[0]
+
+        avg_speed_kmph = 45.0
+        eta_minutes = max(2, int(round((selected["distance_km"] / avg_speed_kmph) * 60)))
+        base_cost, variable_cost, total_cost = _compute_ambulance_cost(selected.get("type"), selected.get("distance_km"))
+        payable_amount = total_cost
+
+        writer = db.cursor()
+        writer.execute(
+            "UPDATE ambulances SET status='BUSY' WHERE ambulance_id=%s",
+            (selected["ambulance_id"],),
+        )
+        writer.execute(
+            """
+            UPDATE emergency_cases
+            SET ambulance_id=%s,
+                assigned_at=NOW(),
+                eta_minutes=%s,
+                ambulance_base_cost=%s,
+                ambulance_distance_km=%s,
+                ambulance_total_cost=%s,
+                insurance_coverage_pct=COALESCE(insurance_coverage_pct, 0),
+                insurance_cover_amount=COALESCE(insurance_cover_amount, 0),
+                payable_amount=%s,
+                payment_status=COALESCE(payment_status, 'UNPAID'),
+                status='AMBULANCE_ASSIGNED'
+            WHERE case_id=%s
+            """,
+            (
+                selected["ambulance_id"],
+                eta_minutes,
+                base_cost,
+                round(selected["distance_km"], 2),
+                total_cost,
+                payable_amount,
+                case_id,
+            ),
+        )
+        db.commit()
+
+        return jsonify({
+            "ambulance_id": selected["ambulance_id"],
+            "driver_name": selected["driver_name"],
+            "eta": f"{eta_minutes} min",
+            "eta_minutes": eta_minutes,
+            "distance_km": round(selected["distance_km"], 2),
+            "status": "assigned",
+            "ambulance_type": selected["type"],
+            "fallback_type_used": fallback_type_used,
+            "required_type": target_type,
+            "billing": {
+                "currency": "INR",
+                "base_cost": base_cost,
+                "distance_cost": variable_cost,
+                "total_cost": total_cost,
+                "insurance_coverage_pct": 0,
+                "insurance_cover_amount": 0,
+                "payable_amount": payable_amount,
+                "payment_status": "UNPAID",
+            },
+        }), 200
+    finally:
+        if db:
+            db.close()
+
+
+@app.route("/api/ambulance/track/<case_id>", methods=["GET"])
+def track_ambulance(case_id):
+    db = None
+    try:
+        db = get_db()
+        ensure_tables(db)
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM emergency_cases WHERE case_id=%s LIMIT 1", (case_id,))
+        case_row = cursor.fetchone()
+        if not case_row:
+            return jsonify({"error": "Emergency case not found"}), 404
+
+        ambulance_id = case_row.get("ambulance_id")
+        if not ambulance_id:
+            return jsonify({"error": "No ambulance assigned for this case"}), 409
+
+        cursor.execute(
+            "SELECT ambulance_id, driver_name, latitude, longitude, status, type FROM ambulances WHERE ambulance_id=%s LIMIT 1",
+            (ambulance_id,),
+        )
+        ambulance = cursor.fetchone()
+        if not ambulance:
+            return jsonify({"error": "Assigned ambulance not found"}), 404
+
+        user_lat = float(case_row["latitude"])
+        user_lng = float(case_row["longitude"])
+        amb_lat = float(ambulance["latitude"])
+        amb_lng = float(ambulance["longitude"])
+
+        distance_km = _haversine_km(amb_lat, amb_lng, user_lat, user_lng)
+        arrived = distance_km <= 0.12
+
+        if not arrived:
+            step_fraction = 0.25
+            new_lat = amb_lat + (user_lat - amb_lat) * step_fraction
+            new_lng = amb_lng + (user_lng - amb_lng) * step_fraction
+
+            writer = db.cursor()
+            writer.execute(
+                "UPDATE ambulances SET latitude=%s, longitude=%s WHERE ambulance_id=%s",
+                (new_lat, new_lng, ambulance_id),
+            )
+            db.commit()
+
+            amb_lat = new_lat
+            amb_lng = new_lng
+            distance_km = _haversine_km(amb_lat, amb_lng, user_lat, user_lng)
+            arrived = distance_km <= 0.12
+
+        avg_speed_kmph = 45.0
+        eta_minutes = 0 if arrived else max(1, int(round((distance_km / avg_speed_kmph) * 60)))
+
+        if arrived:
+            writer = db.cursor()
+            writer.execute(
+                "UPDATE emergency_cases SET status='IN_TRANSIT', eta_minutes=0 WHERE case_id=%s",
+                (case_id,),
+            )
+            writer.execute(
+                "UPDATE ambulances SET status='BUSY' WHERE ambulance_id=%s",
+                (ambulance_id,),
+            )
+            db.commit()
+        else:
+            writer = db.cursor()
+            writer.execute(
+                "UPDATE emergency_cases SET status='IN_TRANSIT', transit_started_at=COALESCE(transit_started_at, NOW()), eta_minutes=%s WHERE case_id=%s",
+                (eta_minutes, case_id),
+            )
+            db.commit()
+
+        return jsonify({
+            "case_id": case_id,
+            "ambulance_id": ambulance_id,
+            "driver_name": ambulance["driver_name"],
+            "ambulance_location": {
+                "latitude": round(amb_lat, 6),
+                "longitude": round(amb_lng, 6),
+            },
+            "user_location": {
+                "latitude": round(user_lat, 6),
+                "longitude": round(user_lng, 6),
+            },
+            "distance_km": round(distance_km, 2),
+            "eta_minutes": eta_minutes,
+            "arrived": arrived,
+            "status": "arrived" if arrived else "en_route",
+        }), 200
+    finally:
+        if db:
+            db.close()
+
 
 
 if __name__ == "__main__":
