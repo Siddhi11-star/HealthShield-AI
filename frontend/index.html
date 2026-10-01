@@ -424,30 +424,225 @@
      PAGE: HOME
 ══════════════════════════════════════════════ -->
 <div id="page-home" class="page active">
-  <section class="hero">
-    <div class="hero-grid-bg"></div>
-    <div class="hero-inner">
-      <div class="hero-layout">
-        <div class="fade-in-up visible">
-          <div class="hero-badge">🏥 Smart Healthcare for Rural India</div>
-          <h1 class="hero-title">Your Digital Health <span class="hero-title-accent">Safety Bridge</span></h1>
-          <p class="hero-desc">Connecting village patients, city doctors, and local pharmacies with AI-powered safety checks and real-time medicine availability.</p>
-          <div class="hero-btns">
-            <button class="btn-primary" onclick="navigate('features')">Explore Features <i data-lucide="arrow-right" style="width:20px;height:20px"></i></button>
+  <section class="hero hero-command-section">
+    <div class="hero-inner command-hero-inner">
+      <!-- Centered Header -->
+      <div class="command-hero-header text-center fade-in-up">
+        <div class="hero-badge">🏥 Smart Healthcare Command & AI Safety Network</div>
+        <h1 class="hero-title">Your Next-Gen <span class="hero-title-accent">Healthcare Sanctuary</span></h1>
+        <p class="hero-desc">Real-time intelligent ambulance dispatch, Ayurvedic dosha evaluation, and instant teleconsultations in one unified platform.</p>
+      </div>
+
+      <!-- Command Center Bento Cockpit (Mockup Inspired) -->
+      <div class="command-bento-grid fade-in-up delay-1">
+        
+        <!-- Tile 1: SEAS Ambulance Live Tracker (Top Left) -->
+        <div class="cockpit-card cockpit-seas" onclick="navigate('emergency')" style="cursor:pointer">
+          <div class="cockpit-card-glow-rim pink-glow"></div>
+          <div class="cockpit-card-content">
+            <div class="cockpit-head">
+              <div class="cockpit-title-wrap">
+                <span class="cockpit-icon siren-pulse">🚑</span>
+                <h3 class="cockpit-title">SEAS Ambulance Live Tracker</h3>
+              </div>
+              <span class="cockpit-live-badge"><span class="pulse-dot"></span> LIVE DISPATCH</span>
+            </div>
+
+            <!-- Simulated 3D Isometric Map Visual -->
+            <div class="cockpit-map-viewport">
+              <svg class="cockpit-map-svg" viewBox="0 0 600 240" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="mapGridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="rgba(126, 200, 248, 0.08)" />
+                    <stop offset="100%" stop-color="rgba(252, 165, 155, 0.08)" />
+                  </linearGradient>
+                  <linearGradient id="routeLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FCA59B" />
+                    <stop offset="50%" stop-color="#FF758F" />
+                    <stop offset="100%" stop-color="#7EC8F8" />
+                  </linearGradient>
+                  <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+                <!-- City Isometric Road Grid -->
+                <path d="M0,40 L600,40 M0,90 L600,90 M0,140 L600,140 M0,190 L600,190" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />
+                <path d="M50,0 L180,240 M160,0 L290,240 M270,0 L400,240 M380,0 L510,240 M490,0 L600,200" stroke="rgba(255,255,255,0.05)" stroke-width="1.5" />
+                
+                <!-- Buildings blocks in perspective -->
+                <polygon points="120,60 160,40 210,60 170,80" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" />
+                <polygon points="280,100 330,80 370,100 320,120" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" />
+                <polygon points="390,40 440,20 480,40 430,60" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" />
+                
+                <!-- Glowing Dispatch Route Line -->
+                <path class="route-animated-line" d="M70,160 L180,150 L240,100 L320,95 L400,130 L510,70" fill="none" stroke="url(#routeLineGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neonGlow)" />
+                
+                <!-- Patient Destination Pin -->
+                <g transform="translate(70, 160)">
+                  <circle r="14" fill="rgba(252, 165, 155, 0.25)" class="pin-halo" />
+                  <circle r="6" fill="#FCA59B" />
+                  <circle r="2" fill="#FFFFFF" />
+                </g>
+                
+                <!-- Ambulance Active Location Pin -->
+                <g transform="translate(400, 130)">
+                  <circle r="18" fill="rgba(126, 200, 248, 0.3)" class="pin-halo" />
+                  <circle r="7" fill="#7EC8F8" />
+                  <circle r="2.5" fill="#FFFFFF" />
+                </g>
+              </svg>
+
+              <!-- Floating Status Chip -->
+              <div class="cockpit-map-chip">
+                <div class="chip-icon">🚑</div>
+                <div class="chip-text">
+                  <div class="chip-main">En Route</div>
+                  <div class="chip-sub">ETA 4 MINS</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Patient & Ambulance Meta -->
+            <div class="cockpit-meta-row">
+              <div class="meta-item">
+                <span class="meta-lbl">Patient Name</span>
+                <strong class="meta-val">Anya Sharma</strong>
+              </div>
+              <div class="meta-item">
+                <span class="meta-lbl">Driver</span>
+                <strong class="meta-val">Rahul V.</strong>
+              </div>
+              <div class="meta-item">
+                <span class="meta-lbl">Vehicle ID</span>
+                <strong class="meta-val">AS123</strong>
+              </div>
+              <button class="cockpit-mini-btn pink-btn" onclick="event.stopPropagation();navigate('emergency')">
+                Open SEAS <i data-lucide="arrow-up-right" style="width:14px;height:14px;display:inline"></i>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="hero-img-wrap fade-in-up visible delay-2">
-          <div class="hero-img">
-            <img src="https://images.unsplash.com/photo-1758691461916-dc7894eb8f94?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-              alt="Telemedicine" loading="lazy"
-              onerror="this.src='https://placehold.co/600x400/2563eb/white?text=Telemedicine'" />
-            <div class="hero-img-overlay"></div>
-          </div>
-          <div class="hero-badge-card">
-            <p class="badge-sub">Saving Lives Through</p>
-            <p class="badge-main">AI Technology</p>
+
+        <!-- Tile 2: Ayurveda Dosha Ring (Top Right) -->
+        <div class="cockpit-card cockpit-dosha" onclick="navigate('ayurveda')" style="cursor:pointer">
+          <div class="cockpit-card-glow-rim lavender-glow"></div>
+          <div class="cockpit-card-content">
+            <div class="cockpit-head">
+              <div class="cockpit-title-wrap">
+                <span class="cockpit-icon">🌸</span>
+                <h3 class="cockpit-title">Ayurveda Dosha Ring</h3>
+              </div>
+              <span class="cockpit-sub-badge">AI Wellness</span>
+            </div>
+
+            <!-- Glowing Dosha Donut Ring -->
+            <div class="dosha-ring-container">
+              <svg class="dosha-ring-svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="doshaVata" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#7EC8F8" />
+                    <stop offset="100%" stop-color="#9AD8FA" />
+                  </linearGradient>
+                  <linearGradient id="doshaPitta" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FCA59B" />
+                    <stop offset="100%" stop-color="#F88E82" />
+                  </linearGradient>
+                  <linearGradient id="doshaKapha" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#E5B6C3" />
+                    <stop offset="100%" stop-color="#C68FA1" />
+                  </linearGradient>
+                  <filter id="ringSoftGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+                <!-- Base ring track -->
+                <circle cx="100" cy="100" r="68" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16" />
+                
+                <!-- Vata segment (40%) -->
+                <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaVata)" stroke-width="15" 
+                  stroke-dasharray="170 257" stroke-dashoffset="0" stroke-linecap="round" filter="url(#ringSoftGlow)" />
+                <!-- Pitta segment (35%) -->
+                <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaPitta)" stroke-width="15" 
+                  stroke-dasharray="150 277" stroke-dashoffset="-176" stroke-linecap="round" filter="url(#ringSoftGlow)" />
+                <!-- Kapha segment (25%) -->
+                <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaKapha)" stroke-width="15" 
+                  stroke-dasharray="100 327" stroke-dashoffset="-332" stroke-linecap="round" filter="url(#ringSoftGlow)" />
+                
+                <!-- Inner Ring Center -->
+                <circle cx="100" cy="100" r="48" fill="rgba(255,255,255,0.03)" />
+                <text x="100" y="96" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="700">Prakriti</text>
+                <text x="100" y="112" text-anchor="middle" fill="#FCA59B" font-size="11" font-weight="800">Balanced</text>
+              </svg>
+
+              <!-- Elemental Icon Anchors around ring -->
+              <div class="dosha-floating-badge vata-tag" title="Vata: Air & Space">💨 Vata</div>
+              <div class="dosha-floating-badge pitta-tag" title="Pitta: Fire & Water">🔥 Pitta</div>
+              <div class="dosha-floating-badge kapha-tag" title="Kapha: Earth & Water">🌿 Kapha</div>
+            </div>
+
+            <!-- Dosha Metrics Readout -->
+            <div class="dosha-metrics-box text-center">
+              <div class="dosha-pct-row">
+                <span class="pct-vata">Vata <strong>(40%)</strong></span> | 
+                <span class="pct-pitta">Pitta <strong>(35%)</strong></span> | 
+                <span class="pct-kapha">Kapha <strong>(25%)</strong></span>
+              </div>
+              <div class="dosha-prakriti-text">Your Constitution: <strong>Vata-Pitta Dominant</strong></div>
+              <button class="cockpit-btn lavender-btn" onclick="event.stopPropagation();navigate('ayurveda')">
+                Start Assessment <i data-lucide="sparkles" style="width:15px;height:15px;display:inline"></i>
+              </button>
+            </div>
           </div>
         </div>
+
+        <!-- Tile 3: Doctor Video Teleconsultation (Bottom Left) -->
+        <div class="cockpit-card cockpit-doctor" onclick="navigate('telemedicine')" style="cursor:pointer">
+          <div class="cockpit-card-glow-rim dual-glow"></div>
+          <div class="cockpit-card-content cockpit-doctor-layout">
+            <div class="doctor-avatar-wrap">
+              <div class="doctor-avatar-box">
+                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=200&w=200&q=80" 
+                  alt="Dr. Anjali Sharma" class="doctor-img"
+                  onerror="this.src='https://placehold.co/120x120/E5B6C3/white?text=Doctor'" />
+                <span class="online-indicator" title="Online now"></span>
+              </div>
+            </div>
+            <div class="doctor-details-wrap">
+              <div class="doctor-spec-kicker">Cardiology & Preventive Care</div>
+              <h4 class="doctor-name">Dr. Anjali Sharma, MD</h4>
+              <p class="doctor-role">Senior Cardiologist • 12+ Yrs Experience</p>
+              <div class="doctor-status-row">
+                <span class="status-available-pill">● Available Now</span>
+                <span class="consult-badge">Zoom Enabled</span>
+              </div>
+              <div class="doctor-action-row">
+                <button class="cockpit-btn pink-btn" onclick="event.stopPropagation();navigate('telemedicine')">
+                  Connect Video Call <i data-lucide="video" style="width:15px;height:15px;display:inline"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tile 4: Quick Appointment & Pharmacy Action (Bottom Right) -->
+        <div class="cockpit-card cockpit-action" onclick="navigate('telemedicine')" style="cursor:pointer">
+          <div class="cockpit-card-glow-rim lavender-glow"></div>
+          <div class="cockpit-card-content cockpit-action-layout">
+            <div class="action-icon-circle">
+              <i data-lucide="calendar" style="width:26px;height:26px;color:#FFFFFF"></i>
+            </div>
+            <div class="action-text-wrap">
+              <h3 class="action-title">Book New Appointment</h3>
+              <p class="action-desc">Consult verified doctors online or check local pharmacy stock instantly.</p>
+            </div>
+            <div class="action-arrow-circle">
+              <i data-lucide="arrow-right" style="width:20px;height:20px"></i>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
