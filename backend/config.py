@@ -2,7 +2,11 @@ import mysql.connector
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    load_dotenv()
 
 DB_HOST     = os.getenv("DB_HOST", "localhost")
 DB_USER     = os.getenv("DB_USER", "root")

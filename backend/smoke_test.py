@@ -8,6 +8,9 @@ import json
 import sys
 from datetime import datetime, timedelta
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 BASE_URL = "http://127.0.0.1:5001"
 DOCTOR_EMAIL = f"testdoctor_{int(datetime.now().timestamp())}@mediguard.io"
 DOCTOR_PASS = "Test@1234"

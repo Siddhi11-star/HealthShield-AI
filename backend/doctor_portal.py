@@ -80,6 +80,11 @@ def register_doctor_portal(app):
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        for col, typ in [('text', 'VARCHAR(255) DEFAULT NULL'), ('assignee', 'VARCHAR(100) DEFAULT NULL'), ('done', 'TINYINT(1) DEFAULT 0')]:
+            try:
+                c.execute(f"ALTER TABLE doctor_tasks ADD COLUMN {col} {typ}")
+            except Exception:
+                pass
         db.commit()
         db.close()
     except Exception as e:
@@ -656,7 +661,7 @@ def register_doctor_portal(app):
             finally:
                 db.close()
 
-    @app.route("/api/doctors/tasks/<int:tid>", methods=["PUT", "DELETE"])
+    @app.route("/api/doctors/tasks/<int:tid>", methods=["PUT", "PATCH", "DELETE"])
     @require_roles("doctor")
     def doctor_task_detail(tid):
         if request.method == "DELETE":
