@@ -1670,3 +1670,129 @@ body.dark-theme .action-desc {
 body.dark-theme .cockpit-meta-row {
   border-top-color: rgba(255, 255, 255, 0.08);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   UNIFIED PALETTE: EXCLUSIVELY SHADES OF SOFT LAVENDER & SOFT PEACH
+   Applies to every page hero banner and module header when opened
+   ══════════════════════════════════════════════════════════════════ */
+.page-hero {
+  background: linear-gradient(135deg, #7C6AA6 0%, #9E8EC2 50%, #F28D77 100%) !important;
+  color: #ffffff !important;
+  padding: 5rem 0;
+  position: relative;
+}
+
+.page-hero h1 {
+  font-size: clamp(2rem, 4vw, 3rem) !important;
+  font-weight: 800 !important;
+  margin-bottom: 1rem !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 12px rgba(94, 75, 130, 0.25) !important;
+}
+
+.page-hero p {
+  font-size: 1.15rem !important;
+  color: #FFF1EC !important;
+  opacity: 0.95 !important;
+}
+
+.page-hero-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  padding: 0.35rem 1rem !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  border-radius: 9999px !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 1rem !important;
+  backdrop-filter: blur(12px) !important;
+  color: #ffffff !important;
+}
+
+/* Individual Page Shade Variations (Exclusively Soft Lavender & Soft Peach) */
+#page-medicines .page-hero {
+  background: linear-gradient(135deg, #7C6AA6 0%, #9E8EC2 50%, #F28D77 100%) !important;
+}
+
+#page-telemedicine .page-hero {
+  background: linear-gradient(135deg, #7A69A5 0%, #9E8EC2 50%, #F8B4A0 100%) !important;
+}
+
+#page-emergency .page-hero {
+  background: linear-gradient(135deg, #E7684E 0%, #F28D77 45%, #9E8EC2 100%) !important;
+}
+
+#page-pharmacy .page-hero {
+  background: linear-gradient(135deg, #8E7CB5 0%, #B8A9DB 50%, #FCC8B8 100%) !important;
+}
+
+#page-inventory .page-hero {
+  background: linear-gradient(135deg, #735D9C 0%, #9E8EC2 50%, #F4A28C 100%) !important;
+}
+
+#page-analytics .page-hero,
+#analyticsHero {
+  background: linear-gradient(135deg, #7C6AA6 0%, #A594F9 50%, #F28D77 100%) !important;
+}
+
+#page-ai-safety-guard .page-hero {
+  background: linear-gradient(135deg, #66528E 0%, #8E7CB5 50%, #F28D77 100%) !important;
+}
+
+#page-portal .page-hero {
+  background: linear-gradient(135deg, #8472AF 0%, #B8A9DB 50%, #F6B19E 100%) !important;
+}
+
+#page-ayurveda .page-hero {
+  background: linear-gradient(135deg, #8E7CB5 0%, #FCC8B8 55%, #F28D77 100%) !important;
+}
+
+#page-about .page-hero {
+  background: linear-gradient(135deg, #7866A1 0%, #9E8EC2 50%, #F4A590 100%) !important;
+}
+
+#page-contact .page-hero {
+  background: linear-gradient(135deg, #6B5694 0%, #9E8EC2 50%, #F28D77 100%) !important;
+}
+
+#page-admin .page-hero {
+  background: linear-gradient(135deg, #5E4B82 0%, #7C6AA6 50%, #E88C74 100%) !important;
+}
+
+#page-features .page-hero,
+#page-howitworks .page-hero {
+  background: linear-gradient(135deg, #705D97 0%, #9E8EC2 50%, #F28D77 100%) !important;
+}
+
+/* Medicines Search Bar & Controls */
+#page-medicines .hero-search-bar button {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.38) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.2s ease !important;
+}
+
+#page-medicines .hero-search-bar button:hover {
+  background: rgba(255, 255, 255, 0.38) !important;
+  transform: scale(1.03) !important;
+}
+
+/* Category Filter Buttons in Lavender & Peach */
+.filter-btn.active,
+.filter-btn-sm.active,
+body.dark-theme .filter-btn.active,
+body.dark-theme .filter-btn-sm.active {
+  background: linear-gradient(135deg, #7C6AA6, #F28D77) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 14px rgba(242, 141, 119, 0.38) !important;
+}
+
+.filter-btn:hover,
+body.dark-theme .filter-btn:hover {
+  border-color: #9E8EC2 !important;
+  color: #7C6AA6 !important;
+}

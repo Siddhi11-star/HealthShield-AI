@@ -2837,10 +2837,10 @@ async function loadAnalytics() {
   });
 
   const heroConfigs = {
-    doctor:     { bg:'linear-gradient(135deg,#2563eb,#1d4ed8)', badge:'🩺 Doctor Analytics', title:'Your Clinical Dashboard', sub:'Track patients examined, revisits, outcomes, fees and active hours' },
-    patient:    { bg:'linear-gradient(135deg,#ea580c,#dc2626)', badge:'❤️ My Health Analytics', title:'Your Health Overview', sub:'Monitor your visits, health progress, and prescription safety' },
-    pharmacist: { bg:'linear-gradient(135deg,#0d9488,#0f766e)', badge:'💊 Pharmacy Analytics', title:'Pharmacy Performance', sub:'Sales trends, revenue, profit, and medicine category insights' },
-    admin:      { bg:'linear-gradient(135deg,#7c3aed,#6d28d9)', badge:'⚙️ Admin Analytics', title:'System-wide Health Insights', sub:'Real-time data on patient outcomes, drug safety, and system usage' },
+    doctor:     { bg:'linear-gradient(135deg, #7A69A5, #F4A28C)', badge:'🩺 Doctor Analytics', title:'Your Clinical Dashboard', sub:'Track patients examined, revisits, outcomes, fees and active hours' },
+    patient:    { bg:'linear-gradient(135deg, #F28D77, #9E8EC2)', badge:'❤️ My Health Analytics', title:'Your Health Overview', sub:'Monitor your visits, health progress, and prescription safety' },
+    pharmacist: { bg:'linear-gradient(135deg, #8E7CB5, #E7684E)', badge:'💊 Pharmacy Analytics', title:'Pharmacy Performance', sub:'Sales trends, revenue, profit, and medicine category insights' },
+    admin:      { bg:'linear-gradient(135deg, #6B5694, #F8A488)', badge:'⚙️ Admin Analytics', title:'System-wide Health Insights', sub:'Real-time data on patient outcomes, drug safety, and system usage' },
   };
   const hc = heroConfigs[role] || heroConfigs.admin;
   const hero = document.getElementById('analyticsHero'); if (hero) hero.style.background = hc.bg;

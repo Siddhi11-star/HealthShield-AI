@@ -166,11 +166,11 @@
 }
 
 #clinicalOptionDiagnostic {
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #7C6AA6 0%, #9E8EC2 100%);
 }
 
 #clinicalOptionWellness {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  background: linear-gradient(135deg, #F28D77 0%, #E7684E 100%);
 }
 
 #clinicalOptionDiagnostic:hover,
