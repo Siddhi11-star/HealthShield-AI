@@ -158,6 +158,36 @@ function navigate(page) {
   if (page === 'telemedicine') { setTimeout(initTelemedicinePage, 80); }
 }
 
+/* ─── QUICK SEARCH IN SPATIAL MASTER DECK ─── */
+function quickSearchAction(query) {
+  if (!query || !query.trim()) return;
+  const q = query.trim().toLowerCase();
+  if (q.includes('ambul') || q.includes('emerg') || q.includes('seas') || q.includes('sos')) {
+    navigate('emergency');
+  } else if (q.includes('ayur') || q.includes('dosha') || q.includes('vata') || q.includes('pitta') || q.includes('kapha') || q.includes('wellness') || q.includes('skin')) {
+    navigate('ayurveda');
+  } else if (q.includes('doc') || q.includes('tele') || q.includes('consult') || q.includes('zoom') || q.includes('video') || q.includes('appoint')) {
+    navigate('telemedicine');
+  } else if (q.includes('pharm') || q.includes('chemist') || q.includes('store') || q.includes('locate') || q.includes('near')) {
+    navigate('pharmacy');
+  } else if (q.includes('stock') || q.includes('invent') || q.includes('supply')) {
+    navigate('inventory');
+  } else if (q.includes('ai') || q.includes('clinic') || q.includes('safe') || q.includes('intellig') || q.includes('diagnos')) {
+    navigate('ai-safety-guard');
+  } else if (q.includes('record') || q.includes('dash') || q.includes('stat')) {
+    navigate('dashboard');
+  } else if (q.includes('portal') || q.includes('patient') || q.includes('history')) {
+    navigate('portal');
+  } else {
+    navigate('medicines');
+    const medSearch = document.getElementById('medSearchInput');
+    if (medSearch) {
+      medSearch.value = query;
+      medSearch.dispatchEvent(new Event('input'));
+    }
+  }
+}
+
 /* ─── FEATURE SECTION COPY PER ROLE ─── */
 const FEATURE_SECTION_COPY = {
   guest: {

@@ -319,77 +319,109 @@
   <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
   <link rel="stylesheet" href="dashboard-patch.css">
   <link rel="stylesheet" href="fixes.css">
+  <link rel="stylesheet" href="spatial-glass.css">
 </head>
 <body>
 
-<!-- ═══ NAVIGATION ═══ -->
+<!-- ── Spatial Ambient Fluid Wave Ribbons Backdrop ── -->
+<div class="spatial-ambient-backdrop">
+  <svg class="spatial-wave-svg" viewBox="0 0 1440 600" fill="none" preserveAspectRatio="none">
+    <path d="M0,160 C320,300 480,80 800,220 C1120,360 1280,180 1440,240 L1440,0 L0,0 Z" fill="url(#waveLav)" />
+    <path d="M0,280 C360,180 640,380 980,210 C1200,90 1340,320 1440,290 L1440,0 L0,0 Z" fill="url(#wavePeach)" />
+    <path d="M0,420 C420,340 760,490 1140,360 C1320,300 1400,410 1440,390 L1440,0 L0,0 Z" fill="url(#waveAqua)" opacity="0.6" />
+    <defs>
+      <linearGradient id="waveLav" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#DCD4EE" stop-opacity="0.65" />
+        <stop offset="100%" stop-color="#EDE8F5" stop-opacity="0.12" />
+      </linearGradient>
+      <linearGradient id="wavePeach" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#FCC8B8" stop-opacity="0.6" />
+        <stop offset="100%" stop-color="#FFF1EC" stop-opacity="0.1" />
+      </linearGradient>
+      <linearGradient id="waveAqua" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="#D5F0EC" stop-opacity="0.45" />
+        <stop offset="100%" stop-color="#FAF7FD" stop-opacity="0.0" />
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<!-- ═══ FLOATING PILL DOCK NAVIGATION ═══ -->
 <nav id="mainNav">
   <div class="nav-inner">
-    <a class="nav-logo" onclick="navigate('home')">
-      <div class="nav-logo-icon"><i data-lucide="activity" style="width:24px;height:24px;stroke-width:2.5"></i></div>
-      <span class="nav-logo-text">MediGuard AI</span>
-    </a>
+    <!-- Main Capsule: Logo & Navigation Links -->
+    <div class="nav-pill-pod">
+      <a class="nav-logo" onclick="navigate('home')">
+        <div class="nav-logo-icon"><i data-lucide="activity" style="width:22px;height:22px;stroke-width:2.5"></i></div>
+        <span class="nav-logo-text">MediGuard AI</span>
+      </a>
 
-   <ul class="nav-links" id="navLinks">
-  <li><a onclick="navigate('home')" data-page="home">Home</a></li>
-  <li><a onclick="navigate('features')" data-page="features">Features</a></li>
-  <li><a onclick="navigate('howitworks')" data-page="howitworks">How It Works</a></li>
-  <li class="nav-dropdown">
-    <a class="nav-drop-btn">Services <i data-lucide="chevron-down" style="width:14px;height:14px;display:inline"></i></a>
-    <div class="nav-drop-menu">
-      <a onclick="navigate('telemedicine')"><i data-lucide="video" style="width:16px;height:16px"></i> Telemedicine</a>
-      <a onclick="navigate('medicines')"><i data-lucide="pill" style="width:16px;height:16px"></i> Medicine Database</a>
-      <a onclick="navigate('inventory')"><i data-lucide="package" style="width:16px;height:16px"></i> Live Inventory</a>
-      <a onclick="navigate('pharmacy')"><i data-lucide="map-pin" style="width:16px;height:16px"></i> Pharmacy Finder</a>
-      <a onclick="navigate('ai-safety-guard')"><i data-lucide="shield" style="width:16px;height:16px"></i> AI-Powered Clinical Intelligence</a>
-      <a onclick="navigate('analytics')"><i data-lucide="bar-chart-2" style="width:16px;height:16px"></i> Analytics</a>
+      <ul class="nav-links" id="navLinks">
+        <li><a onclick="navigate('home')" data-page="home">Home</a></li>
+        <li><a onclick="navigate('emergency')" data-page="emergency">Emergency</a></li>
+        <li><a onclick="navigate('ayurveda')" data-page="ayurveda">Ayurveda</a></li>
+        <li><a onclick="navigate('telemedicine')" data-page="telemedicine">Telehealth</a></li>
+        <li class="nav-dropdown">
+          <a class="nav-drop-btn">Services <i data-lucide="chevron-down" style="width:14px;height:14px;display:inline"></i></a>
+          <div class="nav-drop-menu">
+            <a onclick="navigate('telemedicine')"><i data-lucide="video" style="width:16px;height:16px"></i> Telemedicine</a>
+            <a onclick="navigate('medicines')"><i data-lucide="pill" style="width:16px;height:16px"></i> Medicine Database</a>
+            <a onclick="navigate('inventory')"><i data-lucide="package" style="width:16px;height:16px"></i> Live Inventory</a>
+            <a onclick="navigate('pharmacy')"><i data-lucide="map-pin" style="width:16px;height:16px"></i> Pharmacy Finder</a>
+            <a onclick="navigate('ai-safety-guard')"><i data-lucide="shield" style="width:16px;height:16px"></i> AI Clinical Intelligence</a>
+            <a onclick="navigate('analytics')"><i data-lucide="bar-chart-2" style="width:16px;height:16px"></i> Analytics</a>
+          </div>
+        </li>
+        <li class="nav-dropdown">
+          <a class="nav-drop-btn">Wellness <i data-lucide="chevron-down" style="width:14px;height:14px;display:inline"></i></a>
+          <div class="nav-drop-menu">
+            <a onclick="navigate('ayurveda')"><i data-lucide="sparkles" style="width:16px;height:16px"></i> Ayurveda Assessment</a>
+            <a onclick="navigate('portal')"><i data-lucide="user-circle" style="width:16px;height:16px"></i> Patient Portal</a>
+            <a onclick="navigate('dashboard')"><i data-lucide="layout-dashboard" style="width:16px;height:16px"></i> Doctor Dashboard</a>
+            <a onclick="navigate('about')"><i data-lucide="users" style="width:16px;height:16px"></i> About Us</a>
+          </div>
+        </li>
+        <li><a onclick="navigate('contact')" data-page="contact">Contact</a></li>
+      </ul>
     </div>
-  </li>
-  <li><a onclick="navigate('dashboard')" data-page="dashboard">Dashboard</a></li>
-  <li class="nav-dropdown">
-    <a class="nav-drop-btn">Company <i data-lucide="chevron-down" style="width:14px;height:14px;display:inline"></i></a>
-    <div class="nav-drop-menu">
-      <a onclick="navigate('ayurveda')"><i data-lucide="sparkles" style="width:16px;height:16px"></i> Wellness</a>
-      <a onclick="navigate('about')"><i data-lucide="users" style="width:16px;height:16px"></i> About Us</a>
-      <a onclick="navigate('contact')"><i data-lucide="mail" style="width:16px;height:16px"></i> Contact</a>
-    </div>
-  </li>
-  <li>
-    <div id="notifWrapper" style="position:relative;display:inline-block;">
-      <button onclick="toggleNotifications()" title="Notifications"
-        style="position:relative;background:none;border:none;cursor:pointer;padding:0.4rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-        <i data-lucide="bell" style="width:22px;height:22px;color:var(--slate-600)"></i>
-        <span id="notifBadge"
-          style="display:none;position:absolute;top:0;right:0;background:#ef4444;color:white;font-size:0.65rem;font-weight:800;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;">0</span>
+
+    <!-- Utility Island: Theme, Language, Notifications, Login CTA -->
+    <div class="nav-util-island">
+      <!-- Theme button (moon / sun toggle) -->
+      <button class="util-round-btn" onclick="toggleTheme()" title="Dark/Light mode">
+        <i data-lucide="moon" style="width:18px;height:18px;"></i>
       </button>
-      <div id="notifDropdown"
-        style="display:none;position:absolute;right:0;top:calc(100% + 8px);width:320px;background:white;border:1px solid #e2e8f0;border-radius:0.75rem;box-shadow:0 8px 32px rgba(0,0,0,0.12);z-index:9999;overflow:hidden;">
-        <div style="padding:0.75rem 1rem;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
-          <strong style="font-size:0.9rem;">Notifications</strong>
-          <button onclick="loadNotifications()" style="background:none;border:none;cursor:pointer;font-size:0.75rem;color:#2563eb;">Refresh</button>
-        </div>
-        <div id="notifPanel" style="max-height:360px;overflow-y:auto;">
-          <div style="padding:1.5rem;text-align:center;color:#94a3b8;font-size:0.875rem;">Loading...</div>
+
+      <!-- Language pill button -->
+      <button class="util-round-btn" id="langPill" onclick="openLangModal()" title="Change language">
+        <span id="langPillLabel" style="font-size:0.75rem;font-weight:800;">EN</span>
+      </button>
+
+      <!-- Notifications Wrapper -->
+      <div id="notifWrapper" style="position:relative;display:inline-block;">
+        <button class="util-round-btn" onclick="toggleNotifications()" title="Notifications">
+          <i data-lucide="bell" style="width:18px;height:18px;"></i>
+          <span id="notifBadge"
+            style="display:none;position:absolute;top:-2px;right:-2px;background:#EF4444;color:white;font-size:0.6rem;font-weight:800;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center;">0</span>
+        </button>
+        <div id="notifDropdown"
+          style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:320px;background:var(--neo-glass-card-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1.5px solid var(--neo-glass-border);border-radius:1.1rem;box-shadow:0 16px 45px rgba(0,0,0,0.18);z-index:9999;overflow:hidden;">
+          <div style="padding:0.75rem 1rem;border-bottom:1px solid var(--neo-glass-border-subtle);display:flex;justify-content:space-between;align-items:center;">
+            <strong style="font-size:0.9rem;color:var(--neo-text-primary);">Notifications</strong>
+            <button onclick="loadNotifications()" style="background:none;border:none;cursor:pointer;font-size:0.75rem;color:var(--neo-peach-radiant);font-weight:700;">Refresh</button>
+          </div>
+          <div id="notifPanel" style="max-height:360px;overflow-y:auto;">
+            <div style="padding:1.5rem;text-align:center;color:var(--neo-text-muted);font-size:0.875rem;">Loading...</div>
+          </div>
         </div>
       </div>
+
+      <!-- Login CTA Pill -->
+      <a onclick="openModal('loginModal')" class="nav-login-pill" id="navAuthBtn">Login</a>
     </div>
-  </li>
-  <!-- Theme button (moon icon) -->
-  <li>
-    <button onclick="toggleTheme()" title="Dark/Light mode" style="background:none;border:none;cursor:pointer;padding:0.4rem;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-      <i data-lucide="moon" style="width:22px;height:22px;color:var(--slate-600)"></i>
-    </button>
-  </li>
-  <!-- Language pill button -->
-  <li>
-    <button id="langPill" onclick="openLangModal()" title="Change language">
-      🌐 <span id="langPillLabel">EN</span>
-    </button>
-  </li>
-  <li><a onclick="openModal('loginModal')" class="nav-cta" id="navAuthBtn">Login</a></li>
-</ul>
+
     <button class="hamburger" onclick="toggleMenu()">
-      <i id="menuIcon" data-lucide="menu" style="width:24px;height:24px"></i>
+      <i id="menuIcon" data-lucide="menu" style="width:22px;height:22px"></i>
     </button>
   </div>
 
@@ -398,17 +430,19 @@
   <a onclick="navigate('features');closeMenu()">Features</a>
   <a onclick="navigate('howitworks');closeMenu()">How It Works</a>
   <div class="mobile-menu-section">SERVICES</div>
+  <a onclick="navigate('emergency');closeMenu()">🚑 SEAS Ambulance</a>
   <a onclick="navigate('telemedicine');closeMenu()">📹 Telemedicine</a>
   <a onclick="navigate('medicines');closeMenu()">💊 Medicine Database</a>
   <a onclick="navigate('inventory');closeMenu()">📦 Live Inventory</a>
   <a onclick="navigate('pharmacy');closeMenu()">📍 Pharmacy Finder</a>
-  <a onclick="navigate('ai-safety-guard');closeMenu()">🛡️ AI-Powered Clinical Intelligence</a>
+  <a onclick="navigate('ai-safety-guard');closeMenu()">🛡️ AI Clinical Intelligence</a>
   <a onclick="navigate('analytics');closeMenu()">📊 Analytics</a>
   <div class="mobile-menu-section">ACCOUNT</div>
   <a onclick="navigate('dashboard');closeMenu()" data-page="dashboard">Dashboard</a>
   <a onclick="navigate('portal');closeMenu()">Patient Portal</a>
   <a onclick="navigate('admin');closeMenu()">Admin Panel</a>
   <div class="mobile-menu-section">COMPANY</div>
+  <a onclick="navigate('ayurveda');closeMenu()">🌸 Ayurveda Wellness</a>
   <a onclick="navigate('about');closeMenu()">About Us</a>
   <a onclick="navigate('contact');closeMenu()">Contact</a>
   <div class="mobile-menu-section">PREFERENCES</div>
@@ -426,219 +460,353 @@
 <div id="page-home" class="page active">
   <section class="hero hero-command-section">
     <div class="hero-inner command-hero-inner">
-      <!-- Centered Header -->
-      <div class="command-hero-header text-center fade-in-up">
-        <div class="hero-badge">🏥 Smart Healthcare Command & AI Safety Network</div>
-        <h1 class="hero-title">Your Next-Gen <span class="hero-title-accent">Healthcare Sanctuary</span></h1>
-        <p class="hero-desc">Real-time intelligent ambulance dispatch, Ayurvedic dosha evaluation, and instant teleconsultations in one unified platform.</p>
+      <!-- Centered Modern Hero Header -->
+      <div class="neo-hero-header fade-in-up">
+        <h1 class="hero-title neo-hero-title">Precision Health: <span class="neo-title-gradient">Your Next-Gen Care Sanctuary</span></h1>
+        
+        <!-- Live Status Ticker Pills (Inspired by Reference Visual) -->
+        <div class="neo-ticker-strip">
+          <div class="neo-ticker-pill" onclick="navigate('emergency')" title="View Live Emergency Dispatch">
+            <span class="ticker-pulse-dot amber"></span>
+            <span>LIVE AMBULANCE: <strong style="color:var(--neo-text-primary);">4 READY</strong></span>
+          </div>
+          <div class="neo-ticker-pill" onclick="navigate('telemedicine')" title="View Available Doctors">
+            <span class="ticker-pulse-dot peach"></span>
+            <span>DOCTORS ON DUTY: <strong style="color:var(--neo-text-primary);">12</strong></span>
+          </div>
+          <div class="neo-ticker-pill" onclick="navigate('analytics')" title="View System Analytics">
+            <span class="ticker-pulse-dot lavender"></span>
+            <span>SYSTEM LATENCY: <strong style="color:var(--neo-text-primary);">18ms</strong></span>
+          </div>
+        </div>
       </div>
 
-      <!-- Command Center Bento Cockpit (Mockup Inspired) -->
-      <div class="command-bento-grid fade-in-up delay-1">
+      <!-- Unified Spatial Neo-Glass Master Deck -->
+      <div class="spatial-master-deck fade-in-up delay-1">
         
-        <!-- Tile 1: SEAS Ambulance Live Tracker (Top Left) -->
-        <div class="cockpit-card cockpit-seas" onclick="navigate('emergency')" style="cursor:pointer">
-          <div class="cockpit-card-glow-rim pink-glow"></div>
-          <div class="cockpit-card-content">
-            <div class="cockpit-head">
-              <div class="cockpit-title-wrap">
-                <span class="cockpit-icon siren-pulse">🚑</span>
-                <h3 class="cockpit-title">SEAS Ambulance Live Tracker</h3>
-              </div>
-              <span class="cockpit-live-badge"><span class="pulse-dot"></span> LIVE DISPATCH</span>
+        <!-- Top Split: Left Mission & Search + Right Interactive 3D Bento -->
+        <div class="spatial-split-grid">
+          
+          <!-- Left Wing: Mission Statement, Search & Category Tags -->
+          <div class="spatial-intro-panel">
+            <div class="spatial-mission-card">
+              <h4>Mission Statement</h4>
+              <p class="spatial-mission-text">
+                Our <strong>mission</strong> is to pioneer AI-driven clinical intelligence, instant ambulance dispatch, and Ayurvedic harmony across every community with uncompromising precision and speed.
+              </p>
             </div>
 
-            <!-- Simulated 3D Isometric Map Visual -->
-            <div class="cockpit-map-viewport">
-              <svg class="cockpit-map-svg" viewBox="0 0 600 240" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="mapGridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="rgba(126, 200, 248, 0.08)" />
-                    <stop offset="100%" stop-color="rgba(252, 165, 155, 0.08)" />
-                  </linearGradient>
-                  <linearGradient id="routeLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#FCA59B" />
-                    <stop offset="50%" stop-color="#FF758F" />
-                    <stop offset="100%" stop-color="#7EC8F8" />
-                  </linearGradient>
-                  <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
-                <!-- City Isometric Road Grid -->
-                <path d="M0,40 L600,40 M0,90 L600,90 M0,140 L600,140 M0,190 L600,190" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" />
-                <path d="M50,0 L180,240 M160,0 L290,240 M270,0 L400,240 M380,0 L510,240 M490,0 L600,200" stroke="rgba(255,255,255,0.05)" stroke-width="1.5" />
-                
-                <!-- Buildings blocks in perspective -->
-                <polygon points="120,60 160,40 210,60 170,80" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" />
-                <polygon points="280,100 330,80 370,100 320,120" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" />
-                <polygon points="390,40 440,20 480,40 430,60" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" />
-                
-                <!-- Glowing Dispatch Route Line -->
-                <path class="route-animated-line" d="M70,160 L180,150 L240,100 L320,95 L400,130 L510,70" fill="none" stroke="url(#routeLineGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neonGlow)" />
-                
-                <!-- Patient Destination Pin -->
-                <g transform="translate(70, 160)">
-                  <circle r="14" fill="rgba(252, 165, 155, 0.25)" class="pin-halo" />
-                  <circle r="6" fill="#FCA59B" />
-                  <circle r="2" fill="#FFFFFF" />
-                </g>
-                
-                <!-- Ambulance Active Location Pin -->
-                <g transform="translate(400, 130)">
-                  <circle r="18" fill="rgba(126, 200, 248, 0.3)" class="pin-halo" />
-                  <circle r="7" fill="#7EC8F8" />
-                  <circle r="2.5" fill="#FFFFFF" />
-                </g>
-              </svg>
+            <!-- Quick-Action Search Bar -->
+            <div class="spatial-search-box">
+              <i data-lucide="search" style="width:18px;height:18px;color:var(--neo-text-muted)"></i>
+              <input type="text" id="spatialSearchInput" placeholder="Search quick-action search..." 
+                     onkeydown="if(event.key==='Enter') quickSearchAction(this.value)" />
+              <div class="spatial-search-dropdown-chip" onclick="navigate('ayurveda')">
+                <span>🌸 Pitta</span>
+                <i data-lucide="chevron-down" style="width:13px;height:13px"></i>
+              </div>
+            </div>
 
-              <!-- Floating Status Chip -->
-              <div class="cockpit-map-chip">
-                <div class="chip-icon">🚑</div>
-                <div class="chip-text">
-                  <div class="chip-main">En Route</div>
-                  <div class="chip-sub">ETA 4 MINS</div>
+            <!-- Quick Category Tags -->
+            <div class="spatial-tag-row">
+              <button class="spatial-tag-btn active" onclick="navigate('emergency')">Emergency</button>
+              <button class="spatial-tag-btn" onclick="navigate('ayurveda')">Ayurveda</button>
+              <button class="spatial-tag-btn" onclick="navigate('telemedicine')">Telehealth</button>
+              <button class="spatial-tag-btn" onclick="navigate('ai-safety-guard')">Clinical AI</button>
+              <button class="spatial-tag-btn" onclick="navigate('contact')">Contact</button>
+            </div>
+          </div>
+
+          <!-- Right Wing: Interactive Cockpit Cards (SEAS, Dosha, Doctor) -->
+          <div class="spatial-interactive-deck">
+            
+            <!-- Tile 1: SEAS Ambulance Live Tracker -->
+            <div class="cockpit-card cockpit-seas" onclick="navigate('emergency')" style="cursor:pointer">
+              <div class="cockpit-card-glow-rim pink-glow"></div>
+              <div class="cockpit-card-content">
+                <div class="cockpit-head">
+                  <div class="cockpit-title-wrap">
+                    <span class="cockpit-icon siren-pulse">🚑</span>
+                    <h3 class="cockpit-title">SEAS Ambulance Tracker</h3>
+                  </div>
+                  <span class="cockpit-live-badge"><span class="pulse-dot"></span> LIVE DISPATCH</span>
+                </div>
+
+                <!-- Simulated 3D Isometric Map Visual -->
+                <div class="cockpit-map-viewport">
+                  <svg class="cockpit-map-svg" viewBox="0 0 600 240" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="mapGridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="rgba(158, 142, 194, 0.12)" />
+                        <stop offset="100%" stop-color="rgba(242, 141, 119, 0.12)" />
+                      </linearGradient>
+                      <linearGradient id="routeLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FCC8B8" />
+                        <stop offset="50%" stop-color="#F28D77" />
+                        <stop offset="100%" stop-color="#9E8EC2" />
+                      </linearGradient>
+                      <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+                    <!-- City Isometric Road Grid -->
+                    <path d="M0,40 L600,40 M0,90 L600,90 M0,140 L600,140 M0,190 L600,190" stroke="rgba(200,185,230,0.18)" stroke-width="1.5" />
+                    <path d="M50,0 L180,240 M160,0 L290,240 M270,0 L400,240 M380,0 L510,240 M490,0 L600,200" stroke="rgba(200,185,230,0.15)" stroke-width="1.5" />
+                    
+                    <!-- Buildings blocks in perspective -->
+                    <polygon points="120,60 160,40 210,60 170,80" fill="rgba(242,141,119,0.08)" stroke="rgba(242,141,119,0.2)" />
+                    <polygon points="280,100 330,80 370,100 320,120" fill="rgba(158,142,194,0.08)" stroke="rgba(158,142,194,0.2)" />
+                    <polygon points="390,40 440,20 480,40 430,60" fill="rgba(213,240,236,0.15)" stroke="rgba(42,157,143,0.2)" />
+                    
+                    <!-- Glowing Dispatch Route Line -->
+                    <path class="route-animated-line" d="M70,160 L180,150 L240,100 L320,95 L400,130 L510,70" fill="none" stroke="url(#routeLineGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neonGlow)" />
+                    
+                    <!-- Patient Destination Pin -->
+                    <g transform="translate(70, 160)">
+                      <circle r="14" fill="rgba(242, 141, 119, 0.25)" class="pin-halo" />
+                      <circle r="6" fill="#F28D77" />
+                      <circle r="2" fill="#FFFFFF" />
+                    </g>
+                    
+                    <!-- Ambulance Active Location Pin -->
+                    <g transform="translate(400, 130)">
+                      <circle r="18" fill="rgba(158, 142, 194, 0.3)" class="pin-halo" />
+                      <circle r="7" fill="#9E8EC2" />
+                      <circle r="2.5" fill="#FFFFFF" />
+                    </g>
+                  </svg>
+
+                  <!-- Floating Status Chip -->
+                  <div class="cockpit-map-chip">
+                    <div class="chip-icon">🚑</div>
+                    <div class="chip-text">
+                      <div class="chip-main">En Route</div>
+                      <div class="chip-sub">ETA 4 MINS</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bottom Patient & Ambulance Meta -->
+                <div class="cockpit-meta-row">
+                  <div class="meta-item">
+                    <span class="meta-lbl">Patient</span>
+                    <strong class="meta-val">Anya Sharma</strong>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-lbl">Driver</span>
+                    <strong class="meta-val">Rahul V.</strong>
+                  </div>
+                  <div class="meta-item">
+                    <span class="meta-lbl">Vehicle ID</span>
+                    <strong class="meta-val">AS123</strong>
+                  </div>
+                  <button class="cockpit-mini-btn pink-btn" onclick="event.stopPropagation();navigate('emergency')">
+                    Open SEAS <i data-lucide="arrow-up-right" style="width:14px;height:14px;display:inline"></i>
+                  </button>
                 </div>
               </div>
             </div>
 
-            <!-- Bottom Patient & Ambulance Meta -->
-            <div class="cockpit-meta-row">
-              <div class="meta-item">
-                <span class="meta-lbl">Patient Name</span>
-                <strong class="meta-val">Anya Sharma</strong>
+            <!-- Tile 2: Ayurveda Dosha Ring -->
+            <div class="cockpit-card cockpit-dosha" onclick="navigate('ayurveda')" style="cursor:pointer">
+              <div class="cockpit-card-glow-rim lavender-glow"></div>
+              <div class="cockpit-card-content">
+                <div class="cockpit-head">
+                  <div class="cockpit-title-wrap">
+                    <span class="cockpit-icon">🌸</span>
+                    <h3 class="cockpit-title">Dosha Wheel</h3>
+                  </div>
+                  <span class="cockpit-sub-badge">AI Wellness</span>
+                </div>
+
+                <!-- Glowing Concentric Dosha Donut Ring -->
+                <div class="dosha-ring-container">
+                  <svg class="dosha-ring-svg" viewBox="0 0 200 200">
+                    <defs>
+                      <linearGradient id="doshaVata" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#9E8EC2" />
+                        <stop offset="100%" stop-color="#B8A6DC" />
+                      </linearGradient>
+                      <linearGradient id="doshaPitta" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#FCC8B8" />
+                        <stop offset="100%" stop-color="#F28D77" />
+                      </linearGradient>
+                      <linearGradient id="doshaKapha" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#D5F0EC" />
+                        <stop offset="100%" stop-color="#2A9D8F" />
+                      </linearGradient>
+                      <filter id="ringSoftGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3.5" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+                    <circle cx="100" cy="100" r="68" fill="none" stroke="rgba(200,185,230,0.15)" stroke-width="16" />
+                    
+                    <!-- Vata segment (40%) -->
+                    <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaVata)" stroke-width="15" 
+                      stroke-dasharray="170 257" stroke-dashoffset="0" stroke-linecap="round" filter="url(#ringSoftGlow)" />
+                    <!-- Pitta segment (35%) -->
+                    <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaPitta)" stroke-width="15" 
+                      stroke-dasharray="150 277" stroke-dashoffset="-176" stroke-linecap="round" filter="url(#ringSoftGlow)" />
+                    <!-- Kapha segment (25%) -->
+                    <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaKapha)" stroke-width="15" 
+                      stroke-dasharray="100 327" stroke-dashoffset="-332" stroke-linecap="round" filter="url(#ringSoftGlow)" />
+                    
+                    <!-- Inner Ring Center -->
+                    <circle cx="100" cy="100" r="48" fill="rgba(255,255,255,0.06)" />
+                    <text x="100" y="96" text-anchor="middle" fill="var(--neo-text-primary)" font-size="13" font-weight="700">Prakriti</text>
+                    <text x="100" y="112" text-anchor="middle" fill="#F28D77" font-size="11" font-weight="800">Balanced</text>
+                  </svg>
+
+                  <div class="dosha-floating-badge vata-tag" title="Vata: Air & Space">💨 Vata</div>
+                  <div class="dosha-floating-badge pitta-tag" title="Pitta: Fire & Water">🔥 Pitta</div>
+                  <div class="dosha-floating-badge kapha-tag" title="Kapha: Earth & Water">🌿 Kapha</div>
+                </div>
+
+                <!-- Dosha Metrics Readout -->
+                <div class="dosha-metrics-box text-center">
+                  <div class="dosha-pct-row">
+                    <span class="pct-vata">Vata <strong>(40%)</strong></span> | 
+                    <span class="pct-pitta">Pitta <strong>(35%)</strong></span> | 
+                    <span class="pct-kapha">Kapha <strong>(25%)</strong></span>
+                  </div>
+                  <div class="dosha-prakriti-text">Your Constitution: <strong>Vata-Pitta Dominant</strong></div>
+                  <button class="cockpit-btn lavender-btn" onclick="event.stopPropagation();navigate('ayurveda')">
+                    Start Assessment <i data-lucide="sparkles" style="width:15px;height:15px;display:inline"></i>
+                  </button>
+                </div>
               </div>
-              <div class="meta-item">
-                <span class="meta-lbl">Driver</span>
-                <strong class="meta-val">Rahul V.</strong>
-              </div>
-              <div class="meta-item">
-                <span class="meta-lbl">Vehicle ID</span>
-                <strong class="meta-val">AS123</strong>
-              </div>
-              <button class="cockpit-mini-btn pink-btn" onclick="event.stopPropagation();navigate('emergency')">
-                Open SEAS <i data-lucide="arrow-up-right" style="width:14px;height:14px;display:inline"></i>
-              </button>
             </div>
+
+            <!-- Tile 3: Doctor Video Teleconsultation -->
+            <div class="cockpit-card cockpit-doctor" onclick="navigate('telemedicine')" style="cursor:pointer">
+              <div class="cockpit-card-glow-rim dual-glow"></div>
+              <div class="cockpit-card-content cockpit-doctor-layout">
+                <div class="doctor-avatar-wrap">
+                  <div class="doctor-avatar-box">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=200&w=200&q=80" 
+                      alt="Dr. Anjali Sharma" class="doctor-img"
+                      onerror="this.src='https://placehold.co/120x120/DCD4EE/white?text=Doctor'" />
+                    <span class="online-indicator" title="Online now"></span>
+                  </div>
+                </div>
+                <div class="doctor-details-wrap">
+                  <div class="doctor-spec-kicker">Cardiology & Preventive Care</div>
+                  <h4 class="doctor-name">Dr. Anjali Sharma, MD</h4>
+                  <p class="doctor-role">Senior Cardiologist • 12+ Yrs Experience</p>
+                  <div class="doctor-status-row">
+                    <span class="status-available-pill">● Available Now</span>
+                    <span class="consult-badge">Zoom Enabled</span>
+                  </div>
+                  <div class="doctor-action-row">
+                    <button class="cockpit-btn pink-btn" onclick="event.stopPropagation();navigate('telemedicine')">
+                      Connect Video Call <i data-lucide="video" style="width:15px;height:15px;display:inline"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tile 4: Instant Action & Pharmacy Hub -->
+            <div class="cockpit-card cockpit-action" onclick="navigate('telemedicine')" style="cursor:pointer">
+              <div class="cockpit-card-glow-rim lavender-glow"></div>
+              <div class="cockpit-card-content cockpit-action-layout">
+                <div class="action-icon-circle">
+                  <i data-lucide="calendar" style="width:26px;height:26px;color:#FFFFFF"></i>
+                </div>
+                <div class="action-text-wrap">
+                  <h3 class="action-title">Instant Action & Pharmacy Hub</h3>
+                  <p class="action-desc">Consult verified doctors online or check real-time pharmacy inventory.</p>
+                </div>
+                <div class="action-arrow-circle">
+                  <i data-lucide="arrow-right" style="width:20px;height:20px"></i>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <!-- Tile 2: Ayurveda Dosha Ring (Top Right) -->
-        <div class="cockpit-card cockpit-dosha" onclick="navigate('ayurveda')" style="cursor:pointer">
-          <div class="cockpit-card-glow-rim lavender-glow"></div>
-          <div class="cockpit-card-content">
-            <div class="cockpit-head">
-              <div class="cockpit-title-wrap">
-                <span class="cockpit-icon">🌸</span>
-                <h3 class="cockpit-title">Ayurveda Dosha Ring</h3>
-              </div>
-              <span class="cockpit-sub-badge">AI Wellness</span>
-            </div>
-
-            <!-- Glowing Dosha Donut Ring -->
-            <div class="dosha-ring-container">
-              <svg class="dosha-ring-svg" viewBox="0 0 200 200">
-                <defs>
-                  <linearGradient id="doshaVata" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#7EC8F8" />
-                    <stop offset="100%" stop-color="#9AD8FA" />
-                  </linearGradient>
-                  <linearGradient id="doshaPitta" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#FCA59B" />
-                    <stop offset="100%" stop-color="#F88E82" />
-                  </linearGradient>
-                  <linearGradient id="doshaKapha" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#E5B6C3" />
-                    <stop offset="100%" stop-color="#C68FA1" />
-                  </linearGradient>
-                  <filter id="ringSoftGlow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="4" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
-                <!-- Base ring track -->
-                <circle cx="100" cy="100" r="68" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16" />
-                
-                <!-- Vata segment (40%) -->
-                <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaVata)" stroke-width="15" 
-                  stroke-dasharray="170 257" stroke-dashoffset="0" stroke-linecap="round" filter="url(#ringSoftGlow)" />
-                <!-- Pitta segment (35%) -->
-                <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaPitta)" stroke-width="15" 
-                  stroke-dasharray="150 277" stroke-dashoffset="-176" stroke-linecap="round" filter="url(#ringSoftGlow)" />
-                <!-- Kapha segment (25%) -->
-                <circle cx="100" cy="100" r="68" fill="none" stroke="url(#doshaKapha)" stroke-width="15" 
-                  stroke-dasharray="100 327" stroke-dashoffset="-332" stroke-linecap="round" filter="url(#ringSoftGlow)" />
-                
-                <!-- Inner Ring Center -->
-                <circle cx="100" cy="100" r="48" fill="rgba(255,255,255,0.03)" />
-                <text x="100" y="96" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="700">Prakriti</text>
-                <text x="100" y="112" text-anchor="middle" fill="#FCA59B" font-size="11" font-weight="800">Balanced</text>
-              </svg>
-
-              <!-- Elemental Icon Anchors around ring -->
-              <div class="dosha-floating-badge vata-tag" title="Vata: Air & Space">💨 Vata</div>
-              <div class="dosha-floating-badge pitta-tag" title="Pitta: Fire & Water">🔥 Pitta</div>
-              <div class="dosha-floating-badge kapha-tag" title="Kapha: Earth & Water">🌿 Kapha</div>
-            </div>
-
-            <!-- Dosha Metrics Readout -->
-            <div class="dosha-metrics-box text-center">
-              <div class="dosha-pct-row">
-                <span class="pct-vata">Vata <strong>(40%)</strong></span> | 
-                <span class="pct-pitta">Pitta <strong>(35%)</strong></span> | 
-                <span class="pct-kapha">Kapha <strong>(25%)</strong></span>
-              </div>
-              <div class="dosha-prakriti-text">Your Constitution: <strong>Vata-Pitta Dominant</strong></div>
-              <button class="cockpit-btn lavender-btn" onclick="event.stopPropagation();navigate('ayurveda')">
-                Start Assessment <i data-lucide="sparkles" style="width:15px;height:15px;display:inline"></i>
-              </button>
-            </div>
+        <!-- Bottom Row: Spatial Service Glass Grid (10 Pillars as Sleek Glass Tiles) -->
+        <div class="spatial-services-row">
+          <div class="spatial-services-header">
+            <h3 class="spatial-services-title">
+              <i data-lucide="layout-grid" style="width:20px;height:20px;color:var(--neo-peach-radiant)"></i>
+              Pillars of Smart Healthcare
+            </h3>
+            <span style="font-size:0.82rem;font-weight:600;color:var(--neo-text-muted);">10 Integrated Clinical & Wellness Modules</span>
           </div>
-        </div>
 
-        <!-- Tile 3: Doctor Video Teleconsultation (Bottom Left) -->
-        <div class="cockpit-card cockpit-doctor" onclick="navigate('telemedicine')" style="cursor:pointer">
-          <div class="cockpit-card-glow-rim dual-glow"></div>
-          <div class="cockpit-card-content cockpit-doctor-layout">
-            <div class="doctor-avatar-wrap">
-              <div class="doctor-avatar-box">
-                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=200&w=200&q=80" 
-                  alt="Dr. Anjali Sharma" class="doctor-img"
-                  onerror="this.src='https://placehold.co/120x120/E5B6C3/white?text=Doctor'" />
-                <span class="online-indicator" title="Online now"></span>
-              </div>
+          <div class="spatial-services-grid">
+            <!-- 1. Emergency -->
+            <div class="spatial-tile" onclick="navigate('emergency')">
+              <div class="spatial-tile-disc"><i data-lucide="siren" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">SEAS Ambulance</div>
+              <div class="spatial-tile-sub">1-Tap SOS & Dispatch</div>
             </div>
-            <div class="doctor-details-wrap">
-              <div class="doctor-spec-kicker">Cardiology & Preventive Care</div>
-              <h4 class="doctor-name">Dr. Anjali Sharma, MD</h4>
-              <p class="doctor-role">Senior Cardiologist • 12+ Yrs Experience</p>
-              <div class="doctor-status-row">
-                <span class="status-available-pill">● Available Now</span>
-                <span class="consult-badge">Zoom Enabled</span>
-              </div>
-              <div class="doctor-action-row">
-                <button class="cockpit-btn pink-btn" onclick="event.stopPropagation();navigate('telemedicine')">
-                  Connect Video Call <i data-lucide="video" style="width:15px;height:15px;display:inline"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Tile 4: Quick Appointment & Pharmacy Action (Bottom Right) -->
-        <div class="cockpit-card cockpit-action" onclick="navigate('telemedicine')" style="cursor:pointer">
-          <div class="cockpit-card-glow-rim lavender-glow"></div>
-          <div class="cockpit-card-content cockpit-action-layout">
-            <div class="action-icon-circle">
-              <i data-lucide="calendar" style="width:26px;height:26px;color:#FFFFFF"></i>
+            <!-- 2. Telemedicine -->
+            <div class="spatial-tile" onclick="navigate('telemedicine')">
+              <div class="spatial-tile-disc"><i data-lucide="video" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">Teleconsultation</div>
+              <div class="spatial-tile-sub">Zoom Appointments</div>
             </div>
-            <div class="action-text-wrap">
-              <h3 class="action-title">Book New Appointment</h3>
-              <p class="action-desc">Consult verified doctors online or check local pharmacy stock instantly.</p>
+
+            <!-- 3. Health Records -->
+            <div class="spatial-tile" onclick="navigate('dashboard')">
+              <div class="spatial-tile-disc"><i data-lucide="database" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">Health Records</div>
+              <div class="spatial-tile-sub">Doctor Management</div>
             </div>
-            <div class="action-arrow-circle">
-              <i data-lucide="arrow-right" style="width:20px;height:20px"></i>
+
+            <!-- 4. Clinical AI -->
+            <div class="spatial-tile" onclick="navigate('ai-safety-guard')">
+              <div class="spatial-tile-disc"><i data-lucide="shield-check" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">Clinical AI</div>
+              <div class="spatial-tile-sub">Safety & Diagnostics</div>
+            </div>
+
+            <!-- 5. Live Inventory -->
+            <div class="spatial-tile" onclick="navigate('inventory')">
+              <div class="spatial-tile-disc"><i data-lucide="package" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">Live Inventory</div>
+              <div class="spatial-tile-sub">Real-Time Medicine Stock</div>
+            </div>
+
+            <!-- 6. Analytics -->
+            <div class="spatial-tile" onclick="navigate('analytics')">
+              <div class="spatial-tile-disc"><i data-lucide="bar-chart-2" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">Analytics</div>
+              <div class="spatial-tile-sub">Health Trends & Usage</div>
+            </div>
+
+            <!-- 7. Pharmacy Finder -->
+            <div class="spatial-tile" onclick="navigate('pharmacy')">
+              <div class="spatial-tile-disc"><i data-lucide="map-pin" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">Pharmacy Finder</div>
+              <div class="spatial-tile-sub">Geo-Locate Stores</div>
+            </div>
+
+            <!-- 8. Medicine DB -->
+            <div class="spatial-tile" onclick="navigate('medicines')">
+              <div class="spatial-tile-disc"><i data-lucide="pill" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">Medicine DB</div>
+              <div class="spatial-tile-sub">Formulary & Side Effects</div>
+            </div>
+
+            <!-- 9. Patient Portal -->
+            <div class="spatial-tile" onclick="navigate('portal')">
+              <div class="spatial-tile-disc"><i data-lucide="user-circle" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">Patient Portal</div>
+              <div class="spatial-tile-sub">Personal Care File</div>
+            </div>
+
+            <!-- 10. Ayurveda & Wellness -->
+            <div class="spatial-tile" onclick="navigate('ayurveda')">
+              <div class="spatial-tile-disc"><i data-lucide="sparkles" style="width:22px;height:22px"></i></div>
+              <div class="spatial-tile-title">AI Wellness</div>
+              <div class="spatial-tile-sub">Ayurvedic Remedies</div>
             </div>
           </div>
         </div>
