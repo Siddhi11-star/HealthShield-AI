@@ -733,77 +733,77 @@
           <div class="spatial-services-header">
             <h3 class="spatial-services-title">
               <i data-lucide="layout-grid" style="width:20px;height:20px;color:var(--neo-peach-radiant)"></i>
-              Pillars of Smart Healthcare
+              <span id="features-section-title">Pillars of Smart Healthcare</span>
             </h3>
-            <span style="font-size:0.82rem;font-weight:600;color:var(--neo-text-muted);">10 Integrated Clinical & Wellness Modules</span>
+            <span id="features-section-desc" style="font-size:0.82rem;font-weight:600;color:var(--neo-text-muted);">10 Integrated Clinical & Wellness Modules</span>
           </div>
 
           <div class="spatial-services-grid">
             <!-- 1. Emergency -->
-            <div class="spatial-tile" onclick="navigate('emergency')">
+            <div class="spatial-tile" data-feat="emergency" onclick="navigate('emergency')">
               <div class="spatial-tile-disc"><i data-lucide="siren" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">SEAS Ambulance</div>
               <div class="spatial-tile-sub">1-Tap SOS & Dispatch</div>
             </div>
 
             <!-- 2. Telemedicine -->
-            <div class="spatial-tile" onclick="navigate('telemedicine')">
+            <div class="spatial-tile" data-feat="telemedicine" onclick="navigate('telemedicine')">
               <div class="spatial-tile-disc"><i data-lucide="video" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">Teleconsultation</div>
               <div class="spatial-tile-sub">Zoom Appointments</div>
             </div>
 
             <!-- 3. Health Records -->
-            <div class="spatial-tile" onclick="navigate('dashboard')">
+            <div class="spatial-tile" data-feat="dashboard" onclick="navigate('dashboard')">
               <div class="spatial-tile-disc"><i data-lucide="database" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">Health Records</div>
               <div class="spatial-tile-sub">Doctor Management</div>
             </div>
 
             <!-- 4. Clinical AI -->
-            <div class="spatial-tile" onclick="navigate('ai-safety-guard')">
+            <div class="spatial-tile" data-feat="ai-safety-guard" onclick="navigate('ai-safety-guard')">
               <div class="spatial-tile-disc"><i data-lucide="shield-check" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">Clinical AI</div>
               <div class="spatial-tile-sub">Safety & Diagnostics</div>
             </div>
 
             <!-- 5. Live Inventory -->
-            <div class="spatial-tile" onclick="navigate('inventory')">
+            <div class="spatial-tile" data-feat="inventory" onclick="navigate('inventory')">
               <div class="spatial-tile-disc"><i data-lucide="package" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">Live Inventory</div>
               <div class="spatial-tile-sub">Real-Time Medicine Stock</div>
             </div>
 
             <!-- 6. Analytics -->
-            <div class="spatial-tile" onclick="navigate('analytics')">
+            <div class="spatial-tile" data-feat="analytics" onclick="navigate('analytics')">
               <div class="spatial-tile-disc"><i data-lucide="bar-chart-2" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">Analytics</div>
               <div class="spatial-tile-sub">Health Trends & Usage</div>
             </div>
 
             <!-- 7. Pharmacy Finder -->
-            <div class="spatial-tile" onclick="navigate('pharmacy')">
+            <div class="spatial-tile" data-feat="pharmacy" onclick="navigate('pharmacy')">
               <div class="spatial-tile-disc"><i data-lucide="map-pin" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">Pharmacy Finder</div>
               <div class="spatial-tile-sub">Geo-Locate Stores</div>
             </div>
 
             <!-- 8. Medicine DB -->
-            <div class="spatial-tile" onclick="navigate('medicines')">
+            <div class="spatial-tile" data-feat="medicines" onclick="navigate('medicines')">
               <div class="spatial-tile-disc"><i data-lucide="pill" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">Medicine DB</div>
               <div class="spatial-tile-sub">Formulary & Side Effects</div>
             </div>
 
             <!-- 9. Patient Portal -->
-            <div class="spatial-tile" onclick="navigate('portal')">
+            <div class="spatial-tile" data-feat="portal" onclick="navigate('portal')">
               <div class="spatial-tile-disc"><i data-lucide="user-circle" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">Patient Portal</div>
               <div class="spatial-tile-sub">Personal Care File</div>
             </div>
 
             <!-- 10. Ayurveda & Wellness -->
-            <div class="spatial-tile" onclick="navigate('ayurveda')">
+            <div class="spatial-tile" data-feat="ayurveda" onclick="navigate('ayurveda')">
               <div class="spatial-tile-disc"><i data-lucide="sparkles" style="width:22px;height:22px"></i></div>
               <div class="spatial-tile-title">AI Wellness</div>
               <div class="spatial-tile-sub">Ayurvedic Remedies</div>
@@ -825,87 +825,6 @@
       </div>
     </div>
   </div>
-
-  <section class="features-section">
-    <div class="container">
-      <div class="text-center mb-16 fade-in-up">
-        <h2 class="section-title" id="features-section-title">Pillars of Smart Healthcare</h2>
-        <p class="section-desc" id="features-section-desc">MediGuard AI brings together essential healthcare services into one integrated platform</p>
-      </div>
-<div class="feature-cards">
-  <!-- SEAS: Smart Emergency Ambulance System -->
-  <div class="feature-card fade-in-up" onclick="navigate('emergency')" style="cursor:pointer">
-    <div class="feature-icon gradient-red"><i data-lucide="siren" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="emergency" data-title="SEAS — Smart Emergency Ambulance">1. SEAS — Smart Emergency Ambulance</h3>
-    <p>One-tap SOS → Auto ambulance dispatch → Live tracking → Smart hospital match</p>
-    <button class="feat-btn feat-btn-red" onclick="event.stopPropagation();navigate('emergency')">Launch SEAS →</button>
-  </div>
-  <!-- 1. Teleconsultation -->
-  <div class="feature-card fade-in-up" onclick="navigate('telemedicine')" style="cursor:pointer">
-    <div class="feature-icon gradient-blue"><i data-lucide="video" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="telemedicine" data-title="Teleconsultation">2. Teleconsultation</h3>
-    <p>Book a Zoom meeting via appointment with doctors</p>
-    <button class="feat-btn feat-btn-blue" onclick="event.stopPropagation();navigate('telemedicine')">Book Now →</button>
-  </div>
-  <!-- 2. Digital Health Records -->
-  <div class="feature-card fade-in-up delay-1" onclick="navigate('dashboard')" style="cursor:pointer">
-    <div class="feature-icon gradient-green"><i data-lucide="database" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="dashboard" data-title="Digital Health Records">3. Digital Health Records</h3>
-    <p>Doctors can store and manage patient data securely</p>
-    <button class="feat-btn feat-btn-green" onclick="event.stopPropagation();navigate('dashboard')">View Records →</button>
-  </div>
-  <!-- 3. AI-Powered Clinical Intelligence -->
-  <div class="feature-card fade-in-up delay-2" onclick="navigate('ai-safety-guard')" style="cursor:pointer">
-    <div class="feature-icon gradient-red"><i data-lucide="shield-check" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="ai-safety-guard" data-title="AI Clinical Intelligence">4. AI Clinical Intelligence</h3>
-    <p>Advanced AI workflows for clinical decision support and personalized wellness planning.</p>
-    <button class="feat-btn feat-btn-red" onclick="event.stopPropagation();navigate('ai-safety-guard')">Explore Clinical AI →</button>
-  </div>
-  <!-- 4. Live Inventory -->
-  <div class="feature-card fade-in-up delay-3" onclick="navigate('inventory')" style="cursor:pointer">
-    <div class="feature-icon gradient-purple"><i data-lucide="package" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="inventory" data-title="Live Inventory">5. Live Inventory</h3>
-    <p>For pharmacies and patients – check real‑time medicine stock</p>
-    <button class="feat-btn feat-btn-purple" onclick="event.stopPropagation();navigate('inventory')">Check Stock →</button>
-  </div>
-  <!-- 5. Analytics -->
-  <div class="feature-card fade-in-up" onclick="navigate('analytics')" style="cursor:pointer">
-    <div class="feature-icon gradient-blue"><i data-lucide="bar-chart-2" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="analytics" data-title="Analytics">6. Analytics</h3>
-    <p>For doctors and pharmacies – track health trends and usage</p>
-    <button class="feat-btn feat-btn-blue" onclick="event.stopPropagation();navigate('analytics')">View Analytics →</button>
-  </div>
-  <!-- 6. Pharmacy Finder -->
-  <div class="feature-card fade-in-up delay-1" onclick="navigate('pharmacy')" style="cursor:pointer">
-    <div class="feature-icon gradient-purple"><i data-lucide="map-pin" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="pharmacy" data-title="Pharmacy Finder">7. Pharmacy Finder</h3>
-    <p>For patients and admins – locate nearby pharmacies</p>
-    <button class="feat-btn feat-btn-purple" onclick="event.stopPropagation();navigate('pharmacy')">Find Pharmacy →</button>
-  </div>
-  <!-- 7. Medicine DB -->
-  <div class="feature-card fade-in-up delay-2" onclick="navigate('medicines')" style="cursor:pointer">
-    <div class="feature-icon gradient-green"><i data-lucide="pill" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="medicines" data-title="Medicine DB">8. Medicine DB</h3>
-    <p>Accessible for everyone – find medicine descriptions & side effects</p>
-    <button class="feat-btn feat-btn-green" onclick="event.stopPropagation();navigate('medicines')">Browse Medicines →</button>
-  </div>
-  <!-- 8. Patient Portal -->
-  <div class="feature-card fade-in-up delay-3" onclick="navigate('portal')" style="cursor:pointer">
-    <div class="feature-icon gradient-red"><i data-lucide="user-circle" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="portal" data-title="Patient Portal">9. Patient Portal</h3>
-    <p>Store and manage your own health records</p>
-    <button class="feat-btn feat-btn-red" onclick="event.stopPropagation();navigate('portal')">My Portal →</button>
-  </div>
-  <!-- 10. AI Ayurvedic Wellness & Skin Advisor -->
-  <div class="feature-card fade-in-up delay-4" onclick="navigate('ayurveda')" style="cursor:pointer">
-    <div class="feature-icon gradient-indigo"><i data-lucide="sparkles" style="width:32px;height:32px"></i></div>
-    <h3 data-feat="ayurveda" data-title="AI Wellness &amp; Skin Advisor">10. AI Wellness &amp; Skin Advisor</h3>
-    <p>Ayurvedic remedies and personalized skincare using AI analysis</p>
-    <button class="feat-btn feat-btn-indigo" onclick="event.stopPropagation();navigate('ayurveda')">Wellness Tools →</button>
-  </div>
-</div>
-    </div>
-  </section>
 
 
   <section class="benefits-section">

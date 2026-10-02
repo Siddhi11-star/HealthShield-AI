@@ -225,9 +225,9 @@ function renderFeatureAccess() {
 
   // ── Show/hide cards and renumber sequentially ──
   let counter = 1;
-  document.querySelectorAll('[data-feat]').forEach(h3 => {
-    const feat  = h3.dataset.feat;
-    const card  = h3.closest('.feature-card');
+  document.querySelectorAll('[data-feat]').forEach(el => {
+    const feat = el.dataset.feat;
+    const card = el.classList.contains('spatial-tile') ? el : el.closest('.feature-card, .spatial-tile');
     if (!card) return;
     const allowed = PAGE_ACCESS[feat];
 
@@ -242,12 +242,12 @@ function renderFeatureAccess() {
     card.classList.remove('feat-card-locked');
     card.setAttribute('aria-disabled', String(!canAccess));
     card.setAttribute('title', canAccess ? 'Accessible with your current account'
-      : `Access limited to ${allowed.map(r => ROLE_LABELS[r] || r).join(', ')}`);
+      : `Access limited to ${allowed ? allowed.map(r => ROLE_LABELS[r] || r).join(', ') : 'Restricted'}`);
 
-    // Renumber only visible cards sequentially
-    if (canAccess) {
-      const baseName = h3.dataset.title || h3.textContent.replace(/^\d+\.\s*/, '');
-      h3.textContent = `${counter}. ${baseName}`;
+    // Renumber only visible cards sequentially if heading exists
+    if (canAccess && el.tagName === 'H3') {
+      const baseName = el.dataset.title || el.textContent.replace(/^\d+\.\s*/, '');
+      el.textContent = `${counter}. ${baseName}`;
       counter++;
     }
   });
