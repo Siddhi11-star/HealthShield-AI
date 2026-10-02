@@ -1121,3 +1121,221 @@ body.dark-theme .cta-section .btn-outline {
   background: var(--neo-lavender-subtle) !important;
   border-color: var(--neo-peach-soft) !important;
 }
+
+/* ══════════════════════════════════════════════
+   3D ISOMETRIC SEAS AMBULANCE VIEWPORT
+══════════════════════════════════════════════ */
+.seas-3d-viewport {
+  position: relative !important;
+  height: 220px !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  background: #14101E !important;
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(242, 141, 119, 0.18) !important;
+  border: 1.5px solid var(--neo-glass-border-subtle) !important;
+}
+
+.seas-iso-ambulance-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+  display: block;
+  transition: transform 0.45s ease, filter 0.45s ease;
+  filter: contrast(1.05) brightness(1.02);
+}
+
+.cockpit-seas:hover .seas-iso-ambulance-img {
+  transform: scale(1.04);
+}
+
+.seas-iso-overlay-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(18, 14, 28, 0.4) 0%, transparent 40%, rgba(18, 14, 28, 0.88) 100%);
+  pointer-events: none;
+}
+
+/* Hospital Node */
+.seas-hospital-node {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(28, 21, 40, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 177, 153, 0.5);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem 0.3rem 0.35rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(242, 141, 119, 0.3);
+  z-index: 3;
+}
+
+.seas-hospital-core {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--neo-peach-soft), var(--neo-peach-radiant));
+  color: #FFFFFF;
+  font-weight: 900;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 12px rgba(242, 141, 119, 0.6);
+}
+
+.seas-hospital-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+}
+
+/* Route Tags */
+.seas-iso-telemetry-tags {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  z-index: 3;
+}
+
+.seas-iso-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.55rem;
+  background: rgba(20, 15, 30, 0.82);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--neo-peach-soft);
+  letter-spacing: 0.03em;
+}
+
+/* Floating Status Chip on visual */
+.seas-3d-viewport .cockpit-map-chip {
+  position: absolute;
+  bottom: 46px;
+  right: 10px;
+  top: auto;
+  background: rgba(22, 16, 32, 0.88) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 177, 153, 0.5) !important;
+  border-radius: 12px !important;
+  padding: 0.4rem 0.75rem !important;
+  z-index: 3;
+}
+
+.chip-beacon-pulse {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulse-center-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neo-peach-radiant);
+  box-shadow: 0 0 8px var(--neo-peach-radiant);
+}
+
+.pulse-radar-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid var(--neo-peach-radiant);
+  animation: radarPing 1.8s infinite;
+}
+
+@keyframes radarPing {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Bottom Telemetry Bar */
+.seas-iso-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.45rem 0.9rem;
+  background: rgba(14, 10, 22, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  z-index: 3;
+}
+
+.seas-ecg-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ecg-label {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--neo-peach-soft);
+}
+
+.ecg-line-svg {
+  width: 70px;
+  height: 16px;
+}
+
+.ecg-pulse-path {
+  stroke-dasharray: 100;
+  animation: ecgFlow 2s linear infinite;
+}
+
+@keyframes ecgFlow {
+  from { stroke-dashoffset: 200; }
+  to { stroke-dashoffset: 0; }
+}
+
+.seas-telemetry-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.68rem;
+  color: #DCD4EE;
+}
+
+.seas-telemetry-stats strong {
+  color: #FFFFFF;
+}
+
+.tele-divider {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.65rem;
+}
+
+.cockpit-icon-iso {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(254, 214, 202, 0.4), rgba(220, 212, 238, 0.4));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(242, 141, 119, 0.25);
+}
+

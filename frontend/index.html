@@ -430,7 +430,7 @@
   <a onclick="navigate('features');closeMenu()">Features</a>
   <a onclick="navigate('howitworks');closeMenu()">How It Works</a>
   <div class="mobile-menu-section">SERVICES</div>
-  <a onclick="navigate('emergency');closeMenu()">🚑 SEAS Ambulance</a>
+  <a onclick="navigate('emergency');closeMenu()"><i data-lucide="siren" style="width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:6px"></i> SEAS Ambulance</a>
   <a onclick="navigate('telemedicine');closeMenu()">📹 Telemedicine</a>
   <a onclick="navigate('medicines');closeMenu()">💊 Medicine Database</a>
   <a onclick="navigate('inventory');closeMenu()">📦 Live Inventory</a>
@@ -520,75 +520,73 @@
           <!-- Right Wing: Interactive Cockpit Cards (SEAS, Dosha, Doctor) -->
           <div class="spatial-interactive-deck">
             
-            <!-- Tile 1: SEAS Ambulance Live Tracker -->
+            <!-- Tile 1: SEAS Ambulance Live Tracker (3D Isometric Visual) -->
             <div class="cockpit-card cockpit-seas" onclick="navigate('emergency')" style="cursor:pointer">
               <div class="cockpit-card-glow-rim pink-glow"></div>
               <div class="cockpit-card-content">
                 <div class="cockpit-head">
                   <div class="cockpit-title-wrap">
-                    <span class="cockpit-icon siren-pulse">🚑</span>
+                    <div class="cockpit-icon-iso">
+                      <i data-lucide="siren" style="width:18px;height:18px;color:var(--neo-peach-radiant)"></i>
+                    </div>
                     <h3 class="cockpit-title">SEAS Ambulance Tracker</h3>
                   </div>
                   <span class="cockpit-live-badge"><span class="pulse-dot"></span> LIVE DISPATCH</span>
                 </div>
 
-                <!-- Simulated 3D Isometric Map Visual -->
-                <div class="cockpit-map-viewport">
-                  <svg class="cockpit-map-svg" viewBox="0 0 600 240" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="mapGridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="rgba(158, 142, 194, 0.12)" />
-                        <stop offset="100%" stop-color="rgba(242, 141, 119, 0.12)" />
-                      </linearGradient>
-                      <linearGradient id="routeLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#FCC8B8" />
-                        <stop offset="50%" stop-color="#F28D77" />
-                        <stop offset="100%" stop-color="#9E8EC2" />
-                      </linearGradient>
-                      <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="3" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                      </filter>
-                    </defs>
-                    <!-- City Isometric Road Grid -->
-                    <path d="M0,40 L600,40 M0,90 L600,90 M0,140 L600,140 M0,190 L600,190" stroke="rgba(200,185,230,0.18)" stroke-width="1.5" />
-                    <path d="M50,0 L180,240 M160,0 L290,240 M270,0 L400,240 M380,0 L510,240 M490,0 L600,200" stroke="rgba(200,185,230,0.15)" stroke-width="1.5" />
-                    
-                    <!-- Buildings blocks in perspective -->
-                    <polygon points="120,60 160,40 210,60 170,80" fill="rgba(242,141,119,0.08)" stroke="rgba(242,141,119,0.2)" />
-                    <polygon points="280,100 330,80 370,100 320,120" fill="rgba(158,142,194,0.08)" stroke="rgba(158,142,194,0.2)" />
-                    <polygon points="390,40 440,20 480,40 430,60" fill="rgba(213,240,236,0.15)" stroke="rgba(42,157,143,0.2)" />
-                    
-                    <!-- Glowing Dispatch Route Line -->
-                    <path class="route-animated-line" d="M70,160 L180,150 L240,100 L320,95 L400,130 L510,70" fill="none" stroke="url(#routeLineGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#neonGlow)" />
-                    
-                    <!-- Patient Destination Pin -->
-                    <g transform="translate(70, 160)">
-                      <circle r="14" fill="rgba(242, 141, 119, 0.25)" class="pin-halo" />
-                      <circle r="6" fill="#F28D77" />
-                      <circle r="2" fill="#FFFFFF" />
-                    </g>
-                    
-                    <!-- Ambulance Active Location Pin -->
-                    <g transform="translate(400, 130)">
-                      <circle r="18" fill="rgba(158, 142, 194, 0.3)" class="pin-halo" />
-                      <circle r="7" fill="#9E8EC2" />
-                      <circle r="2.5" fill="#FFFFFF" />
-                    </g>
-                  </svg>
+                <!-- 3D Isometric Ambulance & Live Telemetry Viewport -->
+                <div class="cockpit-map-viewport seas-3d-viewport">
+                  <!-- 3D Isometric Ambulance Asset -->
+                  <img src="seas_ambulance_iso.jpg" alt="SEAS 3D Ambulance" class="seas-iso-ambulance-img" />
+                  
+                  <!-- Gradient Overlay -->
+                  <div class="seas-iso-overlay-scrim"></div>
 
-                  <!-- Floating Status Chip -->
+                  <!-- Floating Route Badges (Top Left) -->
+                  <div class="seas-iso-telemetry-tags">
+                    <span class="seas-iso-tag"><i data-lucide="shield-check" style="width:11px;height:11px"></i> OPTIMIZED ROUTE</span>
+                    <span class="seas-iso-tag"><i data-lucide="cloud-sun" style="width:11px;height:11px"></i> CLEAR</span>
+                    <span class="seas-iso-tag"><i data-lucide="wifi" style="width:11px;height:11px"></i> 5ms</span>
+                  </div>
+
+                  <!-- Hospital Destination Beacon (Top Right) -->
+                  <div class="seas-hospital-node" title="Destination: Sanctuary Care Hospital">
+                    <div class="seas-hospital-core">H</div>
+                    <span class="seas-hospital-label">Sanctuary Base</span>
+                  </div>
+
+                  <!-- Floating Status Chip (En Route ETA 4 MINS) -->
                   <div class="cockpit-map-chip">
-                    <div class="chip-icon">🚑</div>
+                    <div class="chip-beacon-pulse">
+                      <span class="pulse-radar-ring"></span>
+                      <span class="pulse-center-dot"></span>
+                    </div>
                     <div class="chip-text">
                       <div class="chip-main">En Route</div>
                       <div class="chip-sub">ETA 4 MINS</div>
                     </div>
                   </div>
+
+                  <!-- Bottom Telemetry Bar: ECG Waveform & Vehicle Sync -->
+                  <div class="seas-iso-bottom-bar">
+                    <div class="seas-ecg-wrap">
+                      <span class="ecg-label">LIVE TELEMETRY</span>
+                      <svg class="ecg-line-svg" viewBox="0 0 100 24" preserveAspectRatio="none">
+                        <path class="ecg-pulse-path" d="M0,12 L30,12 L35,4 L40,20 L45,2 L50,16 L55,12 L100,12" fill="none" stroke="#FFB199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </div>
+                    <div class="seas-telemetry-stats">
+                      <span class="tele-stat">CREW: <strong>3 MEDICAL</strong></span>
+                      <span class="tele-divider">|</span>
+                      <span class="tele-stat">SYNC: <strong>99%</strong></span>
+                      <span class="tele-divider">|</span>
+                      <span class="tele-stat">BATTERY: <strong>88%</strong></span>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Bottom Patient & Ambulance Meta -->
-                <div class="cockpit-meta-row">
+                <div class="cockpit-meta-row" style="margin-top:0.85rem;">
                   <div class="meta-item">
                     <span class="meta-lbl">Patient</span>
                     <strong class="meta-val">Anya Sharma</strong>
