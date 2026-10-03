@@ -486,49 +486,20 @@
         <!-- Top Split: Left Mission & Search + Right Interactive 3D Bento -->
         <div class="spatial-split-grid">
           
-          <!-- Left Wing: Mission Statement, Search & Category Tags -->
-          <div class="spatial-intro-panel">
-            <div class="spatial-mission-card">
-              <h4>Mission Statement</h4>
-              <p class="spatial-mission-text">
-                Our <strong>mission</strong> is to pioneer AI-driven clinical intelligence, instant ambulance dispatch, and Ayurvedic harmony across every community with uncompromising precision and speed.
-              </p>
-            </div>
-
-            <!-- Quick-Action Search Bar -->
-            <div class="spatial-search-box">
-              <i data-lucide="search" style="width:18px;height:18px;color:var(--neo-text-muted)"></i>
-              <input type="text" id="spatialSearchInput" placeholder="Search quick-action search..." 
-                     onkeydown="if(event.key==='Enter') quickSearchAction(this.value)" />
-              <div class="spatial-search-dropdown-chip" onclick="navigate('ayurveda')">
-                <span>🌸 Pitta</span>
-                <i data-lucide="chevron-down" style="width:13px;height:13px"></i>
-              </div>
-            </div>
-
-            <!-- Quick Category Tags -->
-            <div class="spatial-tag-row">
-              <button class="spatial-tag-btn active" onclick="navigate('emergency')">Emergency</button>
-              <button class="spatial-tag-btn" onclick="navigate('ayurveda')">Ayurveda</button>
-              <button class="spatial-tag-btn" onclick="navigate('telemedicine')">Telehealth</button>
-              <button class="spatial-tag-btn" onclick="navigate('ai-safety-guard')">Clinical AI</button>
-              <button class="spatial-tag-btn" onclick="navigate('contact')">Contact</button>
-            </div>
-          </div>
-
-          <!-- Right Wing: Interactive Cockpit Cards (SEAS, Dosha, Doctor) -->
-          <div class="spatial-interactive-deck">
-            
-            <!-- Tile 1: SEAS Ambulance Live Tracker (3D Isometric Visual) -->
+          <!-- Left Spotlight: SEAS Ambulance Live Dispatch Cockpit -->
+          <div class="spatial-hero-seas">
             <div class="cockpit-card cockpit-seas" onclick="navigate('emergency')" style="cursor:pointer">
               <div class="cockpit-card-glow-rim pink-glow"></div>
               <div class="cockpit-card-content">
                 <div class="cockpit-head">
                   <div class="cockpit-title-wrap">
                     <div class="cockpit-icon-iso">
-                      <i data-lucide="siren" style="width:18px;height:18px;color:var(--neo-peach-radiant)"></i>
+                      <i data-lucide="siren" style="width:20px;height:20px;color:var(--neo-peach-radiant)"></i>
                     </div>
-                    <h3 class="cockpit-title">SEAS Ambulance Tracker</h3>
+                    <div>
+                      <h3 class="cockpit-title" style="margin:0;font-size:1.15rem;">SEAS Ambulance Tracker</h3>
+                      <span style="font-size:0.75rem;color:var(--neo-text-muted);font-weight:600;">Smart Emergency Response &amp; Telemetry</span>
+                    </div>
                   </div>
                   <span class="cockpit-live-badge"><span class="pulse-dot"></span> LIVE DISPATCH</span>
                 </div>
@@ -543,9 +514,8 @@
 
                   <!-- Floating Route Badges (Top Left) -->
                   <div class="seas-iso-telemetry-tags">
-                    <span class="seas-iso-tag"><i data-lucide="shield-check" style="width:11px;height:11px"></i> OPTIMIZED ROUTE</span>
-                    <span class="seas-iso-tag"><i data-lucide="cloud-sun" style="width:11px;height:11px"></i> CLEAR</span>
-                    <span class="seas-iso-tag"><i data-lucide="wifi" style="width:11px;height:11px"></i> 5ms</span>
+                    <span class="seas-iso-tag"><i data-lucide="shield-check" style="width:12px;height:12px"></i> OPTIMIZED ROUTE</span>
+                    <span class="seas-iso-tag"><i data-lucide="wifi" style="width:12px;height:12px"></i> 5ms</span>
                   </div>
 
                   <!-- Hospital Destination Beacon (Top Right) -->
@@ -585,7 +555,7 @@
                 </div>
 
                 <!-- Bottom Patient & Ambulance Meta -->
-                <div class="cockpit-meta-row" style="margin-top:0.85rem;">
+                <div class="cockpit-meta-row" style="margin-top:0.95rem;">
                   <div class="meta-item">
                     <span class="meta-lbl">Patient</span>
                     <strong class="meta-val">Anya Sharma</strong>
@@ -601,6 +571,57 @@
                   <button class="cockpit-mini-btn pink-btn" onclick="event.stopPropagation();navigate('emergency')">
                     Open SEAS <i data-lucide="arrow-up-right" style="width:14px;height:14px;display:inline"></i>
                   </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Wing: Interactive Cockpit Cards (Mission, Dosha, Doctor, Action) -->
+          <div class="spatial-interactive-deck">
+            
+            <!-- Tile 1: Mission Statement & Smart Command Palette -->
+            <div class="cockpit-card cockpit-mission">
+              <div class="cockpit-card-glow-rim lavender-glow"></div>
+              <div class="cockpit-card-content">
+                <div class="cockpit-head">
+                  <div class="cockpit-title-wrap">
+                    <div class="cockpit-icon-iso" style="background:var(--neo-peach-subtle);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                      <i data-lucide="compass" style="width:18px;height:18px;color:var(--neo-peach-radiant)"></i>
+                    </div>
+                    <div>
+                      <h4 style="font-size:0.76rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:800;color:var(--neo-peach-radiant);margin:0;">Mission Statement</h4>
+                      <h3 class="cockpit-title" style="margin:0;font-size:0.98rem;">Command Palette</h3>
+                    </div>
+                  </div>
+                  <span class="cockpit-sub-badge">AI Core</span>
+                </div>
+
+                <p class="spatial-mission-text" style="font-size:0.86rem;line-height:1.5;margin:0.55rem 0 0.7rem;color:var(--neo-text-secondary);">
+                  Our <strong>mission</strong> is to pioneer AI-driven clinical intelligence, instant ambulance dispatch, and Ayurvedic harmony across every community.
+                </p>
+
+                <!-- Quick-Action Search Bar -->
+                <div class="spatial-search-box">
+                  <i data-lucide="search" style="width:16px;height:16px;color:var(--neo-text-muted)"></i>
+                  <input type="text" id="spatialSearchInput" placeholder="Type keyword (e.g. sos, doctor, pitta) &amp; press Enter..." 
+                         onkeydown="if(event.key==='Enter') quickSearchAction(this.value)" />
+                  <button type="button" class="spatial-search-action-btn" title="Search / Execute" onclick="quickSearchAction(document.getElementById('spatialSearchInput').value)">
+                    <i data-lucide="arrow-right" style="width:15px;height:15px"></i>
+                  </button>
+                </div>
+
+                <!-- Smart Quick-Action Command Palette Guide -->
+                <div class="spatial-palette-guide">
+                  <p class="spatial-palette-subtitle">
+                    Type a keyword and press <strong>Enter</strong> to jump directly:
+                  </p>
+                  <ul class="spatial-palette-list">
+                    <li><code>"ambulance"</code> / <code>"sos"</code> ➔ <strong>SEAS Dispatch</strong></li>
+                    <li><code>"paracetamol"</code> / drug name ➔ <strong>Medicine DB</strong></li>
+                    <li><code>"doctor"</code> / <code>"zoom"</code> ➔ <strong>Telemedicine</strong></li>
+                    <li><code>"pitta"</code> / <code>"dosha"</code> ➔ <strong>Ayurvedic Wellness</strong></li>
+                    <li><code>"ai"</code> / <code>"diagnosis"</code> ➔ <strong>Clinical AI Guard</strong></li>
+                  </ul>
                 </div>
               </div>
             </div>
