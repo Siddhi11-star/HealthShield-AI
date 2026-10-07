@@ -3234,20 +3234,182 @@ body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) sat
 </div>
 
 <div id="registerModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'registerModal')">
-  <div class="modal">
-    <div class="modal-header"><h3>Create Account</h3><button onclick="closeModal('registerModal')" class="modal-close"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
-    <div class="modal-body">
-      <div class="form-group"><label>Full Name</label><input type="text" id="regName" class="form-input" placeholder="Dr. Rahul Sharma" /></div>
-      <div class="form-group"><label>Email</label><input type="email" id="regEmail" class="form-input" placeholder="you@example.com" /></div>
-      <div class="form-group"><label>Role</label><select id="regRole" class="form-input">
-          <option value="admin">Admin</option>
+  <div class="modal" style="max-width:480px;border-radius:1.25rem;overflow:hidden;padding:0;">
+    <div style="background: linear-gradient(135deg,#0d9488,#0284c7); padding: 1.4rem 1.6rem 1.1rem; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <h3 style="margin:0;font-size:1.15rem;font-weight:800;color:#fff;">Create MediGuard Account</h3>
+        <p style="margin:0.2rem 0 0;font-size:0.78rem;color:rgba(255,255,255,0.85);">Secure, encrypted healthcare access</p>
+      </div>
+      <button onclick="closeModal('registerModal')" class="modal-close" style="color:#fff;background:rgba(255,255,255,0.15);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <i data-lucide="x" style="width:18px;height:18px"></i>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:1.4rem 1.6rem 1.6rem;">
+      <div class="form-group" style="margin-bottom:0.85rem;">
+        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Full Name</label>
+        <input type="text" id="regName" class="form-input" placeholder="e.g. Dr. Rahul Sharma" />
+      </div>
+      <div class="form-group" style="margin-bottom:0.85rem;">
+        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Email</label>
+        <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" />
+      </div>
+      <div class="form-group" style="margin-bottom:0.85rem;">
+        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Role</label>
+        <select id="regRole" class="form-input">
+          <option value="patient">Patient</option>
           <option value="doctor">Doctor</option>
           <option value="pharmacist">Pharmacist</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <!-- Password with Eye Toggle & Live Criteria -->
+      <div class="form-group" style="margin-bottom:0.6rem;">
+        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Password</label>
+        <div class="pw-input-wrap">
+          <i data-lucide="lock" class="pw-icon-left"></i>
+          <input type="password" id="regPassword" class="form-input" placeholder="Create strong password" oninput="handleRegPasswordInput()" />
+          <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('regPassword',this)">
+            <i data-lucide="eye" style="width:16px;height:16px;"></i>
+          </button>
+        </div>
+
+        <!-- Dynamic Strength Bar -->
+        <div class="pw-strength-wrap" id="regStrengthWrap" style="display:none;">
+          <div class="pw-strength-header">
+            <span>Password Strength</span>
+            <span id="regStrengthLabel" style="font-weight:700;">Weak</span>
+          </div>
+          <div class="pw-strength-bar-bg">
+            <div id="regStrengthBar" class="pw-strength-bar-fill"></div>
+          </div>
+        </div>
+
+        <!-- Live Requirements Checklist -->
+        <div class="pw-checklist" id="regChecklist">
+          <div class="pw-rule" id="rule-length">
+            <span class="pw-rule-icon" id="icon-length">🔘</span>
+            <span>8+ characters</span>
+          </div>
+          <div class="pw-rule" id="rule-digit">
+            <span class="pw-rule-icon" id="icon-digit">🔘</span>
+            <span>1 number (0-9)</span>
+          </div>
+          <div class="pw-rule" id="rule-case">
+            <span class="pw-rule-icon" id="icon-case">🔘</span>
+            <span>Upper &amp; lowercase</span>
+          </div>
+          <div class="pw-rule" id="rule-special">
+            <span class="pw-rule-icon" id="icon-special">🔘</span>
+            <span>1 special symbol</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group" style="margin-bottom:1.1rem;">
+        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Confirm Password</label>
+        <div class="pw-input-wrap">
+          <i data-lucide="lock" class="pw-icon-left"></i>
+          <input type="password" id="regConfirmPassword" class="form-input" placeholder="Re-enter your password" oninput="handleRegConfirmPasswordInput()" onkeydown="if(event.key==='Enter')registerUser()" />
+          <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('regConfirmPassword',this)">
+            <i data-lucide="eye" style="width:16px;height:16px;"></i>
+          </button>
+        </div>
+        <div id="regMatchStatus" class="pw-match-text" style="display:none;"></div>
+      </div>
+
+      <button class="btn-blue w-full" id="regSubmitBtn" onclick="registerUser()" style="padding:0.75rem;font-size:0.95rem;font-weight:700;">Create Account</button>
+      <p style="text-align:center;margin-top:0.9rem;font-size:0.82rem;color:var(--slate-600)">
+        Already have an account? <a onclick="closeModal('registerModal');openModal('loginModal')" style="color:var(--blue-600);cursor:pointer;font-weight:700;">Login here</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Profile & Password Change Modal -->
+<div id="profileModal" class="modal-backdrop" onclick="closeModalBackdrop(event,'profileModal')">
+  <div class="modal" style="max-width:480px;border-radius:1.25rem;overflow:hidden;padding:0;">
+    <div style="background: linear-gradient(135deg,#1e293b,#0f172a); padding: 1.4rem 1.6rem 1.1rem; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <h3 style="margin:0;font-size:1.15rem;font-weight:800;color:#fff;">User Profile &amp; Security</h3>
+        <p style="margin:0.2rem 0 0;font-size:0.78rem;color:rgba(255,255,255,0.75);">Manage your account &amp; credentials</p>
+      </div>
+      <button onclick="closeModal('profileModal')" class="modal-close" style="color:#fff;background:rgba(255,255,255,0.15);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <i data-lucide="x" style="width:18px;height:18px"></i>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:1.4rem 1.6rem 1.6rem;">
+      <h4 style="margin:0 0 0.75rem;font-size:0.9rem;font-weight:700;color:var(--slate-700);">Account Details</h4>
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label style="font-size:0.8rem;font-weight:700;color:var(--slate-700);">Full Name</label>
+        <input type="text" id="profileName" class="form-input" />
+      </div>
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label style="font-size:0.8rem;font-weight:700;color:var(--slate-700);">Email</label>
+        <input type="email" id="profileEmail" class="form-input" disabled style="background:#f1f5f9;cursor:not-allowed;" />
+      </div>
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label style="font-size:0.8rem;font-weight:700;color:var(--slate-700);">Role</label>
+        <select id="profileRole" class="form-input">
           <option value="patient">Patient</option>
-        </select></select></div>
-              <div class="form-group"><label>Password</label><input type="password" id="regPassword" class="form-input" placeholder="Min 6 characters" /></div>
-      <button class="btn-blue w-full" onclick="registerUser()">Create Account</button>
-      <p style="text-align:center;margin-top:1rem;font-size:0.875rem;color:var(--slate-600)">Already have an account? <a onclick="closeModal('registerModal');openModal('loginModal')" style="color:var(--blue-600);cursor:pointer;font-weight:600;">Login here</a></p>
+          <option value="doctor">Doctor</option>
+          <option value="pharmacist">Pharmacist</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <button class="btn-blue w-full" onclick="saveProfile()" style="padding:0.6rem;font-size:0.88rem;margin-bottom:1.4rem;">Save Profile</button>
+
+      <hr style="border:0;border-top:1px solid #e2e8f0;margin:0 0 1.2rem;" />
+
+      <h4 style="margin:0 0 0.75rem;font-size:0.9rem;font-weight:700;color:var(--slate-700);">Change Password</h4>
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label style="font-size:0.8rem;font-weight:700;color:var(--slate-700);">Current Password</label>
+        <div class="pw-input-wrap">
+          <i data-lucide="lock" class="pw-icon-left"></i>
+          <input type="password" id="oldPassword" class="form-input" placeholder="Current password" />
+          <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('oldPassword',this)">
+            <i data-lucide="eye" style="width:16px;height:16px;"></i>
+          </button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0.75rem;">
+        <label style="font-size:0.8rem;font-weight:700;color:var(--slate-700);">New Password</label>
+        <div class="pw-input-wrap">
+          <i data-lucide="lock" class="pw-icon-left"></i>
+          <input type="password" id="newPassword" class="form-input" placeholder="New secure password" oninput="handleNewPasswordInput()" />
+          <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('newPassword',this)">
+            <i data-lucide="eye" style="width:16px;height:16px;"></i>
+          </button>
+        </div>
+        <div class="pw-strength-wrap" id="newStrengthWrap" style="display:none;">
+          <div class="pw-strength-header">
+            <span>Password Strength</span>
+            <span id="newStrengthLabel" style="font-weight:700;">Weak</span>
+          </div>
+          <div class="pw-strength-bar-bg">
+            <div id="newStrengthBar" class="pw-strength-bar-fill"></div>
+          </div>
+        </div>
+        <div class="pw-checklist" id="newChecklist">
+          <div class="pw-rule" id="nrule-length"><span class="pw-rule-icon" id="nicon-length">🔘</span><span>8+ characters</span></div>
+          <div class="pw-rule" id="nrule-digit"><span class="pw-rule-icon" id="nicon-digit">🔘</span><span>1 number</span></div>
+          <div class="pw-rule" id="nrule-case"><span class="pw-rule-icon" id="nicon-case">🔘</span><span>Upper &amp; lower</span></div>
+          <div class="pw-rule" id="nrule-special"><span class="pw-rule-icon" id="nicon-special">🔘</span><span>1 special symbol</span></div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:1.1rem;">
+        <label style="font-size:0.8rem;font-weight:700;color:var(--slate-700);">Confirm New Password</label>
+        <div class="pw-input-wrap">
+          <i data-lucide="lock" class="pw-icon-left"></i>
+          <input type="password" id="newPassword2" class="form-input" placeholder="Confirm new password" oninput="handleNewConfirmPasswordInput()" />
+          <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('newPassword2',this)">
+            <i data-lucide="eye" style="width:16px;height:16px;"></i>
+          </button>
+        </div>
+        <div id="newMatchStatus" class="pw-match-text" style="display:none;"></div>
+      </div>
+      <button class="btn-blue w-full" onclick="changePassword()" style="padding:0.65rem;font-size:0.88rem;background:linear-gradient(135deg,#0284c7,#2563eb);">Update Password</button>
     </div>
   </div>
 </div>

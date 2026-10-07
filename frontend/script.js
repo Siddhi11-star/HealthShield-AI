@@ -378,6 +378,8 @@ function openModal(id) {
   if (m) { m.classList.add('open'); lucide.createIcons(); }
   if (id === 'prescriptionModal') setTimeout(initMedicineAutocomplete, 100);
   if (id === 'loginModal') setTimeout(refreshCaptcha, 80);
+  if (id === 'registerModal') setTimeout(() => { handleRegPasswordInput(); lucide.createIcons(); }, 60);
+  if (id === 'profileModal') setTimeout(() => { handleNewPasswordInput(); lucide.createIcons(); }, 60);
 }
 function closeModal(id) {
   const m = document.getElementById(id);
@@ -991,15 +993,215 @@ function renderPharmMedCards(pharmacies, medicine, hasSearched) {
 }
 
 /* ═══════════════════════════════════════
+   PASSWORD POLICY & STRENGTH EVALUATION
+═══════════════════════════════════════ */
+function evaluatePasswordPolicy(p) {
+  p = p || '';
+  const lengthOk  = p.length >= 8;
+  const digitOk   = /[0-9]/.test(p);
+  const upperOk   = /[A-Z]/.test(p);
+  const lowerOk   = /[a-z]/.test(p);
+  const caseOk    = upperOk && lowerOk;
+  const specialOk = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(p);
+
+  let score = 0;
+  if (p.length >= 6) score++;
+  if (lengthOk) score++;
+  if (digitOk) score++;
+  if (caseOk) score++;
+  if (specialOk) score++;
+
+  let strengthLabel = 'Weak';
+  let strengthColor = '#ef4444'; // Red
+  let percent = 20;
+
+  if (score >= 5) {
+    strengthLabel = 'Strong';
+    strengthColor = '#16a34a'; // Green
+    percent = 100;
+  } else if (score >= 3) {
+    strengthLabel = 'Medium';
+    strengthColor = '#f59e0b'; // Amber / Yellow
+    percent = 65;
+  } else if (p.length > 0) {
+    strengthLabel = 'Weak';
+    strengthColor = '#ef4444';
+    percent = 30;
+  } else {
+    percent = 0;
+  }
+
+  const valid = lengthOk && digitOk && caseOk && specialOk;
+  return { valid, lengthOk, digitOk, caseOk, specialOk, score, strengthLabel, strengthColor, percent };
+}
+
+function handleRegPasswordInput() {
+  const p     = document.getElementById('regPassword') ? document.getElementById('regPassword').value : '';
+  const wrap  = document.getElementById('regStrengthWrap');
+  const bar   = document.getElementById('regStrengthBar');
+  const label = document.getElementById('regStrengthLabel');
+
+  if (!p) {
+    if (wrap) wrap.style.display = 'none';
+  } else {
+    if (wrap) wrap.style.display = 'block';
+  }
+
+  const res = evaluatePasswordPolicy(p);
+  if (bar) {
+    bar.style.width = res.percent + '%';
+    bar.style.backgroundColor = res.strengthColor;
+  }
+  if (label) {
+    label.textContent = res.strengthLabel;
+    label.style.color = res.strengthColor;
+  }
+
+  const updateRule = (ruleId, iconId, isOk) => {
+    const el = document.getElementById(ruleId);
+    const ic = document.getElementById(iconId);
+    if (!el || !ic) return;
+    if (isOk) {
+      el.classList.add('valid');
+      ic.textContent = '✅';
+    } else {
+      el.classList.remove('valid');
+      ic.textContent = '🔘';
+    }
+  };
+
+  updateRule('rule-length', 'icon-length', res.lengthOk);
+  updateRule('rule-digit', 'icon-digit', res.digitOk);
+  updateRule('rule-case', 'icon-case', res.caseOk);
+  updateRule('rule-special', 'icon-special', res.specialOk);
+
+  handleRegConfirmPasswordInput();
+}
+
+function handleRegConfirmPasswordInput() {
+  const pw     = document.getElementById('regPassword') ? document.getElementById('regPassword').value : '';
+  const cpw    = document.getElementById('regConfirmPassword') ? document.getElementById('regConfirmPassword').value : '';
+  const status = document.getElementById('regMatchStatus');
+  if (!status) return;
+
+  if (!cpw) {
+    status.style.display = 'none';
+    status.textContent = '';
+    return;
+  }
+
+  status.style.display = 'flex';
+  if (pw === cpw) {
+    status.className = 'pw-match-text match';
+    status.innerHTML = '<span>✓ Passwords match</span>';
+  } else {
+    status.className = 'pw-match-text mismatch';
+    status.innerHTML = '<span>✗ Passwords do not match</span>';
+  }
+}
+
+function handleNewPasswordInput() {
+  const p     = document.getElementById('newPassword') ? document.getElementById('newPassword').value : '';
+  const wrap  = document.getElementById('newStrengthWrap');
+  const bar   = document.getElementById('newStrengthBar');
+  const label = document.getElementById('newStrengthLabel');
+
+  if (!p) {
+    if (wrap) wrap.style.display = 'none';
+  } else {
+    if (wrap) wrap.style.display = 'block';
+  }
+
+  const res = evaluatePasswordPolicy(p);
+  if (bar) {
+    bar.style.width = res.percent + '%';
+    bar.style.backgroundColor = res.strengthColor;
+  }
+  if (label) {
+    label.textContent = res.strengthLabel;
+    label.style.color = res.strengthColor;
+  }
+
+  const updateRule = (ruleId, iconId, isOk) => {
+    const el = document.getElementById(ruleId);
+    const ic = document.getElementById(iconId);
+    if (!el || !ic) return;
+    if (isOk) {
+      el.classList.add('valid');
+      ic.textContent = '✅';
+    } else {
+      el.classList.remove('valid');
+      ic.textContent = '🔘';
+    }
+  };
+
+  updateRule('nrule-length', 'nicon-length', res.lengthOk);
+  updateRule('nrule-digit', 'nicon-digit', res.digitOk);
+  updateRule('nrule-case', 'nicon-case', res.caseOk);
+  updateRule('nrule-special', 'nicon-special', res.specialOk);
+
+  handleNewConfirmPasswordInput();
+}
+
+function handleNewConfirmPasswordInput() {
+  const pw     = document.getElementById('newPassword') ? document.getElementById('newPassword').value : '';
+  const cpw    = document.getElementById('newPassword2') ? document.getElementById('newPassword2').value : '';
+  const status = document.getElementById('newMatchStatus');
+  if (!status) return;
+
+  if (!cpw) {
+    status.style.display = 'none';
+    status.textContent = '';
+    return;
+  }
+
+  status.style.display = 'flex';
+  if (pw === cpw) {
+    status.className = 'pw-match-text match';
+    status.innerHTML = '<span>✓ Passwords match</span>';
+  } else {
+    status.className = 'pw-match-text mismatch';
+    status.innerHTML = '<span>✗ Passwords do not match</span>';
+  }
+}
+
+/* ═══════════════════════════════════════
    AUTH
 ═══════════════════════════════════════ */
 async function registerUser() {
-  const name     = document.getElementById('regName').value.trim();
-  const email    = document.getElementById('regEmail').value.trim();
-  const role     = document.getElementById('regRole').value;
-  const password = document.getElementById('regPassword').value;
-  if (!name || !email || !password) { showToast('Please fill all fields', 'error'); return; }
-  if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+  const name      = document.getElementById('regName').value.trim();
+  const email     = document.getElementById('regEmail').value.trim();
+  const role      = document.getElementById('regRole').value;
+  const password  = document.getElementById('regPassword').value;
+  const confirmPw = document.getElementById('regConfirmPassword') ? document.getElementById('regConfirmPassword').value : '';
+
+  if (!name || !email || !password) {
+    showToast('Please fill all fields', 'error');
+    return;
+  }
+
+  const policy = evaluatePasswordPolicy(password);
+  if (!policy.lengthOk) {
+    showToast('Password must be at least 8 characters long', 'error');
+    return;
+  }
+  if (!policy.digitOk) {
+    showToast('Password must contain at least one digit (0-9)', 'error');
+    return;
+  }
+  if (!policy.caseOk) {
+    showToast('Password must contain both uppercase and lowercase letters', 'error');
+    return;
+  }
+  if (!policy.specialOk) {
+    showToast('Password must contain at least one special character (!@#$%^&*...)', 'error');
+    return;
+  }
+  if (password !== confirmPw) {
+    showToast('Passwords do not match', 'error');
+    return;
+  }
+
   try {
     const data = await api('POST', '/auth/register', { name, email, role, password });
     authToken = data.token; currentUser = data.user;
@@ -1585,12 +1787,19 @@ async function changePassword() {
   const oldPw  = oldEl  ? oldEl.value  : '';
   const newPw  = newEl  ? newEl.value  : '';
   const newPw2 = new2El ? new2El.value : '';
-  if (!oldPw || !newPw) { showToast('Fill all password fields', 'error'); return; }
+  if (!oldPw || !newPw || !newPw2) { showToast('Fill all password fields', 'error'); return; }
   if (newPw !== newPw2)  { showToast('New passwords do not match', 'error'); return; }
-  if (newPw.length < 6)  { showToast('Min 6 characters', 'error'); return; }
+  
+  const policy = evaluatePasswordPolicy(newPw);
+  if (!policy.valid) {
+    showToast('New password does not meet the security criteria (8+ chars, digit, upper & lowercase, special char)', 'error');
+    return;
+  }
+
   try {
     await api('POST', '/auth/change-password', { email: currentUser.email, old_password: oldPw, new_password: newPw });
-    showToast('Password changed!', 'success'); closeModal('profileModal');
+    showToast('Password changed successfully!', 'success');
+    closeModal('profileModal');
   } catch (err) { showToast(err.message, 'error'); }
 }
 

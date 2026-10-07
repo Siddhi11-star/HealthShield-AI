@@ -1189,6 +1189,121 @@ select.form-input { cursor: pointer; }
 }
 .otp-box:focus { border-color: var(--blue-600) !important; }
 
+/* ── Password Security & Strength Meter ───────────────────────── */
+.pw-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pw-input-wrap .form-input {
+  padding-left: 2.4rem !important;
+  padding-right: 2.75rem !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.pw-input-wrap .pw-icon-left {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 2;
+}
+.pw-input-wrap .pw-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+  z-index: 2;
+}
+.pw-input-wrap .pw-toggle-btn:hover {
+  color: var(--blue-600);
+}
+.pw-strength-wrap {
+  margin-top: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.pw-strength-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+}
+.pw-strength-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pw-strength-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+.pw-checklist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem 0.6rem;
+  margin-top: 0.6rem;
+  margin-bottom: 0.75rem;
+  padding: 0.65rem 0.8rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.65rem;
+}
+.pw-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+.pw-rule-icon {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  transition: all 0.2s ease;
+}
+.pw-rule.valid {
+  color: #15803d;
+}
+.pw-match-text {
+  font-size: 0.76rem;
+  font-weight: 600;
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.pw-match-text.match {
+  color: #16a34a;
+}
+.pw-match-text.mismatch {
+  color: #dc2626;
+}
+
 /* Toast */
 .toast {
   position: fixed;

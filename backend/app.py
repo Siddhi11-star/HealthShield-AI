@@ -4,7 +4,7 @@ from auth_utils import get_current_user, get_token_user, require_roles
 from flask import Flask, request, jsonify, make_response, send_file
 from flask_cors import CORS
 from config import get_db
-import hashlib, random, string, datetime, json, uuid
+import hashlib, random, string, datetime, json, uuid, re
 import csv
 import math
 import logging
@@ -68,6 +68,27 @@ def admin_summary():
 
 def hash_password(p):
     return hashlib.sha256(p.encode()).hexdigest()
+
+def validate_password_criteria(p):
+    """
+    Validates healthcare security password criteria:
+    - Minimum 8 characters
+    - At least 1 digit (0-9)
+    - At least 1 uppercase letter (A-Z)
+    - At least 1 lowercase letter (a-z)
+    - At least 1 special character (!@#$%^&*()_+-=[]{};':"|,.<>/?)
+    """
+    if not p or len(p) < 8:
+        return False, "Password must be at least 8 characters long."
+    if not re.search(r'[0-9]', p):
+        return False, "Password must contain at least one digit (0-9)."
+    if not re.search(r'[A-Z]', p):
+        return False, "Password must contain at least one uppercase letter (A-Z)."
+    if not re.search(r'[a-z]', p):
+        return False, "Password must contain at least one lowercase letter (a-z)."
+    if not re.search(r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]', p):
+        return False, "Password must contain at least one special character (!@#$%^&*...)."
+    return True, ""
 
 # get_token_user is imported from auth_utils at the top of this file.
 # A duplicate local definition was removed to avoid shadowing the import.
@@ -639,11 +660,20 @@ def ensure_tables(db):
 
 @app.route("/api/auth/register", methods=["POST"])
 def register():
-    data = request.json
-    name     = data.get("name")
-    email    = data.get("email")
-    password = hash_password(data.get("password", ""))
+    data = request.json or {}
+    name     = (data.get("name") or "").strip()
+    email    = (data.get("email") or "").strip()
+    raw_pass = data.get("password", "")
     role     = data.get("role", "doctor")
+
+    if not name or not email or not raw_pass:
+        return jsonify({"error": "Name, email, and password are required"}), 400
+
+    is_valid, err_msg = validate_password_criteria(raw_pass)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 400
+
+    password = hash_password(raw_pass)
     try:
         db = get_db()
         ensure_tables(db)
@@ -718,12 +748,17 @@ def me():
 
 @app.route("/api/auth/change-password", methods=["POST"])
 def change_password():
-    data         = request.json
+    data         = request.json or {}
     email        = data.get("email")
     old_password = data.get("old_password")
     new_password = data.get("new_password")
     if not email or not old_password or not new_password:
         return jsonify({"error": "All fields required"}), 400
+
+    is_valid, err_msg = validate_password_criteria(new_password)
+    if not is_valid:
+        return jsonify({"error": err_msg}), 400
+
     hashed_old = hash_password(old_password)
     hashed_new = hash_password(new_password)
     try:

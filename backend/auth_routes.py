@@ -71,7 +71,10 @@ def _ensure_auth_tables():
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # Use independent ALTERs for broader MySQL compatibility.
+        try:
+            c.execute("ALTER TABLE users MODIFY COLUMN email VARCHAR(200) NULL DEFAULT NULL")
+        except Exception:
+            pass
         try:
             c.execute("ALTER TABLE users ADD COLUMN phone VARCHAR(20) DEFAULT NULL")
         except Exception:
