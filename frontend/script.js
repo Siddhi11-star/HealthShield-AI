@@ -22,7 +22,7 @@ let currentUser = null;
 let authToken   = null;
 
 function getStoredToken() {
-  const token = localStorage.getItem('mg_token');
+  const token = localStorage.getItem('mg_token') || sessionStorage.getItem('mg_token');
   if (!token || token === 'null' || token === 'undefined') return null;
   return token;
 }
@@ -377,7 +377,16 @@ function openModal(id) {
   const m = document.getElementById(id);
   if (m) { m.classList.add('open'); lucide.createIcons(); }
   if (id === 'prescriptionModal') setTimeout(initMedicineAutocomplete, 100);
-  if (id === 'loginModal') setTimeout(refreshCaptcha, 80);
+  if (id === 'loginModal') {
+    setTimeout(refreshCaptcha, 80);
+    const savedEmail = localStorage.getItem('mg_remembered_email');
+    const emailInput = document.getElementById('loginEmail');
+    const remCheck = document.getElementById('loginRememberMe');
+    if (savedEmail && emailInput && !emailInput.value) {
+      emailInput.value = savedEmail;
+      if (remCheck) remCheck.checked = true;
+    }
+  }
   if (id === 'registerModal') setTimeout(() => { handleRegPasswordInput(); lucide.createIcons(); }, 60);
   if (id === 'profileModal') setTimeout(() => { handleNewPasswordInput(); lucide.createIcons(); }, 60);
 }
@@ -1475,8 +1484,37 @@ async function loginUserWithCaptcha() {
     authToken = data.token;
     currentUser = data.user;
     chatbotSeeded = false; // Reset chatbot greeting on login
-    localStorage.setItem('mg_token', authToken);
-    localStorage.setItem('mg_user', JSON.stringify(currentUser));
+
+    // Handle "Remember Me" preference (localStorage vs sessionStorage)
+    const rememberMe = document.getElementById('loginRememberMe') ? document.getElementById('loginRememberMe').checked : false;
+    if (rememberMe) {
+      localStorage.setItem('mg_token', authToken);
+      localStorage.setItem('mg_user', JSON.stringify(currentUser));
+      localStorage.setItem('mg_remembered_email', email);
+      sessionStorage.removeItem('mg_token');
+      sessionStorage.removeItem('mg_user');
+    } else {
+      sessionStorage.setItem('mg_token', authToken);
+      sessionStorage.setItem('mg_user', JSON.stringify(currentUser));
+      localStorage.removeItem('mg_token');
+      localStorage.removeItem('mg_user');
+      localStorage.removeItem('mg_remembered_email');
+    }
+
+    // Trigger browser native "Save password" dialog via Credential Management API
+    if (window.PasswordCredential && navigator.credentials && navigator.credentials.store) {
+      try {
+        const cred = new PasswordCredential({
+          id: email,
+          password: password,
+          name: (data.user && data.user.name) || email,
+        });
+        navigator.credentials.store(cred).catch(e => console.log('Credential store note:', e));
+      } catch (e) {
+        console.log('PasswordCredential note:', e);
+      }
+    }
+
     closeModal('loginModal');
     updateNavAuth();
     showToast('Welcome back, ' + data.user.name + '!', 'success');
@@ -1709,6 +1747,7 @@ async function resendOTP() {
 function logoutUser() {
   authToken = null; currentUser = null;
   localStorage.removeItem('mg_token'); localStorage.removeItem('mg_user');
+  sessionStorage.removeItem('mg_token'); sessionStorage.removeItem('mg_user');
   chatbotSeeded = false; // Reset chatbot greeting on logout
   updateNavAuth(); navigate('home');
   showToast('Logged out successfully', 'info');
@@ -1719,7 +1758,7 @@ async function restoreSession() {
   if (!authToken) return;
 
   try {
-    const stored = localStorage.getItem('mg_user');
+    const stored = localStorage.getItem('mg_user') || sessionStorage.getItem('mg_user');
     if (stored) {
       currentUser = JSON.parse(stored);
       updateNavAuth();
@@ -1729,13 +1768,19 @@ async function restoreSession() {
     const data = await api('GET', '/auth/me');
     if (data.user) {
       currentUser = data.user;
-      localStorage.setItem('mg_user', JSON.stringify(currentUser));
+      if (localStorage.getItem('mg_token')) {
+        localStorage.setItem('mg_user', JSON.stringify(currentUser));
+      } else {
+        sessionStorage.setItem('mg_user', JSON.stringify(currentUser));
+      }
       updateNavAuth();
     }
   } catch (err) {
     authToken = null;
     localStorage.removeItem('mg_token');
     localStorage.removeItem('mg_user');
+    sessionStorage.removeItem('mg_token');
+    sessionStorage.removeItem('mg_user');
   }
 }
 

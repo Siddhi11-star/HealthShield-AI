@@ -3185,24 +3185,54 @@ body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) sat
         <p style="text-align:center;margin-top:1.1rem;font-size:0.8rem;color:var(--slate-500);">Don't have an account? <a onclick="closeModal('loginModal');openModal('registerModal')" style="color:var(--blue-600);cursor:pointer;font-weight:700;">Register here</a></p>
       </div>
       <div id="panelEmail" style="display:none;">
-        <div class="form-group" style="margin-bottom:1rem;"><label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Email address</label><div style="position:relative;"><i data-lucide="mail" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#94a3b8;pointer-events:none;"></i><input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" style="padding-left:2.4rem;" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()" /></div></div>
-        <div class="form-group" style="margin-bottom:1.25rem;"><div style="display:flex;justify-content:space-between;align-items:center;"><label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Password</label><a style="font-size:0.76rem;color:var(--blue-600);cursor:pointer;font-weight:600;">Forgot password?</a></div><div style="position:relative;"><i data-lucide="lock" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#94a3b8;pointer-events:none;"></i><input type="password" id="loginPassword" class="form-input" placeholder="••••••••" style="padding-left:2.4rem;padding-right:2.75rem;" onkeydown="if(event.key==='Enter')loginUserWithCaptcha()" /><button onclick="togglePasswordVisibility('loginPassword',this)" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;"><i data-lucide="eye" style="width:16px;height:16px;"></i></button></div></div>
-        <div id="captchaBox" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:0.75rem;padding:0.9rem 1rem;margin-bottom:1.1rem;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.55rem;">
-            <span style="font-size:0.75rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.05em;">Security Verification</span>
-            <button onclick="refreshCaptcha()" title="New captcha" style="background:none;border:none;cursor:pointer;color:#64748b;padding:0.3rem;border-radius:0.4rem;display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;transition:background 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width:13px;height:13px;"></i> Refresh</button>
-          </div>
-          <div style="display:flex;align-items:center;gap:0.75rem;">
-            <div style="position:relative;flex-shrink:0;border-radius:0.5rem;overflow:hidden;border:1.5px solid #cbd5e1;">
-              <canvas id="captchaCanvas" width="160" height="52" style="display:block;"></canvas>
-            </div>
-            <div style="flex:1;">
-              <input type="text" id="captchaAnswer" class="form-input" placeholder="Type characters above" maxlength="6" autocomplete="off" spellcheck="false" style="font-size:0.92rem;margin:0;letter-spacing:0.12em;font-family:monospace;" oninput="this.value=this.value.toUpperCase()" />
-              <div id="captchaStatus" style="font-size:0.72rem;margin-top:0.3rem;min-height:1rem;color:#64748b;">Enter the characters shown in the image</div>
+        <form id="emailLoginForm" method="POST" autocomplete="on" onsubmit="event.preventDefault(); loginUserWithCaptcha();">
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Email address</label>
+            <div style="position:relative;">
+              <i data-lucide="mail" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#94a3b8;pointer-events:none;"></i>
+              <input type="email" id="loginEmail" name="username" autocomplete="username" class="form-input" placeholder="you@example.com" style="padding-left:2.4rem;" onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()" />
             </div>
           </div>
-        </div>
-        <button class="btn-blue w-full" onclick="loginUserWithCaptcha()" style="font-size:0.92rem;padding:0.75rem;"><i data-lucide="log-in" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"></i> Login</button>
+          <div class="form-group" style="margin-bottom:0.85rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Password</label>
+              <a style="font-size:0.76rem;color:var(--blue-600);cursor:pointer;font-weight:600;">Forgot password?</a>
+            </div>
+            <div style="position:relative;">
+              <i data-lucide="lock" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#94a3b8;pointer-events:none;"></i>
+              <input type="password" id="loginPassword" name="password" autocomplete="current-password" class="form-input" placeholder="••••••••" style="padding-left:2.4rem;padding-right:2.75rem;" />
+              <button type="button" onclick="togglePasswordVisibility('loginPassword',this)" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;padding:0;">
+                <i data-lucide="eye" style="width:16px;height:16px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember Me Checkbox -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;margin-top:0.2rem;">
+            <label style="display:inline-flex;align-items:center;gap:0.45rem;font-size:0.8rem;color:var(--slate-600);cursor:pointer;user-select:none;">
+              <input type="checkbox" id="loginRememberMe" style="width:15px;height:15px;accent-color:var(--blue-600);cursor:pointer;border-radius:4px;" />
+              <span>Remember me on this device</span>
+            </label>
+            <span style="font-size:0.72rem;color:#94a3b8;" title="Do not check on shared hospital or clinic computers">🔒 Session</span>
+          </div>
+
+          <div id="captchaBox" style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:0.75rem;padding:0.9rem 1rem;margin-bottom:1.1rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.55rem;">
+              <span style="font-size:0.75rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.05em;">Security Verification</span>
+              <button type="button" onclick="refreshCaptcha()" title="New captcha" style="background:none;border:none;cursor:pointer;color:#64748b;padding:0.3rem;border-radius:0.4rem;display:flex;align-items:center;gap:0.3rem;font-size:0.72rem;transition:background 0.15s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width:13px;height:13px;"></i> Refresh</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="position:relative;flex-shrink:0;border-radius:0.5rem;overflow:hidden;border:1.5px solid #cbd5e1;">
+                <canvas id="captchaCanvas" width="160" height="52" style="display:block;"></canvas>
+              </div>
+              <div style="flex:1;">
+                <input type="text" id="captchaAnswer" class="form-input" placeholder="Type characters above" maxlength="6" autocomplete="off" spellcheck="false" style="font-size:0.92rem;margin:0;letter-spacing:0.12em;font-family:monospace;" oninput="this.value=this.value.toUpperCase()" />
+                <div id="captchaStatus" style="font-size:0.72rem;margin-top:0.3rem;min-height:1rem;color:#64748b;">Enter the characters shown in the image</div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn-blue w-full" style="font-size:0.92rem;padding:0.75rem;"><i data-lucide="log-in" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;"></i> Login</button>
+        </form>
         <p style="text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--slate-500);">Don't have an account? <a onclick="closeModal('loginModal');openModal('registerModal')" style="color:var(--blue-600);cursor:pointer;font-weight:700;">Register here</a></p>
       </div>
       <div id="panelPhone" style="display:none;">
@@ -3245,81 +3275,83 @@ body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) sat
       </button>
     </div>
     <div class="modal-body" style="padding:1.4rem 1.6rem 1.6rem;">
-      <div class="form-group" style="margin-bottom:0.85rem;">
-        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Full Name</label>
-        <input type="text" id="regName" class="form-input" placeholder="e.g. Dr. Rahul Sharma" />
-      </div>
-      <div class="form-group" style="margin-bottom:0.85rem;">
-        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Email</label>
-        <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" />
-      </div>
-      <div class="form-group" style="margin-bottom:0.85rem;">
-        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Role</label>
-        <select id="regRole" class="form-input">
-          <option value="patient">Patient</option>
-          <option value="doctor">Doctor</option>
-          <option value="pharmacist">Pharmacist</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-
-      <!-- Password with Eye Toggle & Live Criteria -->
-      <div class="form-group" style="margin-bottom:0.6rem;">
-        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Password</label>
-        <div class="pw-input-wrap">
-          <i data-lucide="lock" class="pw-icon-left"></i>
-          <input type="password" id="regPassword" class="form-input" placeholder="Create strong password" oninput="handleRegPasswordInput()" />
-          <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('regPassword',this)">
-            <i data-lucide="eye" style="width:16px;height:16px;"></i>
-          </button>
+      <form id="userRegisterForm" method="POST" autocomplete="on" onsubmit="event.preventDefault(); registerUser();">
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Full Name</label>
+          <input type="text" id="regName" name="name" autocomplete="name" class="form-input" placeholder="e.g. Dr. Rahul Sharma" />
+        </div>
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Email</label>
+          <input type="email" id="regEmail" name="username" autocomplete="username" class="form-input" placeholder="you@example.com" />
+        </div>
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Role</label>
+          <select id="regRole" name="role" class="form-input">
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+            <option value="pharmacist">Pharmacist</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
 
-        <!-- Dynamic Strength Bar -->
-        <div class="pw-strength-wrap" id="regStrengthWrap" style="display:none;">
-          <div class="pw-strength-header">
-            <span>Password Strength</span>
-            <span id="regStrengthLabel" style="font-weight:700;">Weak</span>
+        <!-- Password with Eye Toggle & Live Criteria -->
+        <div class="form-group" style="margin-bottom:0.6rem;">
+          <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Password</label>
+          <div class="pw-input-wrap">
+            <i data-lucide="lock" class="pw-icon-left"></i>
+            <input type="password" id="regPassword" name="password" autocomplete="new-password" class="form-input" placeholder="Create strong password" oninput="handleRegPasswordInput()" />
+            <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('regPassword',this)">
+              <i data-lucide="eye" style="width:16px;height:16px;"></i>
+            </button>
           </div>
-          <div class="pw-strength-bar-bg">
-            <div id="regStrengthBar" class="pw-strength-bar-fill"></div>
+
+          <!-- Dynamic Strength Bar -->
+          <div class="pw-strength-wrap" id="regStrengthWrap" style="display:none;">
+            <div class="pw-strength-header">
+              <span>Password Strength</span>
+              <span id="regStrengthLabel" style="font-weight:700;">Weak</span>
+            </div>
+            <div class="pw-strength-bar-bg">
+              <div id="regStrengthBar" class="pw-strength-bar-fill"></div>
+            </div>
+          </div>
+
+          <!-- Live Requirements Checklist -->
+          <div class="pw-checklist" id="regChecklist">
+            <div class="pw-rule" id="rule-length">
+              <span class="pw-rule-icon" id="icon-length">🔘</span>
+              <span>8+ characters</span>
+            </div>
+            <div class="pw-rule" id="rule-digit">
+              <span class="pw-rule-icon" id="icon-digit">🔘</span>
+              <span>1 number (0-9)</span>
+            </div>
+            <div class="pw-rule" id="rule-case">
+              <span class="pw-rule-icon" id="icon-case">🔘</span>
+              <span>Upper &amp; lowercase</span>
+            </div>
+            <div class="pw-rule" id="rule-special">
+              <span class="pw-rule-icon" id="icon-special">🔘</span>
+              <span>1 special symbol</span>
+            </div>
           </div>
         </div>
 
-        <!-- Live Requirements Checklist -->
-        <div class="pw-checklist" id="regChecklist">
-          <div class="pw-rule" id="rule-length">
-            <span class="pw-rule-icon" id="icon-length">🔘</span>
-            <span>8+ characters</span>
+        <!-- Confirm Password -->
+        <div class="form-group" style="margin-bottom:1.1rem;">
+          <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Confirm Password</label>
+          <div class="pw-input-wrap">
+            <i data-lucide="lock" class="pw-icon-left"></i>
+            <input type="password" id="regConfirmPassword" name="confirm-password" autocomplete="new-password" class="form-input" placeholder="Re-enter your password" oninput="handleRegConfirmPasswordInput()" />
+            <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('regConfirmPassword',this)">
+              <i data-lucide="eye" style="width:16px;height:16px;"></i>
+            </button>
           </div>
-          <div class="pw-rule" id="rule-digit">
-            <span class="pw-rule-icon" id="icon-digit">🔘</span>
-            <span>1 number (0-9)</span>
-          </div>
-          <div class="pw-rule" id="rule-case">
-            <span class="pw-rule-icon" id="icon-case">🔘</span>
-            <span>Upper &amp; lowercase</span>
-          </div>
-          <div class="pw-rule" id="rule-special">
-            <span class="pw-rule-icon" id="icon-special">🔘</span>
-            <span>1 special symbol</span>
-          </div>
+          <div id="regMatchStatus" class="pw-match-text" style="display:none;"></div>
         </div>
-      </div>
 
-      <!-- Confirm Password -->
-      <div class="form-group" style="margin-bottom:1.1rem;">
-        <label style="font-size:0.82rem;font-weight:700;color:var(--slate-700);">Confirm Password</label>
-        <div class="pw-input-wrap">
-          <i data-lucide="lock" class="pw-icon-left"></i>
-          <input type="password" id="regConfirmPassword" class="form-input" placeholder="Re-enter your password" oninput="handleRegConfirmPasswordInput()" onkeydown="if(event.key==='Enter')registerUser()" />
-          <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('regConfirmPassword',this)">
-            <i data-lucide="eye" style="width:16px;height:16px;"></i>
-          </button>
-        </div>
-        <div id="regMatchStatus" class="pw-match-text" style="display:none;"></div>
-      </div>
-
-      <button class="btn-blue w-full" id="regSubmitBtn" onclick="registerUser()" style="padding:0.75rem;font-size:0.95rem;font-weight:700;">Create Account</button>
+        <button type="submit" class="btn-blue w-full" id="regSubmitBtn" style="padding:0.75rem;font-size:0.95rem;font-weight:700;">Create Account</button>
+      </form>
       <p style="text-align:center;margin-top:0.9rem;font-size:0.82rem;color:var(--slate-600)">
         Already have an account? <a onclick="closeModal('registerModal');openModal('loginModal')" style="color:var(--blue-600);cursor:pointer;font-weight:700;">Login here</a>
       </p>
