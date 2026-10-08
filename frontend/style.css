@@ -1147,6 +1147,221 @@ select.form-input { cursor: pointer; }
 
 .modal-body { padding: 1.5rem; }
 
+/* ── Fullscreen Ayurveda Tips Modal ── */
+.modal-fullscreen.ayurveda-fullscreen-modal {
+  width: 95vw !important;
+  max-width: 1200px !important;
+  height: 90vh !important;
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 1.5rem !important;
+  background: white !important;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35) !important;
+  border: 1px solid rgba(147, 51, 234, 0.2) !important;
+  overflow: hidden !important;
+}
+
+.ayurveda-modal-header {
+  background: linear-gradient(135deg, #fbf7ff 0%, #f3e8ff 100%) !important;
+  padding: 1.25rem 1.75rem !important;
+  border-bottom: 1px solid #e9d5ff !important;
+}
+
+.ayurveda-modal-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #9333ea, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+}
+
+.ayurveda-modal-toolbar {
+  padding: 1rem 1.75rem;
+  background: white;
+  border-bottom: 1px solid var(--slate-200);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ayurveda-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  width: 100%;
+}
+
+.ayurveda-search-box input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.9rem;
+  outline: none;
+  color: var(--slate-800);
+  font-family: inherit;
+}
+
+.ayurveda-category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ayurveda-cat-btn {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 2rem;
+  border: 1px solid var(--purple-200);
+  background: var(--purple-50);
+  color: var(--purple-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ayurveda-cat-btn:hover,
+.ayurveda-cat-btn.active {
+  background: var(--purple-600);
+  color: white;
+  border-color: var(--purple-600);
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.25);
+}
+
+.ayurveda-modal-body {
+  padding: 1.5rem 1.75rem !important;
+  overflow-y: auto !important;
+  flex-grow: 1 !important;
+  background: var(--slate-50) !important;
+}
+
+.ayurveda-tips-full-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.ayurveda-tip-category-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--slate-200);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ayurveda-tip-category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  border-color: var(--purple-300);
+}
+
+.ayurveda-tip-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--purple-100);
+}
+
+.ayurveda-tip-card-header h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--purple-900);
+  margin: 0;
+}
+
+.ayurveda-tip-card-header .tip-badge {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 1rem;
+  background: var(--purple-100);
+  color: var(--purple-800);
+}
+
+.ayurveda-tips-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.ayurveda-tips-items-list li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--slate-700);
+}
+
+.ayurveda-tips-items-list li::before {
+  content: '🌿';
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  font-size: 0.8rem;
+}
+
+.ayurveda-modal-footer {
+  padding: 0.85rem 1.75rem;
+  background: white;
+  border-top: 1px solid var(--slate-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+body.dark-theme .modal-fullscreen.ayurveda-fullscreen-modal {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+body.dark-theme .ayurveda-modal-header {
+  background: #1e1b4b !important;
+  border-bottom-color: #312e81 !important;
+}
+body.dark-theme .ayurveda-modal-header h3 {
+  color: #f1f5f9 !important;
+}
+body.dark-theme .ayurveda-modal-toolbar,
+body.dark-theme .ayurveda-modal-footer {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+body.dark-theme .ayurveda-search-box {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+body.dark-theme .ayurveda-search-box input {
+  color: #f8fafc !important;
+}
+body.dark-theme .ayurveda-modal-body {
+  background: #0b0f19 !important;
+}
+body.dark-theme .ayurveda-tip-category-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+body.dark-theme .ayurveda-tip-card-header h4 {
+  color: #e2e8f0 !important;
+}
+body.dark-theme .ayurveda-tips-items-list li {
+  color: #cbd5e1 !important;
+}
+
 /* ── Login modal tabs ─────────────────────────────────────────── */
 .login-tab {
   background: none;

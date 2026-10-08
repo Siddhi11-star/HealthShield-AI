@@ -8298,24 +8298,39 @@ async function runAyurvedaSymptomAnalysis() {
   }
 }
 
+let currentAyurvedaCategory = 'all';
+
+const AYURVEDA_CATEGORY_LABELS = {
+  'all': '✨ All Tips',
+  'morning_routine': '🌅 Morning Routine',
+  'diet_nutrition': '🥗 Diet & Digestion',
+  'hydration_detox': '💧 Hydration & Detox',
+  'lifestyle': '🚶 Daily Lifestyle',
+  'sleep_relaxation': '🌙 Sleep & Rest',
+  'mind_breathing': '🧘 Mind & Breathing',
+  'seasonal_adjustment': '🍂 Seasonal Care',
+  'common_remedies': '🌿 Home Remedies'
+};
+
 async function loadAyurvHealthTips() {
   try {
     const data = await api('GET', '/ayurveda/health-tips');
     const tips = data.tips || {};
+    window.ayurvedaAllTips = tips;
     const container = document.getElementById('ayurveda-quick-tips');
     if (container) {
       container.innerHTML = `
         <div class="ayurveda-tip-section">
           <h4 class="ayurveda-tip-title">Morning Routine</h4>
-          <ul class="ayurveda-tip-list">${(tips.morning_routine||[]).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
+          <ul class="ayurveda-tip-list">${(tips.morning_routine||[]).slice(0, 4).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
         </div>
         <div class="ayurveda-tip-section">
-          <h4 class="ayurveda-tip-title">Lifestyle</h4>
-          <ul class="ayurveda-tip-list">${(tips.lifestyle||[]).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
+          <h4 class="ayurveda-tip-title">Diet & Digestion</h4>
+          <ul class="ayurveda-tip-list">${(tips.diet_nutrition||tips.lifestyle||[]).slice(0, 4).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
         </div>
         <div class="ayurveda-tip-section">
-          <h4 class="ayurveda-tip-title">Seasonal</h4>
-          <ul class="ayurveda-tip-list">${(tips.seasonal_adjustment||[]).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
+          <h4 class="ayurveda-tip-title">Seasonal & Remedies</h4>
+          <ul class="ayurveda-tip-list">${(tips.seasonal_adjustment||tips.common_remedies||[]).slice(0, 4).map(t => `<li class="ayurveda-tip-item">${t}</li>`).join('')}</ul>
         </div>
       `;
     }
@@ -8323,6 +8338,95 @@ async function loadAyurvHealthTips() {
     console.error('Error loading health tips:', err);
   }
 }
+
+async function openAyurvedaTipsModal() {
+  if (!window.ayurvedaAllTips || Object.keys(window.ayurvedaAllTips).length === 0) {
+    await loadAyurvHealthTips();
+  }
+  renderAyurvedaCategories();
+  renderAyurvedaModalTips();
+  openModal('ayurvedaTipsModal');
+  if (window.lucide) lucide.createIcons();
+}
+
+function renderAyurvedaCategories() {
+  const container = document.getElementById('ayurvedaCategoryFilters');
+  if (!container) return;
+  const categories = ['all', 'morning_routine', 'diet_nutrition', 'hydration_detox', 'lifestyle', 'sleep_relaxation', 'mind_breathing', 'seasonal_adjustment', 'common_remedies'];
+  container.innerHTML = categories.map(cat => `
+    <button type="button" class="ayurveda-cat-btn ${currentAyurvedaCategory === cat ? 'active' : ''}" onclick="selectAyurvedaCategory('${cat}')">
+      ${AYURVEDA_CATEGORY_LABELS[cat] || cat}
+    </button>
+  `).join('');
+}
+
+function selectAyurvedaCategory(cat) {
+  currentAyurvedaCategory = cat;
+  renderAyurvedaCategories();
+  renderAyurvedaModalTips();
+}
+
+function filterAyurvedaTips() {
+  renderAyurvedaModalTips();
+}
+
+function renderAyurvedaModalTips() {
+  const container = document.getElementById('ayurvedaModalTipsContainer');
+  if (!container) return;
+  const tips = window.ayurvedaAllTips || {};
+  const searchInput = document.getElementById('ayurvedaTipSearch');
+  const query = (searchInput?.value || '').toLowerCase().trim();
+
+  let categoriesToDisplay = currentAyurvedaCategory === 'all' 
+    ? Object.keys(tips) 
+    : [currentAyurvedaCategory];
+
+  let html = '<div class="ayurveda-tips-full-grid">';
+  let totalRendered = 0;
+
+  categoriesToDisplay.forEach(cat => {
+    let items = tips[cat] || [];
+    if (query) {
+      items = items.filter(tip => tip.toLowerCase().includes(query));
+    }
+    if (items.length > 0) {
+      totalRendered += items.length;
+      const fullLabel = AYURVEDA_CATEGORY_LABELS[cat] || cat;
+      const parts = fullLabel.split(' ');
+      const icon = parts[0];
+      const label = parts.slice(1).join(' ') || cat;
+
+      html += `
+        <div class="ayurveda-tip-category-card">
+          <div class="ayurveda-tip-card-header">
+            <span style="font-size:1.35rem;">${icon}</span>
+            <h4>${label}</h4>
+            <span class="tip-badge">${items.length} tips</span>
+          </div>
+          <ul class="ayurveda-tips-items-list">
+            ${items.map(tip => `<li>${tip}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
+  });
+
+  html += '</div>';
+
+  if (totalRendered === 0) {
+    html = `
+      <div style="text-align:center;padding:3rem 1rem;color:var(--slate-500);">
+        <i data-lucide="search-x" style="width:48px;height:48px;margin:0 auto 1rem;opacity:0.5;display:block;"></i>
+        <h4 style="font-size:1.1rem;margin-bottom:0.5rem;color:var(--slate-700);">No tips matched "${query}"</h4>
+        <p style="font-size:0.9rem;">Try searching for something else like "water", "sleep", "ginger", or "morning".</p>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+  if (window.lucide) lucide.createIcons();
+}
+
 
 function selectSkinType(skinType) {
   selectedSkinType = skinType;

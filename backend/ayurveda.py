@@ -405,24 +405,62 @@ def register_ayurveda_routes(app):
         try:
             tips = {
                 'morning_routine': [
-                    'Wake up early (before sunrise)',
-                    'Drink warm water on empty stomach',
-                    'Light exercise or yoga',
-                    'Shower with warm water',
-                    'Healthy breakfast (never skip)'
+                    'Wake up early (Brahma Muhurta, before sunrise ~5:30 AM) to harness pure morning energy.',
+                    'Drink 1-2 glasses of warm water on an empty stomach to awaken digestive fire (Agni) and flush toxins.',
+                    'Perform tongue scraping with copper or stainless steel to remove overnight oral coating (Ama).',
+                    'Practice oil pulling (Gandusha) with cold-pressed sesame or coconut oil for 5-10 minutes for oral and jaw health.',
+                    'Gentle stretching, Surya Namaskar (Sun Salutations), or light yoga followed by a warm bath.',
+                    'Healthy, warm breakfast tailored to your appetite — avoid skipping or overeating.'
                 ],
                 'lifestyle': [
-                    'Follow natural circadian rhythm',
-                    'Eat at consistent times',
-                    'Avoid late-night meals',
-                    'Practice meditation or breathing (Pranayama)',
-                    'Walk after meals'
+                    'Follow your natural circadian rhythm: align wakefulness with daylight and rest with dusk.',
+                    'Eat meals at consistent times daily to regulate metabolic enzymes and metabolic rhythm.',
+                    'Avoid late-night eating; finish dinner at least 2-3 hours before sleeping.',
+                    'Take a brisk 100-step walk (Shatapawali) after lunch and dinner to stimulate gentle peristalsis.',
+                    'Take brief posture and screen breaks every 45-60 minutes during desk work.',
+                    'Spend at least 15-20 minutes daily in natural morning sunlight to recharge Vitamin D and reset mood.'
+                ],
+                'diet_nutrition': [
+                    'Make lunch your heaviest meal of the day (12:00 PM - 1:30 PM) when digestive fire is strongest.',
+                    'Eat freshly prepared, warm, and easily digestible foods over cold, processed, or frozen items.',
+                    'Chew thoroughly and eat in a calm, seated environment without phone or television distractions.',
+                    'Avoid incompatible food pairings (Viruddha Ahara) like combining milk with sour fruits or fish.',
+                    'Sip warm cumin-coriander-fennel (CCF) tea after meals to combat gas, bloating, and sluggish digestion.',
+                    'Include all six Ayurvedic tastes (sweet, sour, salty, pungent, bitter, astringent) for satiety.'
+                ],
+                'hydration_detox': [
+                    'Always drink room-temperature or lukewarm water; avoid ice-cold water that dampens digestive fire.',
+                    'Sip water steadily throughout the day rather than chugging large amounts at once.',
+                    'Drink water 30 minutes before meals or 1 hour after; only take small sips during meals.',
+                    'Store drinking water overnight in a clean copper vessel for natural oligodynamic purification.',
+                    'Infuse warm water with fresh lemon, crushed mint, or ginger for a natural daily detox flush.'
+                ],
+                'sleep_relaxation': [
+                    'Aim to sleep by 10:00 PM to leverage the calming, restorative Kapha period of the night.',
+                    'Turn off digital screens and blue light devices at least 1 hour before bedtime.',
+                    'Massage the soles of your feet with warm sesame or Brahmi oil (Pada Abhyanga) for deep sleep.',
+                    'Drink warm golden turmeric milk with a pinch of nutmeg and black pepper 30 minutes before bed.',
+                    'Keep your bedroom dark, quiet, well-ventilated, and free from work-related clutter.'
+                ],
+                'mind_breathing': [
+                    'Practice 5-10 minutes of Alternate Nostril Breathing (Anulom Vilom / Nadi Shodhana) daily.',
+                    'Use belly breathing (diaphragmatic breathing) during times of acute stress or anxiety.',
+                    'Engage in 10 minutes of mindfulness or silent meditation upon waking and before sleeping.',
+                    'Cultivate contentment (Santosha) and practice writing down 3 things you are grateful for each day.'
                 ],
                 'seasonal_adjustment': [
-                    'Summer: Favor cooling foods and herbs',
-                    'Winter: Warm, grounding foods',
-                    'Spring: Light, easily digestible foods',
-                    'Fall: Warm, well-oiled foods'
+                    'Summer (Grishma): Favor cooling herbs, coconut water, mint, watermelon, and stay hydrated in shade.',
+                    'Monsoon (Varsha): Digestion weakens; eat light, warm soups, boiled water, and warming spices like ginger.',
+                    'Winter (Hemanta): Appetite rises naturally; enjoy hearty grains, ghee, roasted nuts, and root vegetables.',
+                    'Spring (Vasanta): Time for seasonal renewal; reduce heavy sweets and dairy; favor bitter greens and herbal teas.',
+                    'Autumn (Sharad): Transition gently with moist, warming, well-oiled foods and soothing herbal infusions.'
+                ],
+                'common_remedies': [
+                    'Indigestion & Gas: A pinch of Hing (Asafoetida) in warm water or fresh ginger slice with rock salt before meals.',
+                    'Sore Throat & Cough: Gargle with warm turmeric-salt water, and take 1 tsp raw honey with black pepper.',
+                    'Acidity & Heartburn: Sip cold fennel seed infusion or fresh coconut water; avoid fried and spicy dishes.',
+                    'Tension Headache: Apply a cool paste of sandalwood powder or gently massage temples with peppermint oil.',
+                    'Joint Stiffness: Gently massage with warm Mahanarayan or sesame oil followed by gentle warmth.'
                 ]
             }
             return jsonify({'success': True, 'tips': tips}), 200

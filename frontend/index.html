@@ -2215,7 +2215,7 @@
         <div class="panel-card-header"><i data-lucide="lightbulb" style="width:20px;height:20px;color:var(--purple-600)"></i><h3 class="ayurveda-tips-heading" style="color:var(--purple-900);">Quick Wellness Tips</h3></div>
         <div class="panel-card-body">
           <div id="ayurveda-quick-tips"></div>
-          <button class="btn-sm ayurveda-tips-refresh" style="margin-top:1rem;background:var(--purple-600);color:white;border:none;border-radius:0.5rem;padding:0.5rem 1rem;cursor:pointer;" onclick="loadAyurvHealthTips()">Load More Tips</button>
+          <button class="btn-sm ayurveda-tips-refresh" style="margin-top:1rem;background:var(--purple-600);color:white;border:none;border-radius:0.5rem;padding:0.5rem 1rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;font-weight:700;" onclick="openAyurvedaTipsModal()"><i data-lucide="maximize-2" style="width:14px;height:14px"></i> Load More Tips (Full Screen)</button>
         </div>
       </div>
     </div>
@@ -3533,6 +3533,41 @@ body.dark-theme .dc [style*="background:#fef2f2"] { filter: brightness(0.25) sat
     </div>
   </div>
 </div>
+
+<!-- ── Full-Screen Ayurvedic & Wellness Tips Modal ── -->
+<div id="ayurvedaTipsModal" class="modal-backdrop" onclick="closeModalBackdrop(event, 'ayurvedaTipsModal')" style="z-index: 99999;">
+  <div class="modal modal-fullscreen ayurveda-fullscreen-modal">
+    <div class="modal-header ayurveda-modal-header">
+      <div style="display:flex;align-items:center;gap:0.85rem;">
+        <div class="ayurveda-modal-icon">
+          <i data-lucide="sparkles" style="width:22px;height:22px;color:white;"></i>
+        </div>
+        <div>
+          <h3 style="font-size:1.25rem;font-weight:800;color:var(--slate-900);margin:0;">Ayurvedic Wellness & Daily Living Guide</h3>
+          <p style="font-size:0.85rem;color:var(--slate-500);margin:0.2rem 0 0 0;">Comprehensive practical tips for daily vitality, digestion, sleep, and seasonal balance</p>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('ayurvedaTipsModal')" title="Close (Esc)"><i data-lucide="x" style="width:20px;height:20px"></i></button>
+    </div>
+
+    <!-- Category filter bar & Search -->
+    <div class="ayurveda-modal-toolbar">
+      <div class="ayurveda-search-box">
+        <i data-lucide="search" style="width:16px;height:16px;color:var(--slate-400);"></i>
+        <input type="text" id="ayurvedaTipSearch" placeholder="Search tips (e.g. water, sleep, digestion, cough, ginger, oil)..." oninput="filterAyurvedaTips()" />
+      </div>
+      <div class="ayurveda-category-filters" id="ayurvedaCategoryFilters"></div>
+    </div>
+
+    <div class="modal-body ayurveda-modal-body" id="ayurvedaModalTipsContainer"></div>
+
+    <div class="ayurveda-modal-footer">
+      <span style="font-size:0.82rem;color:var(--slate-500);display:flex;align-items:center;gap:0.4rem;"><i data-lucide="info" style="width:15px;height:15px;color:var(--purple-600);"></i> Holistic self-care practices intended to complement your daily health and vitality.</span>
+      <button class="btn-sm" style="background:var(--purple-600);color:white;border:none;border-radius:0.5rem;padding:0.5rem 1.25rem;font-weight:700;cursor:pointer;" onclick="closeModal('ayurvedaTipsModal')">Close Guide</button>
+    </div>
+  </div>
+</div>
+
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="script.js"></script>
 <script src="features.js"></script>
 <script src="emergency_quick_access.js"></script>
