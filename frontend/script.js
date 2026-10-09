@@ -3925,7 +3925,7 @@ function seasRenderHospitalAlerts(alerts) {
     const patient = payload.patient || {};
     const incident = payload.incident_location || {};
     return `
-      <div class="patient-item" style="border-left:4px solid #ef4444;">
+      <div class="patient-item" style="border-left:4px solid #ef4444; padding:0.4rem 0.75rem 0.4rem 1.25rem;">
         <div style="display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
           <strong>${alert.hospital_name || alert.hospital_id || 'Hospital Alert'}</strong>
           <span style="font-size:0.78rem;color:#64748b;">${alert.sent_at || '-'}</span>
