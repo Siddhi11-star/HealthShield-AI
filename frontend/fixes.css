@@ -528,7 +528,7 @@ body.dark-theme .panel-card[style*="border-top:3px"] p  { color: #94a3b8 !import
 }
 
 /* ── Body Canvas ── */
-body {
+body:not(.dark-theme) {
   background-color: var(--theme-page-bg) !important;
   color: var(--theme-text-main);
   background-image: 
@@ -539,7 +539,8 @@ body {
 }
 
 /* ── Sticky Navigation Bar ── */
-#mainNav, nav {
+body:not(.dark-theme) #mainNav,
+body:not(.dark-theme) nav {
   background: rgba(255, 255, 255, 0.88) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
@@ -736,7 +737,7 @@ a.btn-blue {
 }
 
 /* ── Stats Bar ── */
-.stats-bar {
+body:not(.dark-theme) .stats-bar {
   background: #FFFFFF !important;
   border-top: 1px solid var(--theme-border) !important;
   border-bottom: 1px solid var(--theme-border) !important;
@@ -758,17 +759,17 @@ a.btn-blue {
 }
 
 /* ── Cards & Containers (Soft glow & fine borders) ── */
-.feature-card, 
-.panel-card, 
-.dc, 
-.dsc, 
-.step-card, 
-.mvv-card, 
-.team-card, 
-.point-card, 
-.benefit-card,
-.doc-picker-card,
-.tele-doctor-card {
+body:not(.dark-theme) .feature-card, 
+body:not(.dark-theme) .panel-card, 
+body:not(.dark-theme) .dc, 
+body:not(.dark-theme) .dsc, 
+body:not(.dark-theme) .step-card, 
+body:not(.dark-theme) .mvv-card, 
+body:not(.dark-theme) .team-card, 
+body:not(.dark-theme) .point-card, 
+body:not(.dark-theme) .benefit-card,
+body:not(.dark-theme) .doc-picker-card,
+body:not(.dark-theme) .tele-doctor-card {
   background: #FFFFFF !important;
   border: 1px solid var(--theme-border) !important;
   border-radius: 1rem !important;
@@ -776,31 +777,31 @@ a.btn-blue {
   transition: transform 0.24s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.24s ease, border-color 0.24s ease !important;
 }
 
-.feature-card:hover, 
-.panel-card:hover, 
-.dc:hover, 
-.dsc:hover,
-.step-card:hover,
-.doc-picker-card:hover,
-.tele-doctor-card:hover {
+body:not(.dark-theme) .feature-card:hover, 
+body:not(.dark-theme) .panel-card:hover, 
+body:not(.dark-theme) .dc:hover, 
+body:not(.dark-theme) .dsc:hover,
+body:not(.dark-theme) .step-card:hover,
+body:not(.dark-theme) .doc-picker-card:hover,
+body:not(.dark-theme) .tele-doctor-card:hover {
   transform: translateY(-4px) !important;
   box-shadow: var(--theme-shadow-lg) !important;
   border-color: rgba(252, 165, 155, 0.6) !important;
 }
 
-.feature-card h3,
-.panel-card-header h3,
-.dc-hdr h3,
-.dc-title {
+body:not(.dark-theme) .feature-card h3,
+body:not(.dark-theme) .panel-card-header h3,
+body:not(.dark-theme) .dc-hdr h3,
+body:not(.dark-theme) .dc-title {
   color: var(--theme-text-main) !important;
   font-weight: 800 !important;
 }
 
 /* ── Form Inputs & Textareas ── */
-.form-control,
-.form-input,
-.emergency-input,
-.emergency-textarea {
+body:not(.dark-theme) .form-control,
+body:not(.dark-theme) .form-input,
+body:not(.dark-theme) .emergency-input,
+body:not(.dark-theme) .emergency-textarea {
   background: #FFFFFF !important;
   border: 1.5px solid var(--theme-border) !important;
   border-radius: 0.75rem !important;
@@ -809,10 +810,10 @@ a.btn-blue {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
 }
 
-.form-control:focus,
-.form-input:focus,
-.emergency-input:focus,
-.emergency-textarea:focus {
+body:not(.dark-theme) .form-control:focus,
+body:not(.dark-theme) .form-input:focus,
+body:not(.dark-theme) .emergency-input:focus,
+body:not(.dark-theme) .emergency-textarea:focus {
   border-color: var(--theme-pink) !important;
   background: #FFFFFF !important;
   box-shadow: 0 0 0 3.5px rgba(252, 165, 155, 0.22) !important;
@@ -823,7 +824,7 @@ a.btn-blue {
   gap: 0.65rem !important;
 }
 
-.seas-flow-chip {
+body:not(.dark-theme) .seas-flow-chip {
   background: #FFFFFF !important;
   border: 1.5px solid var(--theme-border) !important;
   border-radius: 0.85rem !important;
@@ -833,7 +834,7 @@ a.btn-blue {
   transition: all 0.2s ease !important;
 }
 
-.seas-flow-chip.active {
+body:not(.dark-theme) .seas-flow-chip.active {
   border-color: var(--theme-pink) !important;
   background: linear-gradient(135deg, #FFF0EE, #FAF0F5) !important;
   color: #B83B5E !important;
@@ -841,13 +842,13 @@ a.btn-blue {
   font-weight: 700 !important;
 }
 
-.seas-flow-chip.done {
+body:not(.dark-theme) .seas-flow-chip.done {
   border-color: #86EFAC !important;
   background: #F0FDF4 !important;
   color: #166534 !important;
 }
 
-.seas-subfeature {
+body:not(.dark-theme) .seas-subfeature {
   border-left: 3px solid var(--theme-pink) !important;
   background: rgba(255, 255, 255, 0.85) !important;
   border-radius: 0.75rem !important;
@@ -876,7 +877,7 @@ a.btn-blue {
   box-shadow: -20px 0 50px rgba(74, 30, 60, 0.15) !important;
 }
 
-.emergency-quick-shell {
+body:not(.dark-theme) .emergency-quick-shell {
   background: rgba(255, 255, 255, 0.96) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
@@ -888,7 +889,7 @@ a.btn-blue {
   font-weight: 800 !important;
 }
 
-.emergency-card {
+body:not(.dark-theme) .emergency-card {
   background: #FFFFFF !important;
   border: 1px solid var(--theme-border) !important;
   border-radius: 0.85rem !important;
@@ -944,7 +945,7 @@ a.btn-blue {
   font-weight: 700 !important;
 }
 
-.dosha-card {
+body:not(.dark-theme) .dosha-card {
   border: 1.5px solid var(--theme-border) !important;
   border-radius: 1rem !important;
   background: #FFFFFF !important;
@@ -984,12 +985,12 @@ a.btn-blue {
 }
 
 /* ── Dashboard Sidebar, Topbar & Tables ── */
-.ds-topbar {
+body:not(.dark-theme) .ds-topbar {
   background: #FFFFFF !important;
   border-bottom: 1px solid var(--theme-border) !important;
 }
 
-.ds-topbar h1 {
+body:not(.dark-theme) .ds-topbar h1 {
   color: var(--theme-text-main) !important;
 }
 
@@ -1004,13 +1005,13 @@ a.btn-blue {
   color: #FFD4CE !important;
 }
 
-.dt th {
+body:not(.dark-theme) .dt th {
   background: #FAF0F4 !important;
   color: var(--theme-text-main) !important;
   border-bottom: 1.5px solid var(--theme-border) !important;
 }
 
-.dt tr:hover td {
+body:not(.dark-theme) .dt tr:hover td {
   background: #FFF7F9 !important;
 }
 
@@ -1075,7 +1076,7 @@ a.btn-blue {
    Palette: Minimal Soft Pink & Soft Lavender with Frosted Glass
    ════════════════════════════════════════════════════════════════ */
 
-.hero-command-section {
+body:not(.dark-theme) .hero-command-section {
   background: linear-gradient(180deg, #FFFFFF 0%, #FAF5F8 45%, #F4EBF1 100%) !important;
   padding: 3rem 1.5rem 5rem !important;
   position: relative;
@@ -1795,4 +1796,216 @@ body.dark-theme .filter-btn-sm.active {
 body.dark-theme .filter-btn:hover {
   border-color: #9E8EC2 !important;
   color: #7C6AA6 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   COMPREHENSIVE DARK THEME RECOVERY & HIGH CONTRAST SPECIFICATIONS
+   ══════════════════════════════════════════════════════════════════ */
+body.dark-theme {
+  background-color: #0d1117 !important;
+  color: #f1f5f9 !important;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(30, 41, 59, 0.4) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.6) 0%, transparent 45%) !important;
+}
+
+body.dark-theme #mainNav,
+body.dark-theme nav {
+  background: rgba(13, 17, 23, 0.92) !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+body.dark-theme .panel-card {
+  background: #111827 !important;
+  border: 1px solid #1e293b !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.dark-theme .panel-card-header {
+  background: #0c111d !important;
+  border-bottom: 1px solid #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .panel-card-header h3 {
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .panel-card-body {
+  background: #111827 !important;
+  color: #94a3b8 !important;
+}
+
+body.dark-theme .seas-subfeature {
+  background: linear-gradient(135deg, #1e293b, #17223b) !important;
+  border: 1px solid #334155 !important;
+  border-left: 3px solid #ef4444 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.dark-theme .seas-subfeature i {
+  color: #60a5fa !important;
+}
+
+body.dark-theme .seas-subfeature h4 {
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .seas-subfeature p {
+  color: #94a3b8 !important;
+}
+
+body.dark-theme .seas-flow-chip {
+  background: #1e293b !important;
+  border: 1.5px solid #334155 !important;
+  color: #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-theme .seas-flow-chip.active {
+  background: #1e3a5f !important;
+  border-color: #3b82f6 !important;
+  color: #93c5fd !important;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3) !important;
+}
+
+body.dark-theme .seas-flow-chip.done {
+  background: #052e16 !important;
+  border-color: #16a34a !important;
+  color: #86efac !important;
+}
+
+body.dark-theme .feature-card, 
+body.dark-theme .dc, 
+body.dark-theme .dsc, 
+body.dark-theme .step-card, 
+body.dark-theme .mvv-card, 
+body.dark-theme .team-card, 
+body.dark-theme .point-card, 
+body.dark-theme .benefit-card,
+body.dark-theme .doc-picker-card,
+body.dark-theme .tele-doctor-card,
+body.dark-theme .emergency-card,
+body.dark-theme .dosha-card {
+  background: #111827 !important;
+  border: 1px solid #1e293b !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.dark-theme .feature-card h3,
+body.dark-theme .step-card h3,
+body.dark-theme .mvv-card h3,
+body.dark-theme .team-card h4,
+body.dark-theme .point-card h4,
+body.dark-theme .benefit-card h3,
+body.dark-theme .dosha-card h3,
+body.dark-theme .emergency-card h3,
+body.dark-theme .dc-hdr h3,
+body.dark-theme .dc-title {
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .feature-card p,
+body.dark-theme .step-card p,
+body.dark-theme .mvv-card p,
+body.dark-theme .point-card p,
+body.dark-theme .benefit-card p,
+body.dark-theme .team-card p,
+body.dark-theme .emergency-card p {
+  color: #94a3b8 !important;
+}
+
+body.dark-theme .form-control,
+body.dark-theme .form-input,
+body.dark-theme .emergency-input,
+body.dark-theme .emergency-textarea,
+body.dark-theme select,
+body.dark-theme textarea {
+  background: #1e293b !important;
+  border: 1.5px solid #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .form-control:focus,
+body.dark-theme .form-input:focus,
+body.dark-theme .emergency-input:focus,
+body.dark-theme .emergency-textarea:focus {
+  background: #1e293b !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .form-control option,
+body.dark-theme select option {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .stats-bar {
+  background: #0d1117 !important;
+  border-top: 1px solid #1e293b !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+body.dark-theme .stat-number {
+  background: none !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .stat-label {
+  color: #94a3b8 !important;
+}
+
+body.dark-theme .emergency-quick-shell {
+  background: rgba(17, 24, 39, 0.96) !important;
+  border-left: 2px solid #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .ds-topbar {
+  background: #111827 !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+body.dark-theme .ds-topbar h1 {
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .dt th {
+  background: #0d1117 !important;
+  color: #f1f5f9 !important;
+  border-bottom: 1.5px solid #1e293b !important;
+}
+
+body.dark-theme .dt tr:hover td {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+body.dark-theme .hero-command-section {
+  background: #0d1117 !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+body.dark-theme .command-hero-header .hero-title {
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .command-hero-header .hero-desc {
+  color: #94a3b8 !important;
+}
+
+body.dark-theme .patient-item {
+  color: #cbd5e1 !important;
+}
+
+body.dark-theme .patient-item strong {
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .patient-item span {
+  color: #94a3b8 !important;
 }
