@@ -8428,6 +8428,26 @@ function renderAyurvedaModalTips() {
 }
 
 
+let currentScannerMode = 'webcam';
+window.lastSkinRegimen = null;
+
+function setScannerMode(mode) {
+  currentScannerMode = mode;
+  const webcamTab = document.getElementById('btn-scan-webcam');
+  const uploadTab = document.getElementById('btn-scan-upload');
+  const webcamSection = document.getElementById('scanner-mode-webcam');
+  const uploadSection = document.getElementById('scanner-mode-upload');
+  
+  if (webcamTab) webcamTab.classList.toggle('active', mode === 'webcam');
+  if (uploadTab) uploadTab.classList.toggle('active', mode === 'upload');
+  if (webcamSection) webcamSection.style.display = (mode === 'webcam') ? 'block' : 'none';
+  if (uploadSection) uploadSection.style.display = (mode === 'upload') ? 'block' : 'none';
+  
+  if (mode !== 'webcam') {
+    stopCamera();
+  }
+}
+
 function selectSkinType(skinType) {
   selectedSkinType = skinType;
   document.querySelectorAll('.skin-type-btn').forEach(btn => {
@@ -8445,9 +8465,11 @@ function toggleSkinIssue(issue) {
 
 function toggleCamera() {
   const container = document.getElementById('camera-container');
+  const trigger = document.getElementById('btn-open-camera-trigger');
   if (!container) return;
   if (container.style.display === 'none' || !container.style.display) {
     container.style.display = 'block';
+    if (trigger) trigger.style.display = 'none';
     startCamera();
   } else {
     stopCamera();
@@ -8456,19 +8478,24 @@ function toggleCamera() {
 
 async function startCamera() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } });
     const video = document.getElementById('camera-video');
     if (video) { video.srcObject = stream; video.play(); }
   } catch (err) {
-    showToast('Camera access denied: ' + err.message, 'error');
+    showToast('Camera access denied or unavailable: ' + err.message, 'error');
   }
 }
 
 function stopCamera() {
   const video = document.getElementById('camera-video');
-  if (video && video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); }
+  if (video && video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
   const container = document.getElementById('camera-container');
+  const trigger = document.getElementById('btn-open-camera-trigger');
   if (container) container.style.display = 'none';
+  if (trigger) trigger.style.display = 'block';
 }
 
 function capturePhoto() {
@@ -8476,87 +8503,450 @@ function capturePhoto() {
   const canvas = document.getElementById('camera-canvas');
   if (!video || !canvas) return;
   const ctx = canvas.getContext('2d');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0);
-  capturedImageData = canvas.toDataURL('image/jpeg');
-  const preview = document.getElementById('camera-preview');
-  const img = document.getElementById('preview-img');
-  if (preview && img) { img.src = capturedImageData; preview.style.display = 'block'; }
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  capturedImageData = canvas.toDataURL('image/jpeg', 0.85);
   stopCamera();
+  analyzeAndDisplayPreview(capturedImageData);
 }
 
-function useAndroidCameraAgain() {
+function handleSkinFileUpload(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (file.size > 8 * 1024 * 1024) {
+    showToast('Please select an image smaller than 8MB', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    capturedImageData = evt.target.result;
+    analyzeAndDisplayPreview(capturedImageData);
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetSkinPhoto() {
   capturedImageData = null;
   const preview = document.getElementById('camera-preview');
   if (preview) preview.style.display = 'none';
-  toggleCamera();
+  const fileInput = document.getElementById('skin-file-input');
+  if (fileInput) fileInput.value = '';
 }
 
-async function analyzeImageForSkin(imageBas64) {
-  const canvas = document.createElement('canvas');
-  const img = new Image();
-  img.src = imageBas64;
+async function analyzeImageForSkin(imageSrc) {
   return new Promise((resolve) => {
+    const img = new Image();
+    img.src = imageSrc;
     img.onload = () => {
+      const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = img.width; canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      let brightnessSum = 0; let darkSpotCount = 0;
+      // Scale down to standard 200x200 for fast pixel computation
+      canvas.width = 200;
+      canvas.height = 200;
+      ctx.drawImage(img, 0, 0, 200, 200);
+      const imgData = ctx.getImageData(0, 0, 200, 200);
+      const data = imgData.data;
+      
+      let brightnessSum = 0;
+      let redDominanceCount = 0;
+      let highSpecularCount = 0;
+      let darkSpotCount = 0;
+      const totalPixels = data.length / 4;
+      
       for (let i = 0; i < data.length; i += 4) {
-        const brightness = (data[i] + data[i+1] + data[i+2]) / 3 / 255;
-        brightnessSum += brightness;
-        if (brightness < 0.3) darkSpotCount++;
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        brightnessSum += lum;
+
+        // Sebum / specular reflection
+        if (lum > 0.82) highSpecularCount++;
+
+        // Vascular redness detection: R significantly greater than G and B
+        if (r > 130 && r > g * 1.25 && r > b * 1.25) {
+          redDominanceCount++;
+        }
+
+        // Dark spot / pigmentation contrast
+        if (lum < 0.28) darkSpotCount++;
       }
-      const avgBrightness = brightnessSum / (data.length / 4);
-      resolve({ brightness: avgBrightness, has_dark_spots: darkSpotCount > (data.length/4)*0.05, pore_size: avgBrightness > 0.7 ? 'large' : 'medium' });
+
+      const avgBrightness = brightnessSum / totalPixels;
+      const oilScore = highSpecularCount / totalPixels;
+      const rednessScore = redDominanceCount / totalPixels;
+      const spotScore = darkSpotCount / totalPixels;
+
+      resolve({
+        brightness: avgBrightness,
+        oil_shine_score: oilScore,
+        redness_score: rednessScore,
+        has_redness: rednessScore > 0.12,
+        has_dark_spots: spotScore > 0.04,
+        pore_size: (oilScore > 0.08 || avgBrightness > 0.72) ? 'large' : (oilScore > 0.03 ? 'medium' : 'small')
+      });
+    };
+    img.onerror = () => {
+      resolve({ brightness: 0.5, oil_shine_score: 0.1, redness_score: 0.05, pore_size: 'medium' });
     };
   });
 }
 
+async function analyzeAndDisplayPreview(dataUrl) {
+  const preview = document.getElementById('camera-preview');
+  const img = document.getElementById('preview-img');
+  const metricsEl = document.getElementById('preview-metrics-container');
+  if (img) img.src = dataUrl;
+  if (preview) preview.style.display = 'block';
+
+  if (metricsEl) {
+    metricsEl.innerHTML = '<div style="font-size:0.8rem;color:var(--slate-500);grid-column:1/-1;">Computing facial metrics...</div>';
+  }
+
+  const analysis = await analyzeImageForSkin(dataUrl);
+  if (metricsEl) {
+    metricsEl.innerHTML = `
+      <div class="visual-metric-pill">
+        <div class="visual-metric-title">Glow / Brightness</div>
+        <div class="visual-metric-val">${Math.round(analysis.brightness * 100)}%</div>
+      </div>
+      <div class="visual-metric-pill">
+        <div class="visual-metric-title">Sebum Shine</div>
+        <div class="visual-metric-val">${Math.round(analysis.oil_shine_score * 300)}%</div>
+      </div>
+      <div class="visual-metric-pill">
+        <div class="visual-metric-title">Redness Index</div>
+        <div class="visual-metric-val">${Math.round(analysis.redness_score * 350)}%</div>
+      </div>
+      <div class="visual-metric-pill">
+        <div class="visual-metric-title">Pores / Texture</div>
+        <div class="visual-metric-val" style="text-transform:capitalize;">${analysis.pore_size}</div>
+      </div>
+    `;
+  }
+}
+
+function printSkinRegimen() {
+  if (!window.lastSkinRegimen) {
+    window.print();
+    return;
+  }
+  const r = window.lastSkinRegimen;
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    window.print();
+    return;
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>HealthShield AI — Personalized Skincare Prescription</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 2rem; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+        .header { border-bottom: 2px solid #7c3aed; padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; }
+        .title { font-size: 1.6rem; font-weight: 800; color: #6d28d9; margin: 0; }
+        .meta { font-size: 0.85rem; color: #64748b; }
+        .badge-box { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 0.8rem; padding: 1rem; margin-bottom: 1.5rem; }
+        h2 { font-size: 1.2rem; color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.4rem; margin-top: 1.5rem; }
+        .step { margin-bottom: 0.8rem; padding: 0.75rem; background: #f8fafc; border-radius: 0.6rem; border-left: 3px solid #7c3aed; }
+        .step strong { color: #1e293b; }
+        .avoid { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.75rem; border-radius: 0.6rem; }
+        .footer { margin-top: 2rem; font-size: 0.75rem; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 1rem; }
+        @media print { body { padding: 0.5rem; } button { display: none; } }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div>
+          <h1 class="title">HealthShield AI Skincare Prescription</h1>
+          <div class="meta">Formulated on ${new Date().toLocaleDateString()} • Bespoke Clinical + Ayurvedic Regimen</div>
+        </div>
+        <button onclick="window.print()" style="padding:0.5rem 1rem;background:#7c3aed;color:#fff;border:none;border-radius:0.4rem;cursor:pointer;font-weight:bold;">Print Routine</button>
+      </div>
+
+      <div class="badge-box">
+        <div><strong>Diagnosed Skin Type:</strong> ${r.skin_type} (${r.dosha_profile || 'Balanced'})</div>
+        <div><strong>Barrier Status:</strong> ${r.barrier_status || 'Intact'} • <strong>Confidence:</strong> ${r.confidence}</div>
+        ${r.detected_issues && r.detected_issues.length ? `<div style="margin-top:0.4rem;"><strong>Key Concerns:</strong> ${r.detected_issues.join(', ')}</div>` : ''}
+      </div>
+
+      ${r.synergies && r.synergies.length ? `
+        <h2>Clinical Actives & Ayurvedic Synergies</h2>
+        ${r.synergies.map(s => `
+          <div class="step">
+            <div><strong>${s.concern}:</strong> ${s.clinical_active} + <em>${s.ayurvedic_herb}</em></div>
+            <div style="font-size:0.85rem;color:#475569;margin-top:0.2rem;">${s.synergy_explanation}</div>
+          </div>
+        `).join('')}
+      ` : ''}
+
+      <h2>Morning (AM) Routine</h2>
+      ${(r.am_routine || []).map(s => `
+        <div class="step">
+          <div><strong>Step ${s.step} [${s.phase}]:</strong> ${s.product}</div>
+          <div style="font-size:0.85rem;color:#475569;">${s.instructions} (${s.focus})</div>
+        </div>
+      `).join('')}
+
+      <h2>Evening (PM) Routine</h2>
+      ${(r.pm_routine || []).map(s => `
+        <div class="step">
+          <div><strong>Step ${s.step} [${s.phase}]:</strong> ${s.product}</div>
+          <div style="font-size:0.85rem;color:#475569;">${s.instructions} (${s.focus})</div>
+        </div>
+      `).join('')}
+
+      ${r.weekly_ritual ? `
+        <h2>Weekly Rejuvenation Ritual</h2>
+        <div class="step" style="border-left-color:#d97706;background:#fffbeb;">
+          <div><strong>${r.weekly_ritual.title}</strong> (${r.weekly_ritual.frequency})</div>
+          <div style="font-size:0.85rem;margin-top:0.3rem;"><strong>Formula:</strong> ${r.weekly_ritual.ingredients}</div>
+          <div style="font-size:0.85rem;margin-top:0.2rem;"><strong>Application:</strong> ${r.weekly_ritual.preparation}</div>
+        </div>
+      ` : ''}
+
+      ${r.avoid_list && r.avoid_list.length ? `
+        <h2>What to Avoid</h2>
+        <div class="avoid">
+          <ul style="margin:0;padding-left:1.2rem;">
+            ${r.avoid_list.map(a => `<li>${a}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+
+      <div class="footer">
+        ${r.disclaimer || 'This is an informational guidance tool combining clinical dermatology with traditional Ayurvedic principles.'}
+      </div>
+    </body>
+    </html>
+  `;
+
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
 async function runSkinAnalysis() {
-  if (!selectedSkinType) { showToast('Please select your skin type', 'error'); return; }
+  if (!selectedSkinType) {
+    showToast('Please select your skin type in Step 1', 'error');
+    return;
+  }
+
   const resultsEl = document.getElementById('skin-analysis-results');
-  resultsEl.innerHTML = '<div class="emergency-loading"><span class="spinner"></span> Analyzing your skin...</div>';
+  resultsEl.innerHTML = '<div class="emergency-loading"><span class="spinner"></span> Synthesizing Clinical & Ayurvedic Regimen...</div>';
+  
   try {
     let imageAnalysis = null;
-    if (capturedImageData) imageAnalysis = await analyzeImageForSkin(capturedImageData);
-    const response = await api('POST', '/ayurveda/analyze-skin', { skin_type: selectedSkinType, issues: selectedSkinIssues, image_analysis: imageAnalysis });
-    resultsEl.innerHTML = `
-      <div class="remedy-card">
-        <div class="remedy-card-title"><span>💆</span> Your Skin Analysis</div>
-        <div style="margin-bottom:1rem;">
-          <div style="font-size:1.1rem;font-weight:800;color:var(--purple-600);margin-bottom:0.5rem;">${response.skin_type}</div>
-          <div style="font-size:0.9rem;color:var(--slate-600);">Confidence: <strong>${response.confidence}</strong></div>
+    if (capturedImageData) {
+      imageAnalysis = await analyzeImageForSkin(capturedImageData);
+    }
+
+    const ageGroup = document.getElementById('skin-age-group')?.value || '20_30';
+    const climate = document.getElementById('skin-climate')?.value || 'hot_humid';
+    const experienceLevel = document.getElementById('skin-experience')?.value || 'intermediate';
+
+    const payload = {
+      skin_type: selectedSkinType,
+      issues: selectedSkinIssues,
+      age_group: ageGroup,
+      climate: climate,
+      experience_level: experienceLevel,
+      image_analysis: imageAnalysis
+    };
+
+    const response = await api('POST', '/ayurveda/analyze-skin', payload);
+    window.lastSkinRegimen = response;
+
+    // Render the comprehensive results dashboard
+    let html = `
+      <!-- Top Profile Banner -->
+      <div class="regimen-dosha-banner">
+        <div class="regimen-dosha-title">
+          <span>💆</span> ${response.skin_type} SKIN DIAGNOSIS
+          <span class="regimen-dosha-badge">${response.dosha_profile || 'Balanced Tridosha'}</span>
+        </div>
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:0.8rem;font-size:0.92rem;opacity:0.95;">
+          <div>🛡️ Barrier Status: <strong>${response.barrier_status || 'Intact'}</strong></div>
+          <div>🎯 AI Confidence: <strong>${response.confidence}</strong></div>
+          ${response.detected_issues && response.detected_issues.length ? `<div>✨ Targets: <strong>${response.detected_issues.length} concerns addressed</strong></div>` : ''}
         </div>
       </div>
-      <div class="remedy-card">
-        <div class="remedy-card-title"><span>📋</span> Characteristics</div>
-        <div class="remedy-list">${(response.characteristics||[]).map(c => `<div class="remedy-item">${c}</div>`).join('')}</div>
+
+      <!-- Action Bar (Print / PDF) -->
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+        <button type="button" class="btn-print-regimen" onclick="printSkinRegimen()">
+          <i data-lucide="printer" style="width:16px;height:16px"></i> Print / Download Prescription Card
+        </button>
       </div>
-      <div class="remedy-card">
-        <div class="remedy-card-title"><span>🌿</span> Skincare Remedies</div>
-        <div class="remedy-list">${(response.remedies||[]).map(r => `<div class="remedy-item">${r}</div>`).join('')}</div>
-      </div>
-      <div class="remedy-card">
-        <div class="remedy-card-title"><span>⏰</span> Daily Routine</div>
-        <div style="margin-top:0.8rem;">
-          <h5 style="font-weight:700;margin-bottom:0.5rem;">Morning</h5>
-          <ul style="margin:0;padding-left:1rem;">${(response.routine?.morning||[]).map(m => `<li style="font-size:0.9rem;margin-bottom:0.3rem;">${m}</li>`).join('')}</ul>
-          <h5 style="font-weight:700;margin-top:1rem;margin-bottom:0.5rem;">Night</h5>
-          <ul style="margin:0;padding-left:1rem;">${(response.routine?.night||[]).map(n => `<li style="font-size:0.9rem;margin-bottom:0.3rem;">${n}</li>`).join('')}</ul>
-        </div>
-      </div>
-      <div class="remedy-card">
-        <div class="remedy-card-title"><span>🥗</span> Diet Tips</div>
-        <div class="remedy-list">${(response.diet_tips||[]).map(d => `<div class="remedy-item">${d}</div>`).join('')}</div>
-      </div>
-      <div style="border-radius:0.85rem;background:#fef3c7;border:1px solid #fcd34d;padding:0.85rem;color:#92400e;font-size:0.85rem;margin-top:1rem;"><strong>Disclaimer:</strong> ${response.disclaimer}</div>
     `;
+
+    // Visual Metrics (if photo was processed)
+    if (response.visual_metrics && Object.keys(response.visual_metrics).length > 0) {
+      const vm = response.visual_metrics;
+      html += `
+        <div class="remedy-card">
+          <div class="remedy-card-title"><i data-lucide="scan" style="width:18px;height:18px;color:var(--purple-600)"></i> Facial Computer Vision Metrics</div>
+          <div class="visual-metrics-grid">
+            <div class="visual-metric-pill">
+              <div class="visual-metric-title">Skin Luminosity</div>
+              <div class="visual-metric-val">${vm.brightness_pct}%</div>
+            </div>
+            <div class="visual-metric-pill">
+              <div class="visual-metric-title">Sebum Shine</div>
+              <div class="visual-metric-val">${vm.oil_shine_index}%</div>
+            </div>
+            <div class="visual-metric-pill">
+              <div class="visual-metric-title">Vascular Redness</div>
+              <div class="visual-metric-val">${vm.redness_index}%</div>
+            </div>
+            <div class="visual-metric-pill">
+              <div class="visual-metric-title">Detected Pores</div>
+              <div class="visual-metric-val" style="text-transform:capitalize;">${vm.detected_pores}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Clinical Actives & Ayurvedic Herbal Synergies
+    if (response.synergies && response.synergies.length > 0) {
+      html += `
+        <div class="remedy-card">
+          <div class="remedy-card-title"><i data-lucide="sparkles" style="width:18px;height:18px;color:var(--purple-600)"></i> Synergistic Clinical Actives &amp; Ayurvedic Botanicals</div>
+          <div class="synergies-container">
+            ${response.synergies.map(s => `
+              <div class="synergy-card">
+                <div class="synergy-header">
+                  <span style="background:var(--purple-100);color:var(--purple-700);padding:0.2rem 0.5rem;border-radius:0.4rem;font-size:0.8rem;">Target</span>
+                  ${s.concern}
+                </div>
+                <div class="synergy-duo">
+                  <div class="synergy-pair-item"><strong>🔬 Clinical Active:</strong> ${s.clinical_active}</div>
+                  <div class="synergy-pair-item"><strong>🌿 Ayurvedic Herb:</strong> ${s.ayurvedic_herb}</div>
+                </div>
+                <div class="synergy-expl">"${s.synergy_explanation}"</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Morning Routine (AM)
+    if (response.am_routine && response.am_routine.length > 0) {
+      html += `
+        <div class="remedy-card">
+          <div class="remedy-card-title"><i data-lucide="sun" style="width:20px;height:20px;color:#d97706"></i> Morning (AM) Regimen</div>
+          <div class="routine-timeline">
+            ${response.am_routine.map(s => `
+              <div class="routine-step-card">
+                <div class="routine-step-num">${s.step}</div>
+                <div class="routine-step-content">
+                  <div class="routine-step-top">
+                    <span class="routine-step-phase">${s.phase}</span>
+                    <span class="routine-step-focus">${s.focus}</span>
+                  </div>
+                  <div class="routine-step-product">${s.product}</div>
+                  <div class="routine-step-instr">${s.instructions}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Evening Routine (PM)
+    if (response.pm_routine && response.pm_routine.length > 0) {
+      html += `
+        <div class="remedy-card">
+          <div class="remedy-card-title"><i data-lucide="moon" style="width:20px;height:20px;color:var(--purple-600)"></i> Evening (PM) Regimen</div>
+          <div class="routine-timeline">
+            ${response.pm_routine.map(s => `
+              <div class="routine-step-card">
+                <div class="routine-step-num">${s.step}</div>
+                <div class="routine-step-content">
+                  <div class="routine-step-top">
+                    <span class="routine-step-phase">${s.phase}</span>
+                    <span class="routine-step-focus">${s.focus}</span>
+                  </div>
+                  <div class="routine-step-product">${s.product}</div>
+                  <div class="routine-step-instr">${s.instructions}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Weekly Ritual (DIY Ayurvedic Lepa / Mask)
+    if (response.weekly_ritual) {
+      const w = response.weekly_ritual;
+      html += `
+        <div class="weekly-ritual-card">
+          <div class="weekly-ritual-header">
+            <i data-lucide="flower-2" style="width:20px;height:20px;color:#b45309"></i>
+            Weekly Rejuvenation Ritual: ${w.title}
+            <span style="font-size:0.8rem;background:rgba(255,255,255,0.7);padding:0.2rem 0.6rem;border-radius:1rem;color:#92400e;margin-left:auto;">${w.frequency}</span>
+          </div>
+          <p style="font-size:0.9rem;margin:0 0 0.5rem 0;line-height:1.45;">${w.benefits}</p>
+          <div class="weekly-ritual-details">
+            <div style="background:rgba(255,255,255,0.6);padding:0.75rem;border-radius:0.6rem;">
+              <strong style="display:block;margin-bottom:0.25rem;">🌿 Botanical Ingredients:</strong>
+              ${w.ingredients}
+            </div>
+            <div style="background:rgba(255,255,255,0.6);padding:0.75rem;border-radius:0.6rem;">
+              <strong style="display:block;margin-bottom:0.25rem;">🥣 Preparation &amp; Application:</strong>
+              ${w.preparation}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // What to Avoid
+    if (response.avoid_list && response.avoid_list.length > 0) {
+      html += `
+        <div class="remedy-card" style="border-left:4px solid #ef4444;">
+          <div class="remedy-card-title"><i data-lucide="alert-octagon" style="width:18px;height:18px;color:#dc2626"></i> What to Avoid (Ingredients &amp; Habits)</div>
+          <div class="avoid-tag-list">
+            ${response.avoid_list.map(a => `<div class="avoid-tag-item"><i data-lucide="x" style="width:14px;height:14px"></i> ${a}</div>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Diet & Internal Wellness Tips
+    if (response.diet_tips && response.diet_tips.length > 0) {
+      html += `
+        <div class="remedy-card">
+          <div class="remedy-card-title"><i data-lucide="apple" style="width:18px;height:18px;color:#16a34a"></i> Internal Skin Nutrition &amp; Dosha Balancing</div>
+          <div class="remedy-list">
+            ${response.diet_tips.map(d => `<div class="remedy-item">${d}</div>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Disclaimer
+    html += `
+      <div style="border-radius:0.85rem;background:#fef3c7;border:1px solid #fcd34d;padding:0.95rem;color:#92400e;font-size:0.85rem;margin-top:1rem;display:flex;align-items:flex-start;gap:0.6rem;">
+        <i data-lucide="info" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;"></i>
+        <div><strong>Clinical &amp; Informational Disclaimer:</strong> ${response.disclaimer}</div>
+      </div>
+    `;
+
+    resultsEl.innerHTML = html;
+    if (window.lucide) lucide.createIcons();
+    
+    // Smooth scroll to results
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
   } catch (err) {
-    resultsEl.innerHTML = `<div class="emergency-empty-state">Error: ${err.message || 'Could not analyze skin'}</div>`;
+    resultsEl.innerHTML = `<div class="emergency-empty-state">Error analyzing skin: ${err.message || 'Please check your inputs and try again'}</div>`;
   }
 }
 

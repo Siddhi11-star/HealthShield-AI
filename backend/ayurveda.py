@@ -91,121 +91,163 @@ RED_FLAG_KEYWORDS = (
 )
 
 SKIN_TYPE_ANALYSIS = {
-    'oily': {
+    'normal': {
+        'dosha': 'Sama / Balanced Tridosha',
+        'barrier_status': 'Intact & Resilient',
         'characteristics': (
-            'Excess sebum production',
-            'Shiny appearance',
-            'Enlarged pores',
-            'Prone to acne'
+            'Balanced sebum production',
+            'Smooth, uniform texture',
+            'Minimal sensitivity or reactivity',
+            'Small, refined pores'
         ),
         'remedies': (
-            'Neem face pack (antimicrobial)',
-            'Clay mask with turmeric (oil control)',
-            "Multani mitti (Fuller's earth) paste",
-            'Tea tree oil (diluted) on affected areas',
-            'Aloe vera gel for hydration without oil',
-            'Weekly: steaming + gentle exfoliation'
+            'Rose water & aloe vera daily hydration',
+            'Sandalwood (Chandan) paste for radiance',
+            'Cold-pressed Kumkumadi tailam (2 drops at night)',
+            'Gentle honey & yogurt wash weekly',
+            'Daily antioxidant serum (Vitamin C + Amla)'
         ),
         'routine': {
             'morning': (
-                'Gentle cleanser with warm water',
-                'Aloe vera gel',
-                'Oil-free moisturizer with SPF'
+                'Gentle pH 5.5 balancing cleanser',
+                'Rose water hydrosol mist',
+                'Niacinamide 5% + Hyaluronic acid serum',
+                'Lightweight Ceramide fluid moisturizer',
+                'Broad-spectrum Sunscreen SPF 50+ PA++++'
             ),
             'night': (
-                'Gentle cleanser',
-                'Neem paste or clay mask (2x weekly)',
-                'Light serum with Vitamin C',
-                'Oil-free night moisturizer'
+                'Gentle balancing cleanser',
+                'Hydrating peptide / Centella essence',
+                'Bakuchiol 1% or mild retinal emulsion',
+                'Squalane-infused botanical night cream'
+            )
+        }
+    },
+    'oily': {
+        'dosha': 'Kapha-predominant (Excess Sneha & Srotas congestion)',
+        'barrier_status': 'Sebum-overproducing, prone to pore congestion',
+        'characteristics': (
+            'Excess sebum & shiny T-zone',
+            'Enlarged pores & blackhead formation',
+            'Prone to follicular inflammation & acne',
+            'Thicker epidermal stratum corneum'
+        ),
+        'remedies': (
+            'Neem & Lodhra antimicrobial face mask (2x weekly)',
+            "Multani Mitti (Fuller's Earth) & Vetiver clay pack",
+            'Tea tree & Gotu Kola targeted spot application',
+            'Aloe vera cold-pressed leaf gel for oil-free hydration',
+            'Triphala infused herbal water rinse'
+        ),
+        'routine': {
+            'morning': (
+                'Gentle Salicylic acid (0.5-2%) or foaming amino-acid cleanser',
+                'Pore-refining Green tea & Niacinamide toner',
+                'Niacinamide 5-10% + Zinc PCA 1% serum',
+                'Oil-free water-gel hydrator (Hyaluronic acid + Aloe)',
+                'Mattifying ultra-light fluid Sunscreen SPF 50+'
+            ),
+            'night': (
+                'Double cleanse: Gentle Micellar water + Gel cleanser',
+                'Targeted BHA (Salicylic acid 2%) or Azelaic acid 10%',
+                'Oil-free calming gel moisturizer with Centella / Madecassoside',
+                'Lightweight non-comedogenic overnight hydration'
             )
         }
     },
     'dry': {
+        'dosha': 'Vata-predominant (Ruksha & depleted lipid envelope)',
+        'barrier_status': 'Lipid-deficient, prone to TEWL (water loss)',
         'characteristics': (
-            'Tight feeling',
-            'Flaky patches',
-            'Dull appearance',
-            'Sensitive'
+            'Tight, uncomfortable feeling post-wash',
+            'Flaky dry patches & rough micro-texture',
+            'Dull appearance with low light reflection',
+            'Accentuated fine dehydration lines'
         ),
         'remedies': (
-            'Sesame oil massage (nourishing)',
-            'Avocado face mask with honey',
-            'Aloe vera gel mixed with rose water',
-            'Coconut oil at night',
-            'Milk cream mask weekly',
-            'Avoid harsh scrubbing'
+            'Cold-pressed Kumkumadi Tailam (Saffron oil) nourishing massage',
+            'Avocado, raw honey & milk cream (Malai) restorative mask',
+            'Licorice (Yashtimadhu) & oat soothing treatment',
+            'Pure rose water & vegetable glycerin hydrating compress',
+            'Ghee (Shata Dhauta Ghrita - 100x washed ghee) barrier seal'
         ),
         'routine': {
             'morning': (
-                'Gentle milk cleanser',
-                'Rose water toner',
-                'Nourishing moisturizer',
-                'Sunscreen SPF 30+'
+                'Cream / Milk non-foaming hydrating cleanser (or lukewarm splash)',
+                'Multi-weight Hyaluronic acid & Panthenol essence',
+                'Ceramide NP + Squalane nourishing serum',
+                'Rich barrier repair cream (Ceramides + Shea/Glycerin)',
+                'Dewy moisturizing Sunscreen SPF 50+ PA++++'
             ),
             'night': (
-                'Gentle milk cleanser',
-                'Hydrating serum',
-                'Rich night cream or coconut oil',
-                'Optional: Aloe vera mask'
+                'Nourishing cleansing balm / oil wash',
+                'Hydrating essence layered twice (skin flooding)',
+                'Gentle Retinal 0.05% or Bakuchiol paired with peptides',
+                'Intense barrier lipid balm with 2 drops Kumkumadi tailam'
             )
         }
     },
     'combination': {
+        'dosha': 'Pitta-Kapha dual dosha (Heat & excess sebum in T-zone, dry periphery)',
+        'barrier_status': 'Zonal imbalance (oily central axis, dehydrated cheeks)',
         'characteristics': (
-            'Oily T-zone',
-            'Dry cheeks',
-            'Mixed texture',
-            'Needs balancing'
+            'Oily forehead, nose, and chin (T-zone)',
+            'Normal to tight, flaky cheeks (U-zone)',
+            'Enlarged central pores with occasional dry flaking',
+            'Requires dual-zone strategic balancing'
         ),
         'remedies': (
-            'Turmeric + honey (balancing)',
-            'Aloe vera for hydration',
-            'Bentonite clay on oily zones only',
-            'Rose water toning',
-            'Light, balanced moisturizer',
-            'Targeted neem for acne areas'
+            'Multani mitti clay exclusively on T-zone',
+            'Aloe vera + Rose water + Sandalwood on cheeks',
+            'Raw honey + Turmeric anti-inflammatory balancing mask',
+            'Manjistha herbal infusion for tone harmonization',
+            'Neem leaf extract targeted to congestion spots'
         ),
         'routine': {
             'morning': (
-                'Gentle cleanser',
-                'Rose water toner',
-                'Lightweight moisturizer',
-                'Sunscreen SPF 30+'
+                'Gentle balancing low-pH gel cleanser',
+                'Witch Hazel (alcohol-free) or Centella soothing mist',
+                'Niacinamide 5% serum (regulates sebum while hydrating)',
+                'Lightweight peptide emulsion or dual-zone moisturizer',
+                'Invisible hybrid Sunscreen SPF 50+ PA++++'
             ),
             'night': (
-                'Gentle cleanser',
-                'Targeted treatments: neem on T-zone, aloe on dry areas',
-                'Light moisturizer'
+                'Gentle double cleanse (Jojoba pre-cleanse + gentle wash)',
+                'Salicylic acid (BHA) on T-zone; Hyaluronic acid on cheeks',
+                'Azelaic acid 10% for texture and redness control',
+                'Balanced ceramide lotion (applied generously to cheeks, lightly on T-zone)'
             )
         }
     },
     'sensitive': {
+        'dosha': 'Pitta-predominant (Excess Ushna/heat, inflammatory hyper-reactivity)',
+        'barrier_status': 'Compromised, hyper-permeable stratum corneum',
         'characteristics': (
-            'Easily reactive',
-            'Red patches',
-            'Stinging sensation',
-            'Needs gentle care'
+            'Easily flushed, burning or stinging sensations',
+            'Erythema (redness) triggered by temperature or ingredients',
+            'Thin, delicate epidermal barrier',
+            'Prone to contact dermatitis and barrier breakdown'
         ),
         'remedies': (
-            'Aloe vera (soothing)',
-            'Turmeric with milk (anti-inflammatory)',
-            'Chamomile tea compress',
-            'Coconut oil (natural soothing)',
-            'Avoid harsh exfoliation',
-            'Calendula (healing)'
+            'Pure Aloe vera cold pulp & Cucumber juice compress',
+            'White Sandalwood (Shwet Chandan) & Rose hydrosol cooling pack',
+            'Chamomile & Licorice (Yashtimadhu) anti-inflammatory soak',
+            'Gotu Kola (Mandukaparni) wound-healing repair salve',
+            'Avoid all synthetic fragrances, alcohol, and physical scrubs'
         ),
         'routine': {
             'morning': (
-                'Soft cloth with lukewarm water',
-                'Aloe vera gel',
-                'Hypoallergenic moisturizer',
-                'Gentle sunscreen SPF 50+'
+                'Lukewarm water rinse or ultra-mild colloidal oat cleanser',
+                'Pure Chamomile or Centella Asiatica calming toner',
+                'Centella / Madecassoside 2% + Panthenol 5% (B5) repair serum',
+                'Barrier restorative cream with Ceramides 1, 3, 6-II and Ectoin',
+                '100% Mineral Zinc Oxide Sunscreen SPF 50+ (non-nano, fragrance-free)'
             ),
             'night': (
-                'Lukewarm water rinse',
-                'Chamomile hydrosol',
-                'Gentle oil (sesame or coconut)',
-                'Minimal products (avoid irritants)'
+                'Ultra-gentle lipid-preserving micellar or milky wash',
+                'Soothing Thermal Spring Water / Rose water compress',
+                'Azelaic acid 5-10% (gentle anti-redness) or pure Barrier Serum',
+                'Rich Cica / Ceramide barrier balm with Beta-Glucan'
             )
         }
     }
@@ -274,59 +316,387 @@ def detect_red_flags(symptoms_text):
     return [phrase for phrase in RED_FLAG_KEYWORDS if phrase in text]
 
 
+SKIN_CONCERN_SOLUTIONS = {
+    'acne': {
+        'title': 'Acne & Active Breakouts',
+        'clinical_active': 'Salicylic Acid (BHA 1-2%) & Niacinamide 4%',
+        'ayurvedic_herb': 'Neem (Azadirachta indica) & Lodhra Bark',
+        'synergy': 'Salicylic acid clears deep follicular sebum plugs, while Neem provides broad antibacterial action against Cutibacterium acnes without disturbing natural skin moisture.',
+        'am_step': 'Niacinamide 4-5% serum to suppress sebum overproduction and soothe micro-inflammation.',
+        'pm_step': 'Targeted BHA 1-2% liquid exfoliant 3 nights weekly, followed by cooling Aloe gel.',
+        'avoid': 'Heavy occlusive pore-clogging oils (e.g. coconut oil on face), rough physical walnut scrubs, and high-glycemic dairy.',
+        'remedy': 'Purifying Neem, Wild Turmeric & Fuller’s Earth (Multani Mitti) pack twice weekly.'
+    },
+    'cystic_acne': {
+        'title': 'Cystic & Hormonal Blemishes',
+        'clinical_active': 'Azelaic Acid 10% & Zinc PCA 1%',
+        'ayurvedic_herb': 'Manjistha (Rubia cordifolia) & Guggulu',
+        'synergy': 'Azelaic acid reduces deep follicular hyper-keratinization; Manjistha acts as a premier Ayurvedic blood purifier (Raktashodhaka) to pacify aggravated Pitta-Kapha heat.',
+        'am_step': 'Azelaic acid 10% suspension on affected regions to soothe tender inflammatory lesions.',
+        'pm_step': 'Cooling Zinc PCA + Gotu Kola soothing spot gel; never squeeze or attempt mechanical extraction.',
+        'avoid': 'Comedogenic mineral waxes, synthetic fragrances, picking at lesions, and excess dairy/refined sugars.',
+        'remedy': 'Warm Turmeric & White Sandalwood compress applied directly to tender nodules for 10 minutes.'
+    },
+    'blackheads_pores': {
+        'title': 'Enlarged Pores & Congestion',
+        'clinical_active': 'Salicylic Acid (BHA 2%) & Niacinamide 5%',
+        'ayurvedic_herb': 'Triphala & Vetiver (Khus) Hydrosol',
+        'synergy': 'Lipophilic BHA dissolves oxidized sebum filaments inside the pores; astringent Triphala polyphenols and Vetiver tone tissue laxity and minimize pore visibility.',
+        'am_step': 'Spritz pore-refining Vetiver hydrosol, followed by Niacinamide 5% to regulate sebum flow.',
+        'pm_step': 'Leave-on Salicylic Acid 2% liquid 3 nights weekly on central T-zone.',
+        'avoid': 'Abrasive pore-strips (which cause capillary damage and loss of elasticity) and heavy waxes.',
+        'remedy': 'French Green Clay & Triphala botanical paste (10 mins, rinse before completely cracked dry).'
+    },
+    'pigmentation': {
+        'title': 'Post-Acne Marks & Hyperpigmentation',
+        'clinical_active': 'Alpha Arbutin 2% & Tranexamic Acid 3%',
+        'ayurvedic_herb': 'Kumkumadi Tailam (Kashmiri Saffron) & Yashtimadhu (Licorice)',
+        'synergy': 'Alpha Arbutin safely inhibits tyrosinase melanin synthesis; Kashmiri Saffron and Licorice Glabridin accelerate epidermal pigment dissipation and impart luminosity.',
+        'am_step': 'Antioxidant Vitamin C (10-15%) or Alpha Arbutin 2% serum followed by mandatory broad-spectrum SPF 50+.',
+        'pm_step': 'Massage 2-3 drops authentic Kumkumadi Tailam into slightly damp skin at night.',
+        'avoid': 'Unprotected direct sun exposure (UV instantly reignites melanocyte activity) and harsh chemical peels.',
+        'remedy': 'Licorice root (Yashtimadhu) powder & wild turmeric steeped in pure rose water as a 15-min mask.'
+    },
+    'melasma': {
+        'title': 'Melasma & Hormonal Sun Spots',
+        'clinical_active': 'Tranexamic Acid 3-5% & Kojic Acid 1%',
+        'ayurvedic_herb': 'Manjistha & Chandan (White Sandalwood)',
+        'synergy': 'Tranexamic acid halts UV-induced plasmin activity and inflammatory melanogenesis; cooling Chandan pacifies localized Pitta heat while Manjistha evens out discoloration.',
+        'am_step': 'Tranexamic acid 3-5% serum topped with a tinted Mineral Zinc Oxide SPF 50+ (iron oxides block visible light).',
+        'pm_step': 'Kojic Acid / Licorice brightening concentrate paired with barrier-replenishing Ceramide cream.',
+        'avoid': 'Extreme infrared/thermal heat exposure (saunas, hot hair dryers near face), harsh scrubs, and chemical sunscreens.',
+        'remedy': 'Cooling Sandalwood paste with chilled cucumber juice applied to pigmented patches.'
+    },
+    'dark_circles': {
+        'title': 'Under-Eye Dark Circles & Fatigue',
+        'clinical_active': 'Caffeine 5% + EGCG & Multi-Peptide Complex',
+        'ayurvedic_herb': 'Pure Rose Hydrosol, Cucumber & Sweet Almond Oil',
+        'synergy': 'Caffeine constricts stagnant under-eye micro-capillaries; chilled Rose hydrosol and bioflavonoids stimulate lymphatic drainage to reduce puffiness.',
+        'am_step': 'Tap a drop of Caffeine 5% eye serum lightly along the orbital bone using your ring finger.',
+        'pm_step': 'Peptide eye recovery balm with 1 drop pure cold-pressed Sweet Almond oil.',
+        'avoid': 'Late-night blue-light screen exposure, chronic sleep deprivation, and aggressive eye rubbing.',
+        'remedy': 'Chilled organic Rose water soaked cotton eye pads placed over closed eyelids for 10 minutes.'
+    },
+    'dull_skin': {
+        'title': 'Dull Skin & Lack of Radiance',
+        'clinical_active': 'L-Ascorbic Acid (Vitamin C 15%) & Lactic Acid 5%',
+        'ayurvedic_herb': 'Amla (Indian Gooseberry) & Saffron',
+        'synergy': 'Vitamin C and Amla bioflavonoids neutralize free radical damage and promote collagen synthesis; gentle Lactic acid dissolves dead corneocytes for instant radiance.',
+        'am_step': 'L-Ascorbic Acid 10-15% serum applied to dry skin, sealed with lightweight moisturizer and SPF.',
+        'pm_step': 'Gentle mild Lactic Acid 5% or Papaya enzyme exfoliant twice weekly.',
+        'avoid': 'Inadequate hydration, smoking/smog, and stripping sulfate cleansers that dull the skin barrier.',
+        'remedy': 'Besan (Gram flour) + pinch of wild turmeric + fresh curd/rose water traditional Ubtan mask.'
+    },
+    'fine_lines': {
+        'title': 'Fine Lines & Collagen Support',
+        'clinical_active': 'Bakuchiol 1% / Retinoid & Copper Peptide Complex',
+        'ayurvedic_herb': 'Gotu Kola (Mandukaparni) & Ashwagandha',
+        'synergy': 'Bakuchiol stimulates collagen type I and III without retinoid dermatitis; Gotu Kola triterpenoids promote cellular remodeling, elasticity, and dermal density.',
+        'am_step': 'Multi-peptide serum with Hyaluronic acid, followed by firming Ceramide lotion and SPF 50+.',
+        'pm_step': 'Bakuchiol 1% in Squalane (or mild retinal emulsion) 3 nights weekly for cell renewal.',
+        'avoid': 'Skipping sunscreen (UV causes 80% of premature collagen breakdown) and tugging skin during cleansing.',
+        'remedy': 'Nourishing Gotu Kola oil massage with gentle upward lifting strokes before bedtime.'
+    },
+    'redness_rosacea': {
+        'title': 'Redness, Flushing & Rosacea',
+        'clinical_active': 'Azelaic Acid 10% & Centella Asiatica (Cica / Madecassoside)',
+        'ayurvedic_herb': 'White Sandalwood (Chandan) & Khus (Vetiver)',
+        'synergy': 'Azelaic acid decreases cathelicidin inflammatory peptides; Sandalwood pacifies acute Pitta fire and calms reactive micro-capillaries.',
+        'am_step': 'Centella Asiatica calming essence + Azelaic Acid 10% + 100% Mineral Zinc Oxide SPF 50+.',
+        'pm_step': 'Ultra-gentle soothing barrier cream containing Colloidal Oat, Ectoin, and Panthenol.',
+        'avoid': 'Hot water showers, spicy chili foods, alcohol, synthetic perfume, and foaming SLS cleansers.',
+        'remedy': 'Cold Chamomile infusion & pure Aloe vera compress to promptly drop skin temperature.'
+    },
+    'barrier_damage': {
+        'title': 'Compromised Skin Barrier & Stinging',
+        'clinical_active': 'Ceramides (1, 3, 6-II), Cholesterol & Fatty Acids (3:1:1)',
+        'ayurvedic_herb': 'Shata Dhauta Ghrita (100x Washed Ghee) & Colloidal Oat',
+        'synergy': 'Physiological lipid matrix restores the depleted intercellular lipid mortar; Shata Dhauta Ghrita provides cooling bio-mimetic fatty acids that halt moisture loss immediately.',
+        'am_step': 'Skip morning soap cleanser (lukewarm water rinse only); apply Ceramide barrier cream + Mineral SPF.',
+        'pm_step': 'Gentle milky cleanser; layer Panthenol 5% (B5) + rich Ceramide restorative recovery balm.',
+        'avoid': 'ALL active acids (AHA/BHA), retinoids, pure Vitamin C, essential oils, and rough towels until fully recovered.',
+        'remedy': 'Thin layer of pure 100x washed ghee (or squalane) over damp skin before sleep.'
+    },
+    'dehydration': {
+        'title': 'Dehydrated Skin (Water-Deficient)',
+        'clinical_active': 'Multi-Depth Hyaluronic Acid & Polyglutamic Acid',
+        'ayurvedic_herb': 'Kumari (Pure Aloe Vera) & Rose Hydrosol',
+        'synergy': 'Multi-molecular Hyaluronic acid and Polyglutamic acid bind water across epidermal strata; Aloe polysaccharides create a flexible humectant moisture reservoir.',
+        'am_step': 'Mist face with Rose hydrosol, apply Hyaluronic acid on damp skin, and immediately seal with moisturizer.',
+        'pm_step': 'Layer hydrating botanical essence (2-3 coats) + barrier-locking ceramide emulsion.',
+        'avoid': 'Applying Hyaluronic acid onto dry skin in dry air (it pulls water out of deeper dermis).',
+        'remedy': 'Fresh aloe vera leaf gel blended with 2 drops pure vegetable glycerin as a 20-min moisture wash.'
+    }
+}
+
+
 def analyze_skin_type(user_skin_type, image_analysis=None):
     """
-    Combine user-selected skin type with optional image analysis
-    image_analysis: {'brightness': float, 'has_dark_spots': bool, 'pore_size': str}
-    Returns: refined_skin_type, confidence
+    Combine user-selected skin type with multi-metric image analysis
+    image_analysis can include:
+    - brightness: float 0.0 - 1.0
+    - redness_score: float 0.0 - 1.0
+    - oil_shine_score: float 0.0 - 1.0
+    - texture_variance: float
+    - pore_size: 'small' | 'medium' | 'large'
+    - has_dark_spots: bool
+    Returns: refined_skin_type, confidence, visual_metrics
     """
     if user_skin_type not in SKIN_TYPE_ANALYSIS:
-        return None, 0
+        user_skin_type = 'normal'
 
-    confidence = 70
+    confidence = 82
     refined_type = user_skin_type
+    visual_metrics = {}
 
-    if image_analysis:
-        brightness = image_analysis.get('brightness', 0.5)
-        has_dark_spots = image_analysis.get('has_dark_spots', False)
-        pore_size = image_analysis.get('pore_size', 'medium')
+    if image_analysis and isinstance(image_analysis, dict):
+        brightness = float(image_analysis.get('brightness', 0.5))
+        redness_score = float(image_analysis.get('redness_score', 0.0))
+        oil_shine_score = float(image_analysis.get('oil_shine_score', 0.0))
+        has_dark_spots = bool(image_analysis.get('has_dark_spots', False))
+        pore_size = str(image_analysis.get('pore_size', 'medium'))
 
-        if brightness > 0.7 and pore_size == 'large':
+        visual_metrics = {
+            'brightness_pct': round(brightness * 100, 1),
+            'redness_index': round(redness_score * 100, 1),
+            'oil_shine_index': round(oil_shine_score * 100, 1),
+            'detected_pores': pore_size,
+            'detected_spots': has_dark_spots
+        }
+
+        # Check for redness / reactive inflammation
+        if redness_score > 0.45 or (image_analysis.get('has_redness', False)):
+            if user_skin_type in ('sensitive', 'dry'):
+                refined_type = 'sensitive'
+                confidence = min(96, confidence + 12)
+            elif user_skin_type == 'normal':
+                refined_type = 'sensitive'
+                confidence = 78
+
+        # Check for sebum shine & pore visibility
+        if oil_shine_score > 0.4 or (brightness > 0.65 and pore_size == 'large'):
             if user_skin_type in ('oily', 'combination'):
-                confidence = min(95, confidence + 10)
-            else:
-                refined_type = 'oily'
-                confidence = 60
+                refined_type = user_skin_type
+                confidence = min(97, confidence + 10)
+            elif user_skin_type == 'normal':
+                refined_type = 'combination'
+                confidence = 80
+
+        # Check for dry / low reflection
+        if brightness < 0.4 and oil_shine_score < 0.15:
+            if user_skin_type in ('dry', 'sensitive'):
+                confidence = min(95, confidence + 8)
 
         if has_dark_spots:
-            confidence = min(98, confidence + 8)
+            confidence = min(98, confidence + 6)
 
-    return refined_type, confidence
+    return refined_type, confidence, visual_metrics
 
 
-def get_skin_recommendations(skin_type, detected_issues=None):
-    """Get skincare remedies and routine for a skin type"""
+def get_comprehensive_skin_regimen(skin_type, detected_issues=None, age_group=None, climate=None, experience_level=None):
+    """
+    Build a bespoke, dermatologically & Ayurvedically synergistic skincare routine.
+    """
     if skin_type not in SKIN_TYPE_ANALYSIS:
-        return None
+        skin_type = 'normal'
 
-    data = SKIN_TYPE_ANALYSIS[skin_type]
-    remedies = list(data['remedies'])
+    base_data = SKIN_TYPE_ANALYSIS[skin_type]
+    issues = [str(i).lower().replace(' ', '_').replace('&', '').strip() for i in (detected_issues or [])]
 
-    if detected_issues:
-        if 'acne' in detected_issues:
-            acne_remedies = [r for r in remedies if any(word in r.lower() for word in ('neem', 'clay', 'tea tree', 'turmeric'))]
-            remedies = acne_remedies + [r for r in remedies if r not in acne_remedies]
+    # Map aliases
+    issue_keys = []
+    for raw in (detected_issues or []):
+        r = str(raw).lower()
+        if 'cystic' in r or 'hormon' in r:
+            issue_keys.append('cystic_acne')
+        elif 'blackhead' in r or 'pore' in r:
+            issue_keys.append('blackheads_pores')
+        elif 'acne' in r or 'breakout' in r:
+            issue_keys.append('acne')
+        elif 'melasma' in r:
+            issue_keys.append('melasma')
+        elif 'dark circle' in r or 'under eye' in r:
+            issue_keys.append('dark_circles')
+        elif 'pigment' in r or 'pih' in r:
+            issue_keys.append('pigmentation')
+        elif 'dull' in r:
+            issue_keys.append('dull_skin')
+        elif 'line' in r or 'wrinkle' in r or 'aging' in r:
+            issue_keys.append('fine_lines')
+        elif 'red' in r or 'rosacea' in r:
+            issue_keys.append('redness_rosacea')
+        elif 'barrier' in r or 'sting' in r:
+            issue_keys.append('barrier_damage')
+        elif 'dehydrat' in r:
+            issue_keys.append('dehydration')
 
-        if 'dark circles' in detected_issues:
-            remedies.append('Aloe vera under-eye mask (3x weekly)')
-            remedies.append('Cucumber + rose water compress (morning)')
+    # Deduplicate while preserving order
+    seen = set()
+    cleaned_issues = [x for x in issue_keys if not (x in seen or seen.add(x))]
+
+    # Gather synergistic ingredients and solutions
+    synergies = []
+    avoids = set()
+    custom_remedies = list(base_data['remedies'])
+    am_special_steps = []
+    pm_special_steps = []
+
+    for k in cleaned_issues:
+        sol = SKIN_CONCERN_SOLUTIONS.get(k)
+        if sol:
+            synergies.append({
+                'concern': sol['title'],
+                'clinical_active': sol['clinical_active'],
+                'ayurvedic_herb': sol['ayurvedic_herb'],
+                'synergy_explanation': sol['synergy'],
+                'key_am_step': sol['am_step'],
+                'key_pm_step': sol['pm_step']
+            })
+            avoids.add(sol['avoid'])
+            if sol['remedy'] not in custom_remedies:
+                custom_remedies.insert(0, sol['remedy'])
+            am_special_steps.append(sol['am_step'])
+            pm_special_steps.append(sol['pm_step'])
+
+    # Build structured AM steps
+    am_routine = [
+        {
+            'step': 1,
+            'phase': 'Cleanse',
+            'product': 'Gentle Non-Stripping Cleanser',
+            'instructions': 'Use lukewarm water. Massage for 45-60 seconds in circular motions; do not pull skin.',
+            'focus': 'Preserve natural acid mantle (pH 5.5)'
+        },
+        {
+            'step': 2,
+            'phase': 'Tone / Prep',
+            'product': 'Hydrosol & Botanical Essence',
+            'instructions': 'Pat gently onto damp face (Pure Rose, Centella, or Vetiver hydrosol).',
+            'focus': 'Cellular hydration prep'
+        },
+        {
+            'step': 3,
+            'phase': 'Target Treatment',
+            'product': am_special_steps[0] if am_special_steps else 'Antioxidant Niacinamide 5% + Hyaluronic Acid Serum',
+            'instructions': 'Smooth 2-3 drops evenly over face and neck before moisturizing.',
+            'focus': 'Targeted active delivery'
+        },
+        {
+            'step': 4,
+            'phase': 'Moisturize',
+            'product': 'Barrier Replenishing Fluid or Cream',
+            'instructions': 'Apply pea-sized amount to lock in hydration and reinforce lipid matrix.',
+            'focus': 'Ceramides, squalane & moisture seal'
+        },
+        {
+            'step': 5,
+            'phase': 'Sun Protection',
+            'product': 'Broad Spectrum Sunscreen SPF 50+ PA++++',
+            'instructions': 'Apply two finger-lengths generously. Reapply every 2-3 hours if outdoors.',
+            'focus': 'UV & visible light defense'
+        }
+    ]
+
+    # Build structured PM steps
+    pm_routine = [
+        {
+            'step': 1,
+            'phase': 'First Cleanse',
+            'product': 'Micellar Water or Botanical Cleansing Balm',
+            'instructions': 'Melt away sunscreen, ambient micro-pollutants, and excess oxidized sebum.',
+            'focus': 'Gentle breakdown of oil-soluble grime'
+        },
+        {
+            'step': 2,
+            'phase': 'Second Cleanse',
+            'product': 'Balancing pH 5.5 Gel or Milk Wash',
+            'instructions': 'Wash with fingertips to ensure a perfectly clean, calm canvas.',
+            'focus': 'Water-soluble residue removal'
+        },
+        {
+            'step': 3,
+            'phase': 'Repair & Active',
+            'product': pm_special_steps[0] if pm_special_steps else (base_data['routine']['night'][2] if len(base_data['routine']['night']) > 2 else 'Botanical Renewal Complex'),
+            'instructions': 'Apply onto dry skin. Allow 2 minutes to absorb before sealing.',
+            'focus': 'Cellular turnover and overnight repair'
+        },
+        {
+            'step': 4,
+            'phase': 'Overnight Barrier Seal',
+            'product': 'Lipid Recovery Cream + 2 drops Kumkumadi / Squalane',
+            'instructions': 'Warm in palms and press into skin for complete transepidermal barrier protection.',
+            'focus': 'Prevent nocturnal TEWL (water evaporation)'
+        }
+    ]
+
+    # Weekly DIY herbal mask
+    if 'barrier_damage' in cleaned_issues or skin_type == 'sensitive':
+        weekly_mask = {
+            'title': 'Soothing Oat & Chandan Barrier Pacifier',
+            'frequency': '1-2 times weekly',
+            'ingredients': '1 tbsp Colloidal Oatmeal, 1/2 tsp White Sandalwood powder, 2 tbsp pure Aloe vera gel',
+            'preparation': 'Mix into a smooth paste. Apply for 12-15 minutes. Rinse gently with cool water without scrubbing.',
+            'benefits': 'Instantly dispels cutaneous heat, calms micro-vessels, and reinforces stratum corneum lipids.'
+        }
+    elif 'acne' in cleaned_issues or 'cystic_acne' in cleaned_issues or skin_type == 'oily':
+        weekly_mask = {
+            'title': 'Purifying Neem, Triphala & Clay Detox Lepa',
+            'frequency': '2 times weekly',
+            'ingredients': '1 tbsp Multani Mitti (Fuller\'s Earth), 1/2 tsp Neem leaf powder, 1 pinch Kasturi Turmeric, Rose water',
+            'preparation': 'Form a silky paste. Apply for 10 minutes. Rinse before it cracks dry to prevent drawing moisture out.',
+            'benefits': 'Draws follicular congestion, destroys surface microbes, and refines enlarged pores.'
+        }
+    elif 'pigmentation' in cleaned_issues or 'melasma' in cleaned_issues or 'dull_skin' in cleaned_issues:
+        weekly_mask = {
+            'title': 'Royal Kashmiri Saffron & Yashtimadhu Radiance Pack',
+            'frequency': '2 times weekly',
+            'ingredients': '1 tbsp Gram flour (Besan), 1/2 tsp Licorice (Yashtimadhu) powder, 2 strands crushed Saffron, 1 tbsp raw milk/rose water',
+            'preparation': 'Let saffron steep in warm milk for 5 mins, blend all ingredients into paste. Leave on for 15 mins and wash off.',
+            'benefits': 'Inhibits localized tyrosinase, accelerates cellular shedding of post-acne dark spots, and restores natural glow.'
+        }
+    else:
+        weekly_mask = {
+            'title': 'Tridoshic Honey & Rose Rejuvenating Lepa',
+            'frequency': 'Weekly',
+            'ingredients': '1 tbsp Raw forest Honey, 1 tsp Rose hydrosol, 1/2 tsp pure Sandalwood powder',
+            'preparation': 'Whisk together and apply all over face for 15-20 minutes. Rinse with lukewarm water.',
+            'benefits': 'Gentle enzymatic renewal, intense humectant hydration, and harmonized skin texture.'
+        }
+
+    # Dietary & internal wellness advice
+    diet_guidance = [
+        'Optimal Hydration: Sip 2.5 - 3 Liters of room-temperature or copper-infused water daily; avoid ice-cold water that dampens digestive Agni.',
+        'Herbal Infusion: Drink cumin-coriander-fennel (CCF) tea to eliminate metabolic Ama (toxins) that manifest as cutaneous breakouts.',
+        'Antioxidant Shield: Consume Indian Gooseberry (Amla) daily — richest natural source of stable Vitamin C for natural collagen formation.',
+        'Healthy Fats: Include 1 tsp organic A2 Ghee, soaked walnuts, and flaxseeds daily to nourish the skin lipid matrix from within.',
+        'Pitta Cooling: If experiencing redness or active acne, avoid deep-fried foods, excessive green chilies, and refined sugars.'
+    ]
+
+    # General avoid list
+    general_avoids = [
+        'Never use rough apricot/walnut kernel scrubs (causes micro-tears and accelerates inflammatory hyperpigmentation).',
+        'Avoid washing your face with hot water (melts away vital skin barrier lipids and triggers reactive sebum surges).',
+        'Do not combine strong BHA acids with high-strength Retinoids in the same application routine.',
+        'Avoid picking or popping inflammatory blemishes (causes permanent dermal scarring and deep PIH).'
+    ]
+    for av in avoids:
+        if av and av not in general_avoids:
+            general_avoids.insert(0, av)
 
     return {
         'skin_type': skin_type.upper(),
-        'characteristics': data['characteristics'],
-        'remedies': remedies[:6],
-        'routine': data['routine'],
-        'diet_tips': list(GENERAL_SKINCARE_DIET)
+        'dosha_profile': base_data.get('dosha', 'Balanced Tridosha'),
+        'barrier_status': base_data.get('barrier_status', 'Intact'),
+        'characteristics': base_data['characteristics'],
+        'synergies': synergies,
+        'am_routine': am_routine,
+        'pm_routine': pm_routine,
+        'weekly_ritual': weekly_mask,
+        'avoid_list': general_avoids[:5],
+        'remedies': custom_remedies[:6],
+        'routine': base_data['routine'],
+        'diet_tips': diet_guidance,
+        'disclaimer': 'This holistic advisor combines clinical dermatology standards with traditional Ayurvedic principles for informational decision support. Consult a licensed dermatologist for chronic dermatological conditions.'
     }
 
 
@@ -377,24 +747,41 @@ def register_ayurveda_routes(app):
             data = request.json or {}
             skin_type = data.get('skin_type', '').strip().lower()
             issues = data.get('issues', [])
+            age_group = data.get('age_group')
+            climate = data.get('climate')
+            experience_level = data.get('experience_level')
             image_analysis = data.get('image_analysis')
 
             if not skin_type:
                 return jsonify({'error': 'skin_type field required'}), 400
 
-            refined_type, confidence = analyze_skin_type(skin_type, image_analysis)
-            recommendations = get_skin_recommendations(refined_type, issues)
+            refined_type, confidence, visual_metrics = analyze_skin_type(skin_type, image_analysis)
+            regimen = get_comprehensive_skin_regimen(
+                refined_type,
+                detected_issues=issues,
+                age_group=age_group,
+                climate=climate,
+                experience_level=experience_level
+            )
 
             response = {
                 'success': True,
                 'skin_type': refined_type,
                 'confidence': f"{confidence}%",
                 'detected_issues': issues,
-                'characteristics': recommendations['characteristics'],
-                'remedies': recommendations['remedies'],
-                'routine': recommendations['routine'],
-                'diet_tips': recommendations['diet_tips'],
-                'disclaimer': 'This is an informational tool. For persistent skin issues, consult a dermatologist.'
+                'dosha_profile': regimen['dosha_profile'],
+                'barrier_status': regimen['barrier_status'],
+                'characteristics': regimen['characteristics'],
+                'synergies': regimen['synergies'],
+                'am_routine': regimen['am_routine'],
+                'pm_routine': regimen['pm_routine'],
+                'weekly_ritual': regimen['weekly_ritual'],
+                'avoid_list': regimen['avoid_list'],
+                'visual_metrics': visual_metrics,
+                'remedies': regimen['remedies'],
+                'routine': regimen['routine'],
+                'diet_tips': regimen['diet_tips'],
+                'disclaimer': regimen['disclaimer']
             }
             return jsonify(response), 200
         except Exception as e:

@@ -2216,59 +2216,152 @@
 
     <!-- Tab 2: Skin Care Advisor -->
     <div class="ayurveda-tab-content" id="tab-skin">
+      <!-- Step 1: Skin Type -->
       <div class="panel-card">
         <div class="panel-card-header"><i data-lucide="sparkles" style="width:20px;height:20px"></i><h3>Step 1: Select Your Skin Type</h3></div>
         <div class="panel-card-body">
+          <p style="color:var(--slate-600);margin-bottom:0.75rem;font-size:0.9rem;">Choose the description that best fits how your skin feels 1-2 hours after gentle cleansing without moisturizer:</p>
           <div class="skin-type-grid">
             <button class="skin-type-btn" data-skin="oily" onclick="selectSkinType('oily')">
-              <div class="skin-type-icon">💧</div><strong>Oily</strong><p>Shiny, enlarged pores</p>
+              <div class="skin-type-icon">💧</div><strong>Oily</strong><p>Shiny, enlarged pores, acne-prone</p>
             </button>
             <button class="skin-type-btn" data-skin="dry" onclick="selectSkinType('dry')">
-              <div class="skin-type-icon">🏜️</div><strong>Dry</strong><p>Tight, flaky feeling</p>
+              <div class="skin-type-icon">🏜️</div><strong>Dry</strong><p>Tight, flaky feeling, low oil</p>
             </button>
             <button class="skin-type-btn" data-skin="combination" onclick="selectSkinType('combination')">
-              <div class="skin-type-icon">⚖️</div><strong>Combination</strong><p>Mixed T-zone</p>
+              <div class="skin-type-icon">⚖️</div><strong>Combination</strong><p>Oily T-zone, dry cheeks</p>
             </button>
             <button class="skin-type-btn" data-skin="sensitive" onclick="selectSkinType('sensitive')">
-              <div class="skin-type-icon">🌺</div><strong>Sensitive</strong><p>Easily reactive</p>
+              <div class="skin-type-icon">🌺</div><strong>Sensitive</strong><p>Easily reactive, stinging/flushed</p>
+            </button>
+            <button class="skin-type-btn" data-skin="normal" onclick="selectSkinType('normal')">
+              <div class="skin-type-icon">🌿</div><strong>Normal</strong><p>Balanced moisture, even texture</p>
             </button>
           </div>
         </div>
       </div>
+
+      <!-- Step 2: Specific Concerns -->
       <div class="panel-card" style="margin-top:1.5rem;">
-        <div class="panel-card-header"><i data-lucide="check-circle-2" style="width:20px;height:20px"></i><h3>Step 2: Choose Issues (Optional)</h3></div>
+        <div class="panel-card-header"><i data-lucide="target" style="width:20px;height:20px"></i><h3>Step 2: Choose Primary Targets & Concerns (Select all that apply)</h3></div>
         <div class="panel-card-body">
           <div class="skin-issues-grid">
-            <label class="checkbox-label"><input type="checkbox" value="acne" onchange="toggleSkinIssue('acne')"/><span>Acne &amp; Breakouts</span></label>
-            <label class="checkbox-label"><input type="checkbox" value="pigmentation" onchange="toggleSkinIssue('pigmentation')"/><span>Pigmentation</span></label>
-            <label class="checkbox-label"><input type="checkbox" value="dark circles" onchange="toggleSkinIssue('dark circles')"/><span>Dark Circles</span></label>
-            <label class="checkbox-label"><input type="checkbox" value="dull skin" onchange="toggleSkinIssue('dull skin')"/><span>Dull Skin</span></label>
-            <label class="checkbox-label"><input type="checkbox" value="wrinkles" onchange="toggleSkinIssue('wrinkles')"/><span>Fine Lines</span></label>
-            <label class="checkbox-label"><input type="checkbox" value="redness" onchange="toggleSkinIssue('redness')"/><span>Redness</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="acne" onchange="toggleSkinIssue('acne')"/><span>Acne &amp; Active Breakouts</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="cystic_acne" onchange="toggleSkinIssue('cystic_acne')"/><span>Cystic &amp; Hormonal Blemishes</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="blackheads_pores" onchange="toggleSkinIssue('blackheads_pores')"/><span>Enlarged Pores &amp; Blackheads</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="pigmentation" onchange="toggleSkinIssue('pigmentation')"/><span>Dark Spots &amp; Acne Marks (PIH)</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="melasma" onchange="toggleSkinIssue('melasma')"/><span>Melasma &amp; Sun Discoloration</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="dark circles" onchange="toggleSkinIssue('dark circles')"/><span>Dark Circles &amp; Eye Puffiness</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="dull skin" onchange="toggleSkinIssue('dull skin')"/><span>Dull Skin &amp; Uneven Glow</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="fine_lines" onchange="toggleSkinIssue('fine_lines')"/><span>Fine Lines &amp; Firmness Loss</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="redness_rosacea" onchange="toggleSkinIssue('redness_rosacea')"/><span>Persistent Redness / Rosacea</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="barrier_damage" onchange="toggleSkinIssue('barrier_damage')"/><span>Compromised / Stinging Barrier</span></label>
+            <label class="checkbox-label"><input type="checkbox" value="dehydration" onchange="toggleSkinIssue('dehydration')"/><span>Dehydrated Skin (Water-Deficient)</span></label>
           </div>
         </div>
       </div>
+
+      <!-- Step 3: Context & Environment -->
       <div class="panel-card" style="margin-top:1.5rem;">
-        <div class="panel-card-header"><i data-lucide="camera" style="width:20px;height:20px"></i><h3>Step 3: Optional - Camera Scan (for better accuracy)</h3></div>
+        <div class="panel-card-header"><i data-lucide="sliders" style="width:20px;height:20px"></i><h3>Step 3: Personal Context &amp; Climate Profile</h3></div>
         <div class="panel-card-body">
-          <p style="color:var(--slate-600);margin-bottom:1rem;font-size:0.95rem;">Take a photo under natural light for AI to analyze brightness and imperfections</p>
-          <div id="camera-container" style="display:none;margin:1rem 0;">
-            <video id="camera-video" style="width:100%;max-width:400px;border-radius:0.6rem;margin-bottom:1rem;background:#000;"></video>
-            <div style="display:flex;gap:0.5rem;">
-              <button class="btn-blue" onclick="capturePhoto()"><i data-lucide="camera" style="width:16px;height:16px"></i> Capture</button>
-              <button class="btn-outline" onclick="stopCamera()">Cancel</button>
+          <div class="skin-context-grid">
+            <div class="skin-select-box">
+              <label><i data-lucide="user" style="width:14px;height:14px"></i> Age Bracket</label>
+              <select id="skin-age-group" class="skin-select-input">
+                <option value="under_20">&lt; 20 years (Sebum Balance)</option>
+                <option value="20_30" selected>20 - 30 years (Antioxidant &amp; Prevention)</option>
+                <option value="30_45">30 - 45 years (Collagen &amp; Cell Renewal)</option>
+                <option value="45_plus">45+ years (Deep Lipid Replenishment)</option>
+              </select>
+            </div>
+            <div class="skin-select-box">
+              <label><i data-lucide="cloud-sun" style="width:14px;height:14px"></i> Climate / Environment</label>
+              <select id="skin-climate" class="skin-select-input">
+                <option value="hot_humid" selected>Hot &amp; Humid (Gel textures, oil control)</option>
+                <option value="cold_dry">Cold &amp; Dry (Barrier replenishment)</option>
+                <option value="polluted_urban">Polluted Urban (Heavy antioxidant defense)</option>
+                <option value="temperate">Moderate / Temperate (Balanced care)</option>
+              </select>
+            </div>
+            <div class="skin-select-box">
+              <label><i data-lucide="layers" style="width:14px;height:14px"></i> Routine Experience</label>
+              <select id="skin-experience" class="skin-select-input">
+                <option value="beginner">Beginner (3-Step Core Essentials)</option>
+                <option value="intermediate" selected>Intermediate (Targeted Active Serums)</option>
+                <option value="advanced">Advanced (Cycling &amp; Potent Actives)</option>
+              </select>
             </div>
           </div>
-          <canvas id="camera-canvas" style="display:none;"></canvas>
-          <div id="camera-preview" style="display:none;margin:1rem 0;">
-            <img id="preview-img" style="max-width:100%;max-height:300px;border-radius:0.6rem;margin-bottom:1rem;" />
-            <button class="btn-green" onclick="useAndroidCameraAgain()">Use a Different Photo</button>
-          </div>
-          <button class="btn-outline w-full" onclick="toggleCamera()"><i data-lucide="camera" style="width:16px;height:16px"></i> Open Camera</button>
         </div>
       </div>
+
+      <!-- Step 4: Camera Scan or Upload -->
       <div class="panel-card" style="margin-top:1.5rem;">
-        <button class="btn-blue w-full" style="font-size:1rem;padding:1rem;" onclick="runSkinAnalysis()"><i data-lucide="zap" style="width:18px;height:18px"></i> Analyze My Skin</button>
+        <div class="panel-card-header"><i data-lucide="camera" style="width:20px;height:20px"></i><h3>Step 4: Optional - Facial Scan or Photo Upload</h3></div>
+        <div class="panel-card-body">
+          <p style="color:var(--slate-600);margin-bottom:1rem;font-size:0.92rem;">
+            Provide a selfie under natural lighting for our computer vision heuristic to detect surface shine, vascular redness index, and tonal contrast:
+          </p>
+          
+          <div class="skin-scanner-tabs">
+            <button type="button" class="skin-scanner-tab-btn active" id="btn-scan-webcam" onclick="setScannerMode('webcam')">
+              <i data-lucide="video" style="width:16px;height:16px"></i> Live Camera
+            </button>
+            <button type="button" class="skin-scanner-tab-btn" id="btn-scan-upload" onclick="setScannerMode('upload')">
+              <i data-lucide="upload-cloud" style="width:16px;height:16px"></i> Upload Photo / File
+            </button>
+          </div>
+
+          <!-- Live Camera Mode -->
+          <div id="scanner-mode-webcam">
+            <div id="camera-container" style="display:none;margin:1rem 0;">
+              <div class="camera-viewport">
+                <video id="camera-video" playsinline style="width:100%;height:320px;object-fit:cover;"></video>
+                <div class="camera-face-overlay"><span>ALIGN FACE HERE</span></div>
+              </div>
+              <div style="display:flex;gap:0.75rem;justify-content:center;">
+                <button class="btn-blue" onclick="capturePhoto()"><i data-lucide="camera" style="width:16px;height:16px"></i> Capture Face</button>
+                <button class="btn-outline" onclick="stopCamera()">Close Camera</button>
+              </div>
+            </div>
+            <button id="btn-open-camera-trigger" class="btn-outline w-full" onclick="toggleCamera()"><i data-lucide="camera" style="width:16px;height:16px"></i> Open Live Camera</button>
+          </div>
+
+          <!-- File Upload Mode -->
+          <div id="scanner-mode-upload" style="display:none;">
+            <div class="skin-upload-dropzone" onclick="document.getElementById('skin-file-input').click()">
+              <i data-lucide="image-plus" style="width:36px;height:36px;color:var(--purple-600);margin-bottom:0.5rem;"></i>
+              <h4 style="font-size:1rem;font-weight:700;color:var(--slate-800);margin-bottom:0.25rem;">Click to browse or drop selfie here</h4>
+              <p style="font-size:0.82rem;color:var(--slate-500);margin:0;">Supports JPG, PNG, WebP (under 5MB)</p>
+              <input type="file" id="skin-file-input" accept="image/*" style="display:none;" onchange="handleSkinFileUpload(event)"/>
+            </div>
+          </div>
+
+          <!-- Hidden processing canvas -->
+          <canvas id="camera-canvas" style="display:none;"></canvas>
+
+          <!-- Preview & Visual Metrics Card -->
+          <div id="camera-preview" style="display:none;margin-top:1.25rem;">
+            <div style="display:flex;gap:1.25rem;align-items:center;background:#f8fafc;padding:1rem;border-radius:1rem;border:1px solid var(--slate-200);flex-wrap:wrap;">
+              <img id="preview-img" style="width:100px;height:100px;border-radius:0.75rem;object-fit:cover;border:2px solid var(--purple-500);" />
+              <div style="flex:1;min-width:220px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+                  <span style="font-size:0.88rem;font-weight:800;color:var(--slate-900);">✨ Face Scan Analyzed</span>
+                  <button class="btn-sm btn-outline" style="padding:0.2rem 0.6rem;font-size:0.78rem;" onclick="resetSkinPhoto()">Change</button>
+                </div>
+                <div id="preview-metrics-container" class="visual-metrics-grid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button & Results -->
+      <div class="panel-card" style="margin-top:1.5rem;">
+        <button class="btn-blue w-full" style="font-size:1.05rem;padding:1.1rem;font-weight:800;letter-spacing:0.3px;display:flex;align-items:center;justify-content:center;gap:0.6rem;" onclick="runSkinAnalysis()">
+          <i data-lucide="sparkles" style="width:20px;height:20px"></i> Generate Bespoke Skincare Regimen
+        </button>
         <div id="skin-analysis-results" style="margin-top:1.5rem;"></div>
       </div>
     </div>
