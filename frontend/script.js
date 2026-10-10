@@ -8260,6 +8260,9 @@ function switchAyurvedaTab(tabName) {
   if (contentEl) contentEl.classList.add('active');
   const btnEl = document.querySelector(`[data-tab="${tabName}"]`);
   if (btnEl) btnEl.classList.add('active');
+  if (window.lucide) {
+    setTimeout(() => lucide.createIcons(), 50);
+  }
 }
 
 async function runAyurvedaSymptomAnalysis() {
